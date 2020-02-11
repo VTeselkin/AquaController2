@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="io.sloeber.core.toolChain.release.1575218118">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.1575218118" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.1575218118" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="io.sloeber.core.toolChain.release.1575218118.256155012" name="/" resourcePath="">
+						<toolChain id="io.sloeber.core.toolChain.release.1102394483" name="Arduino Toolchain (Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1002076267" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
+							<builder buildPath="${workspace_loc:/AquaController_v2}/Release" id="io.sloeber.sketch.builder.1473894184" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
+							<tool id="io.sloeber.tool.sketch.compiler.cpp.1721430038" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.cpp.sketch.option.incpath.1824255623" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ArduinoJson/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DallasTemperature}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DS3231}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/NTPClient}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ADS1X15}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaAnalog}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaCanal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaEEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHelper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHTTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaNTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaStop}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTemp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTimers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaUpdate}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaWiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DNSServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/FS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WIFIMANAGER-ESP32}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaPing}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPIFFS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Update/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFiClientSecure/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32httpUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP8266Ping/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/PCA9685/src}&quot;"/>
+								</option>
+								<inputType id="io.sloeber.compiler.cpp.sketch.input.1587540318" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
+							</tool>
+							<tool id="io.sloeber.tool.compiler.c.1774022928" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.1259870464" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ArduinoJson/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DallasTemperature}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DS3231}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/NTPClient}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ADS1X15}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaAnalog}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaCanal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaEEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHelper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHTTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaNTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaStop}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTemp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTimers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaUpdate}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaWiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DNSServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/FS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WIFIMANAGER-ESP32}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaPing}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPIFFS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Update/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFiClientSecure/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32httpUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP8266Ping/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/PCA9685/src}&quot;"/>
+								</option>
+								<inputType id="io.sloeber.compiler.c.sketch.input.1273267746" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
+							</tool>
+							<tool id="io.sloeber.tool.sketch.compiler.s.22603999" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.557880869" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ArduinoJson/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DallasTemperature}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DS3231}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/NTPClient}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ADS1X15}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaAnalog}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaCanal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaEEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHelper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaHTTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaNTP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaStop}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTemp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaTimers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaUpdate}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaWiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/DNSServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/EEPROM/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Wire/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/FS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WIFIMANAGER-ESP32}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/AquaPing}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/SPIFFS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/Update/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/WiFiClientSecure/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/HTTPUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP32httpUpdate/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/ESP8266Ping/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AquaController_v2/libraries/PCA9685/src}&quot;"/>
+								</option>
+								<inputType id="io.sloeber.compiler.S.sketch.input.1130876423" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
+							</tool>
+							<tool id="io.sloeber.tool.ar.1954513732" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
+							<tool id="io.sloeber.tool.combine.740419098" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
+							<tool id="io.sloeber.tool.objcopy.eep.635878670" name="Arduino tool objcopy command" superClass="io.sloeber.tool.objcopy.eep"/>
+							<tool id="io.sloeber.tool.size.1240273369" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="libraries/AquaPing/PingTest|libraries/WIFIMANAGER-ESP32/travis|libraries/Wire/doc|libraries/ArduinoJson/scripts|libraries/ArduinoJson/fuzzing|libraries/Time/docs|libraries/ESP8266Ping/1.0.0|libraries/WiFiManager/travis|libraries/OneWire/util|libraries/OneWire/docs|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries/**/._*|libraries/?*/utility/*/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="AquaController_v2.null.970589786" name="AquaController_v2"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/AquaController_v2"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>
