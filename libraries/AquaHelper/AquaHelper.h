@@ -104,7 +104,10 @@
 #define MAX_LEVEL_PH 17600 //https://microcontrollerslab.com/ads1115-external-adc-with-esp32/
 
 #define TONE_PIN 2
+<<<<<<< HEAD
 
+=======
+>>>>>>> branch 'master' of https://github.com/VTeselkin/AquaController2.git
 #define BUZZER_CHANNEL 0
 /**
  * Addressing memory to store device states

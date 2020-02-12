@@ -6,10 +6,15 @@
  */
 
 #include "AquaCanal.h"
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch 'master' of https://github.com/VTeselkin/AquaController2.git
 
 void AquaCanal::Init() {
 	Wire.begin();                       // Wire must be started first
 	Wire.setClock(400000);              // Supported baud rates are 100kHz, 400kHz, and 1000kHz
+<<<<<<< HEAD
 
 	const int freq = 5000;
 	const int resolution = 12;
@@ -23,6 +28,10 @@ void AquaCanal::Init() {
 			ledcAttachPin(Helper.data.nPWMDrive[i - MAX_CHANALS], i);
 		}
 	}
+=======
+	ledcSetup(ledChannel, freq, resolution);
+
+>>>>>>> branch 'master' of https://github.com/VTeselkin/AquaController2.git
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
@@ -35,8 +44,12 @@ void AquaCanal::SetCanal(byte canal, byte state) {
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
+<<<<<<< HEAD
 	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
 	ledcWrite(canal, level);
+=======
+	pwmController.setPWM(num, on, off)(canal, level);
+>>>>>>> branch 'master' of https://github.com/VTeselkin/AquaController2.git
 }
 
 byte AquaCanal::GetCanal(byte canal) {
