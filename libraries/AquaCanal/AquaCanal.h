@@ -6,7 +6,6 @@
  */
 #pragma once
 #include "Arduino.h"
-#include <PCA9685.h>
 #include <AquaHelper.h>
 
 class AquaCanal{

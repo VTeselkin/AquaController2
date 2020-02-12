@@ -6,14 +6,13 @@
  */
 
 #include "AquaCanal.h"
-PCA9685 pwmController;
+
 
 void AquaCanal::Init() {
 	Wire.begin();                       // Wire must be started first
 	Wire.setClock(400000);              // Supported baud rates are 100kHz, 400kHz, and 1000kHz
-	pwmController.resetDevices();       // Software resets all PCA9685 devices on Wire line
-	pwmController.init(B000000);        // Address pins A5-A0 set to B000000
-	pwmController.setPWMFrequency(100); // Default is 200Hz, supports 24Hz to 1526Hz
+	ledcSetup(ledChannel, freq, resolution);
+
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
@@ -25,7 +24,7 @@ void AquaCanal::SetCanal(byte canal, byte state) {
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	pwmController.setChannelPWM(canal, level);
+	pwmController.setPWM(num, on, off)(canal, level);
 }
 
 byte AquaCanal::GetCanal(byte canal) {

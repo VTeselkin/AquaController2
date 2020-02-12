@@ -102,6 +102,9 @@
 
 #define MAX_TIMERS_PH 2
 #define MAX_LEVEL_PH 17600 //https://microcontrollerslab.com/ads1115-external-adc-with-esp32/
+
+#define TONE_PIN 2
+#define BUZZER_CHANNEL 0
 /**
  * Addressing memory to store device states
  */
@@ -252,11 +255,13 @@ const byte STEP_PH = 10;
 const float Ph6_86 = 6.86f;
 const float Ph4_01 = 4.01f;
 
+
+
 typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
-String GetJsonValue(const byte arrayData[], const byte count);
-String GetJsonValue(const word arrayData[], const byte count);
+String GetJsonValue(const uint8_t arrayData[], const byte count);
+String GetJsonValue(const uint16_t arrayData[], const byte count);
 
 bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject& root);
 
@@ -411,6 +416,8 @@ public:
 	static tmElements_t GetTimeNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
+	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
+	static void ESP_noTone(uint8_t pin, uint8_t channel);
 private:
 };
 
