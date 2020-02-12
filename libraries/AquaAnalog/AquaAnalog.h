@@ -7,7 +7,6 @@
 #pragma once
 #include "Arduino.h"
 #include <AquaHelper.h>
-#include <Adafruit_ADS1015.h>
 
 class AquaAnalog {
 public:

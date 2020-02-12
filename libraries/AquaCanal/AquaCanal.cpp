@@ -6,42 +6,56 @@
  */
 
 #include "AquaCanal.h"
-PCA9685 pwmController;
 
 void AquaCanal::Init() {
 	Wire.begin();                       // Wire must be started first
 	Wire.setClock(400000);              // Supported baud rates are 100kHz, 400kHz, and 1000kHz
-	pwmController.resetDevices();       // Software resets all PCA9685 devices on Wire line
-	pwmController.init(B000000);        // Address pins A5-A0 set to B000000
-	pwmController.setPWMFrequency(100); // Default is 200Hz, supports 24Hz to 1526Hz
+
+	const int freq = 5000;
+	const int resolution = 12;
+
+	for (byte i = 0; i < MAX_CHANALS + MAX_CHANALS_PWM; i++) {
+
+		ledcSetup(i, freq, resolution);
+		if (i < MAX_CHANALS) {
+			ledcAttachPin(Helper.data.nRelayDrive[i], i);
+		} else {
+			ledcAttachPin(Helper.data.nPWMDrive[i - MAX_CHANALS], i);
+		}
+	}
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
+	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
 	if (state == HIGH) {
-		pwmController.setChannelOn(canal);
+		ledcWrite(canal, MAX_PWM_POWER_CALCULATE);
 	} else if (state == LOW) {
-		pwmController.setChannelOff(canal);
+		ledcWrite(canal, 0);
 	}
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	pwmController.setChannelPWM(canal, level);
+	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	ledcWrite(canal, level);
 }
 
 byte AquaCanal::GetCanal(byte canal) {
-	if (pwmController.getChannelPWM(canal) > 0) {
+	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	if (ledcRead(canal) > 0) {
 		return HIGH;
 	} else {
 		return LOW;
 	}
 }
 
-word AquaCanal::GetPWMCanalLevel(byte canal) {
-	return pwmController.getChannelPWM(canal);
+uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
+	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	return ledcRead(canal);
 }
 
 byte AquaCanal::GetPWMCanalState(byte canal) {
-	if (pwmController.getChannelPWM(canal) > 0) {
+	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	if (ledcRead(canal) > 0) {
 		return HIGH;
 	} else {
 		return LOW;
@@ -127,3 +141,4 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 
 	}
 }
+

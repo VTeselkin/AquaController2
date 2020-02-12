@@ -81,9 +81,9 @@
 // Maximum possible maximum temperature
 #define MAX_TEMP 3500
 //Maximum number of PWM canals
-#define MAX_CHANALS_PWM 5
+#define MAX_CHANALS_PWM 4
 //Maximum number of Power PWM canals
-#define  MAX_PWM_POWER_CALCULATE 4096
+#define  MAX_PWM_POWER_CALCULATE 32768
 //Maximum number of analog canals
 #define MAX_ADC_CANAL 4
 //Buffer size for UDP
@@ -102,6 +102,10 @@
 
 #define MAX_TIMERS_PH 2
 #define MAX_LEVEL_PH 17600 //https://microcontrollerslab.com/ads1115-external-adc-with-esp32/
+
+#define TONE_PIN 2
+
+#define BUZZER_CHANNEL 0
 /**
  * Addressing memory to store device states
  */
@@ -252,11 +256,13 @@ const byte STEP_PH = 10;
 const float Ph6_86 = 6.86f;
 const float Ph4_01 = 4.01f;
 
+
+
 typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
-String GetJsonValue(const byte arrayData[], const byte count);
-String GetJsonValue(const word arrayData[], const byte count);
+String GetJsonValue(const uint8_t arrayData[], const byte count);
+String GetJsonValue(const uint16_t arrayData[], const byte count);
 
 bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject& root);
 
@@ -300,8 +306,9 @@ typedef struct {
 	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = {};
 
 	// Enabled channels for relays
-	const byte nRelayDrive[MAX_CHANALS] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+	const byte nRelayDrive[MAX_CHANALS] = { 16, 17, 18, 19, 21, 22, 23, 25 };
 
+	const byte nPinsESP32[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 8, 9, 10, 0, 0 , 0, 0, 11, 12, 0, 0, 0, 0, 0, 0 };
 	/**
 	 * The array of the current PWM canals status
 	 * OFF_CHANAL 1
@@ -339,7 +346,7 @@ typedef struct {
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
-	const byte nPWMDrive[MAX_CHANALS_PWM] = { 8, 9, 10, 11, 12 };
+	const byte nPWMDrive[MAX_CHANALS_PWM] = { 26, 27, 32, 33 };
 
 	byte TimerPWMHourStart[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMHourEnd[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -355,11 +362,11 @@ typedef struct {
 	 * ON_CHANAL 2
 	 * AUTO_CHANAL 3
 	 */
-	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3, 3 };
+	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3 };
 	/**
 	 * The array of the current PWM canals power level
 	 */
-	word PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0, 0 };
+	word PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0 };
 	/**
 	 * Array of types of timers that enabled the canals
 	 * TIMER_OFF 1
@@ -370,7 +377,7 @@ typedef struct {
 	 * TIMER_TEMP 6
 	 * TIMER_PWM 7
 	 */
-	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1 };
+	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1 };
 	unsigned long TimetoCheckPWMstate[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
@@ -384,6 +391,9 @@ typedef struct {
 	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = {};
 	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0 };
 
+	/** ------------------------------------ADC-------------------------------------- */
+	//Enabled canals for ADC
+		const byte nADCPins[MAX_CHANALS_PWM] = { 34, 35, 36, 39 };
 	/** ----------------------------------------------------------------------------- */
 } dataController;
 
@@ -411,6 +421,8 @@ public:
 	static tmElements_t GetTimeNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
+	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
+	static void ESP_noTone(uint8_t pin, uint8_t channel);
 private:
 };
 

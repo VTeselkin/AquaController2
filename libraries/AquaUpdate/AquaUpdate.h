@@ -9,8 +9,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <AquaHelper.h>
-#include <FS.h>
-#include <ESP32httpUpdate.h>
+#include <HttpUpdate.h>
+
 
 
 #ifndef LIBRARIES_AQUAUPDATE_AQUAUPDATE_H_

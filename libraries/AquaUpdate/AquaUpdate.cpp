@@ -6,8 +6,12 @@
  */
 
 #include "AquaUpdate.h"
-#include <ESP32httpUpdate.h>
+#include <HttpClient.h>
+#include <SPIFFS.h>
+#include <FS.h>
 
+HTTPClient httpUpdateClient;
+WiFiClient client;
 void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffe) {
 	String url = "";
 
@@ -16,9 +20,9 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 	if (url.length() > 0) {
 		if (isForce) {
 			SPIFFS.format();
-			ESPhttpUpdate.rebootOnUpdate(false);
-			   ESPhttpUpdate.update(url);
-			SendResultOTAUpdate(ESPhttpUpdate.updateSpiffs(url), funcChangeLog);
+			httpUpdate.rebootOnUpdate(false);
+			auto res = httpUpdate.updateSpiffs(client, url);
+			SendResultOTAUpdate(res, funcChangeLog);
 		} else {
 			funcChangeLog("OTA: YOU NEED UPDATE");
 		}
@@ -30,8 +34,9 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 	url = OTAUpdate(UPDATE_URL + PATH_FIRMWARE + "index.php", jsonBuffe);
 	if (url.length() > 0) {
 		if (isForce) {
-			ESPhttpUpdate.rebootOnUpdate(true);
-			SendResultOTAUpdate(ESPhttpUpdate.update(url), funcChangeLog);
+			httpUpdate.rebootOnUpdate(true);
+			auto res = httpUpdate.update(client, url);
+			SendResultOTAUpdate(res, funcChangeLog);
 		} else {
 			funcChangeLog("OTA: YOU NEED UPDATE");
 		}
@@ -43,9 +48,11 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 	if (!SPIFFS.begin()) {
 		return;
 	}
-	Dir dir = SPIFFS.openDir("/");
-	while (dir.next()) {
-		funcChangeLog(dir.fileName());
+	auto root = SPIFFS.open("/");
+	auto file = root.openNextFile();
+	while (file) {
+		funcChangeLog(file.name());
+		file = root.openNextFile();
 	}
 
 }
@@ -71,15 +78,26 @@ String OTAUpdate(String host, DynamicJsonBuffer &jsonBuffer) {
 void SendResultOTAUpdate(t_httpUpdate_return ret, void (*funcChangeLog)(String)) {
 	switch (ret) {
 	case HTTP_UPDATE_FAILED:
+	{
 		funcChangeLog("OTA Update Error!");
-		funcChangeLog(httpUpdateClient.errorToString(ESPhttpUpdate.getLastError()));
+		String error = "HTTP_UPDATE_FAILED Error (";
+		error += httpUpdate.getLastError();
+		error +="): ";
+		error+= httpUpdate.getLastErrorString().c_str();
+		error+="\n";
+		funcChangeLog(error);
 		break;
+	}
 	case HTTP_UPDATE_NO_UPDATES:
+	{
 		funcChangeLog("OTA: No Update!");
 		break;
+	}
 	case HTTP_UPDATE_OK:
+	{
 		funcChangeLog("OTA: Complete update!");
 		break;
+	}
 	}
 }
 

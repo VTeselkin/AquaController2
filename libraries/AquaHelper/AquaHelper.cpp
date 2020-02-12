@@ -20,19 +20,40 @@ const byte tonePin = 4;
  */
 void AquaHelper::Tone(const word frequency, const word duration) {
 	if (isTone) {
-		tone(tonePin, frequency, duration);
+		ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
 	}
 }
 
 void AquaHelper::Tone() {
 	if (isTone) {
-		tone(tonePin, 500, 10);
+		ESP_tone(TONE_PIN, 500, 10, BUZZER_CHANNEL);
 	}
 }
 
 void AquaHelper::ToneForce(const word frequency, const word duration) {
-	tone(tonePin, frequency, duration);
+	ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
 }
+
+void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel)
+{
+    if (ledcRead(channel)) {
+        log_e("Tone channel %d is already in use", ledcRead(channel));
+        return;
+    }
+    ledcAttachPin(pin, channel);
+    ledcWriteTone(channel, frequency);
+    if (duration) {
+        delay(duration);
+        ESP_noTone(pin, channel);
+    }
+}
+
+void AquaHelper::ESP_noTone(uint8_t pin, uint8_t channel)
+{
+    ledcDetachPin(pin);
+    ledcWrite(channel, 0);
+}
+
 
 void AquaHelper::SetToneEnable(bool enable) {
 	isTone = enable;
@@ -426,13 +447,13 @@ byte AquaHelper::ConvertPHWordToByte(const word ph) {
 
 tmElements_t AquaHelper::GetTimeNow() {
 	tmElements_t tm;
-	DateTime now = RTC.now();
-	tm.Day = now.day();
-	tm.Hour = now.hour();
-	tm.Minute = now.minute();
-	tm.Month = now.month();
-	tm.Second = now.second();
-	tm.Year = now.year();
+	auto nowTime = RTC.now();
+	tm.Day = nowTime.day();
+	tm.Hour = nowTime.hour();
+	tm.Minute = nowTime.minute();
+	tm.Month = nowTime.month();
+	tm.Second = nowTime.second();
+	tm.Year = nowTime.year();
 	return tm;
 }
 

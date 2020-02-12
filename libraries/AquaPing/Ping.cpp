@@ -78,6 +78,7 @@
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
 
+
 static uint16_t ping_seq_num;
 static uint8_t stopped = 0;
 
@@ -141,7 +142,7 @@ static err_t ping_send(int s, ip4_addr_t *addr, int size) {
 	if ((err = sendto(s, iecho, ping_size, 0, (struct sockaddr*)&to, sizeof(to)))) {
 		transmitted++;
 	}
-	free(iecho)
+	free(iecho);
 	return (err ? ERR_OK : ERR_VAL);
 }
 
@@ -224,17 +225,8 @@ static void ping_recv(int s) {
 		log_d("Request timeout for icmp_seq %d\r\n", ping_seq_num);
 	}
 }
-/*
-static void stop_action(int i) {
-	signal(i, SIG_DFL);
 
-	stopped = 1;
-}
-+/
-/*
-* Operation functions
-*
-*/
+
 void ping(const char *name, int count, int interval, int size, int timeout) {
 	// Resolve name
 	hostent * target = gethostbyname(name);
