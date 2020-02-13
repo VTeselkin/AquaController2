@@ -53,8 +53,8 @@ bool isNeedEnableZeroCanal = false;
 
 void setup() {
 	Serial.begin(115200);
-	aquaCanal.Init();
 	aquaEEPROM.Init();
+	aquaCanal.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
@@ -98,6 +98,7 @@ void ChangeWaterLevelStatus(bool warning, byte canal) {
 }
 
 void ChangeWiFiLog(String log) {
+	Serial.println(log);
 	LastMessage = log;
 }
 
