@@ -16,7 +16,7 @@
 #include <TimeLib.h>
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
-#define EEPROM_SIZE 1024
+
 //Maximum number of canals
 #define MAX_CHANALS 8
 //Maximum number of timers
@@ -109,7 +109,6 @@
 /**
  * Addressing memory to store device states
  */
-const byte ADDR_FIRST_LAUNCH = 0;
 const byte ChanalsStateAddr = 20;
 
 const word AUTO_CONNECT_ADDR = 1000;
@@ -340,9 +339,9 @@ typedef struct {
 
 	// Speaker Setup
 	byte isTone = 1;
-	bool ntp_update = true;
-	bool auto_connect = true;
-	bool auto_update = false;
+	bool ntp_update = 1;
+	bool auto_connect = 1;
+	bool auto_update = 0;
 
 	/** ----------------------------------------PWM---------------------------------- */
 

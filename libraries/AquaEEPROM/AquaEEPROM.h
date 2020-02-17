@@ -35,6 +35,6 @@ public:
 	uint16_t SaveUTCSetting(uint16_t utc);
 	uint16_t LoadUTCSetting();
 private:
-	void OnFirstLunch();
+
 
 };

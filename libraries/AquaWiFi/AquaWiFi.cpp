@@ -13,10 +13,9 @@ WiFiUDP Udp;
 IPAddress broadcastAddress;
 AquaNTP ntp;
 AquaHTTP web;
-
+AquaUpdate update;
 const IPAddress remote_ip(8, 8, 8, 8);
-const size_t bufferSize = 6 * JSON_ARRAY_SIZE(10) + JSON_OBJECT_SIZE(3)
-		+ JSON_OBJECT_SIZE(6) + 300;
+const size_t bufferSize = 6 * JSON_ARRAY_SIZE(10) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(6) + 300;
 DynamicJsonBuffer jsonBuffer(bufferSize);
 
 bool _isWiFiEnable = false;
@@ -28,22 +27,20 @@ unsigned long timeIP, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime;
 unsigned int localUdpPort = 8888;
 
 char incomingPacket[MAX_BUFFER];
-void (*Log)(String);
+void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
 uint16_t (*funcNTPUpdate)(uint16_t);
 
 word UTC3 = 3; //UTC+3
 
-Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull },
-		{ TIMERDAY, responseNull }, { TIMERHOUR, responseNull }, { TIMERSEC,
-				responseNull }, { TIMERTEMP, responseNull }, { TEMPSENSOR,
-				responseNull }, { PH, responseNull }, { PHTIMER, responseNull },
-		{ TEMPSTATS, responseNull } };
+Dictionary responseCache =
+		{ { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR, responseNull }, { TIMERSEC, responseNull }, { TIMERTEMP,
+				responseNull }, { TEMPSENSOR, responseNull }, { PH, responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull } };
 
-void AquaWiFi::Init(void (*ChangeLog)(String),
-		void (*GetUDPRequest)(typeResponse, String),
+void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
 		uint16_t (*NTPUpdate)(uint16_t)) {
-	Log = ChangeLog;
+	pinMode(2, OUTPUT);
+	funcChangeLog = ChangeLog;
 	funcGetUDPRequest = GetUDPRequest;
 	funcNTPUpdate = NTPUpdate;
 	timeIP = millis();
@@ -54,14 +51,13 @@ void AquaWiFi::Init(void (*ChangeLog)(String),
 		_isConnected = true;
 		_isError = false;
 		SendWiFiLog("HTTP:Service started...");
-		//OtaDownloadWebContent();
+		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
 		web.Init(responseCache);
 		if (isInterenetAvalible) {
 			ntp.SetNTPTimeToController(ChangeLog);
 		} else {
 			SendWiFiLog("WAN:Not connection..");
 		}
-
 	}
 }
 
@@ -77,26 +73,22 @@ bool Connection() {
 		wifiManager.setSaveConfigCallback(saveConfigCallback);
 		wifiManager.setTimeout(300);
 		//set custom ip for portal
-		wifiManager.setAPStaticIPConfig(IPAddress(192, 168, 4, 1),
-				IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
+		wifiManager.setAPStaticIPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
 		/**
 		 * if we couldn't connected to save WiFi access point
 		 * we will start our own access point with ip address 192.168.1.4
 		 */
-		if (!wifiManager.autoConnect("AP: AquaController")) {
+		if (wifiManager.autoConnect("AP: AquaController")) {
 			ESP.restart();
 		}
-			Udp.begin(localUdpPort);
-			broadcastAddress = (uint32_t) WiFi.localIP()
-					| ~((uint32_t) WiFi.subnetMask());
-			SendWifiIp(true);
-			return true;
-
+		Udp.begin(localUdpPort);
+		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());
+		SendWifiIp(true);
+		return true;
 	} else {
 		SendWiFiLog("WiFi:Disable...");
 		return false;
 	}
-	return false;
 }
 
 /**
@@ -104,15 +96,10 @@ bool Connection() {
  */
 void configModeCallback(WiFiManager *myWiFiManager) {
 	if (_isWiFiEnable && !_isError) {
-
 		SendWiFiLog("WiFi:Failed connect");
 		SendWiFiLog("WiFi:Config mode...");
 		SendWiFiLog("WiFi:Server start...");
 		SendWiFiLog("WiFi:192.168.1.4...");
-		Udp.begin(localUdpPort);
-		broadcastAddress = (uint32_t) WiFi.localIP()
-				| ~((uint32_t) WiFi.subnetMask());
-		SendWifiIp(true);
 	} else {
 		SendWiFiLog("WiFi:Disable...");
 	}
@@ -134,13 +121,16 @@ void AquaWiFi::WaitRequest() {
 			web.HandleClient();
 			int packetSize = Udp.parsePacket();
 			if (packetSize > 0) {
-				int len = Udp.read(incomingPacket, MAX_BUFFER);
+			int len = Udp.read(incomingPacket, MAX_BUFFER);
 				if (len > 0) {
 					if (len > MAX_BUFFER) {
 						len = MAX_BUFFER;
 					}
 					incomingPacket[len] = 0;
 				}
+				digitalWrite(2, LOW);
+				delay(50);
+				digitalWrite(2, HIGH);
 				SendFromUDPToController(incomingPacket);
 				memset(incomingPacket, 0, sizeof(incomingPacket));
 
@@ -189,7 +179,7 @@ void AquaWiFi::WaitRequest() {
 
 void SendFromUDPToController(String inString) {
 	jsonBuffer.clear();
-	JsonObject &root = jsonBuffer.parseObject(inString);
+	JsonObject& root = jsonBuffer.parseObject(inString);
 	if (inString.indexOf("data") == -1 || !root.success()) {
 		UDPSendError(RQUEST_JSON_CORUPTED);
 		return;
@@ -202,7 +192,7 @@ void SendFromUDPToController(String inString) {
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH) != -1) {
-			responseCache[PH] = Helper.GetPhStats();
+			responseCache[PH]= Helper.GetPhStats();
 			UDPSendMessage(responseCache[PH], false);
 			return;
 		}
@@ -252,12 +242,10 @@ void SendFromUDPToController(String inString) {
 			UDPSendError(RQUEST_DATA_CORUPTED);
 			return;
 		}
-		JsonObject &data = root["data"];
+		JsonObject& data = root["data"];
 		if (inString.indexOf("time_NTP") != -1) {
 			UTC3 = funcNTPUpdate(data[SETTINGS_UTC].as<uint16_t>());
-			UDPSendMessage(
-					"{\"status\":\"success\",\"message\":\"Time update\",\"data\":{}}",
-					false);
+			UDPSendMessage("{\"status\":\"success\",\"message\":\"Time update\",\"data\":{}}", false);
 			return;
 		}
 		if (inString.indexOf(CANAL_STATE) != -1) {
@@ -291,6 +279,8 @@ void SendFromUDPToController(String inString) {
 	}
 }
 
+
+
 void AquaWiFi::CacheResponse(typeResponse type, String json) {
 	responseCache[type] = json;
 }
@@ -300,14 +290,6 @@ void AquaWiFi::CacheResponse(typeResponse type, String json) {
  * @param isNeedPing
  */
 void SendWifiIp(bool isNeedPing) {
-	if (!_isWiFiEnable) {
-		SendWiFiLog("WiFi:Disable...");
-		return;
-	}
-	if (_isError) {
-		SendWiFiLog("WiFi:Error...");
-		return;
-	}
 	if (isNeedPing) {
 		isInterenetAvalible = ping_start(remote_ip, 4, 0, 0, 5);
 	}
@@ -317,6 +299,7 @@ void SendWifiIp(bool isNeedPing) {
 		SendWiFiLog("WAN:" + WiFi.localIP().toString());
 	}
 
+
 }
 
 /**
@@ -325,7 +308,6 @@ void SendWifiIp(bool isNeedPing) {
  * @param isBroadcast
  */
 void UDPSendMessage(String message, bool isBroadcast) {
-	Log(message);
 	if (!_isWiFiEnable) {
 		SendWiFiLog("WiFi:Disable...");
 		return;
@@ -339,7 +321,6 @@ void UDPSendMessage(String message, bool isBroadcast) {
 	else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 	Udp.println(message);
-
 	Udp.endPacket();
 }
 
@@ -352,8 +333,7 @@ void UDPSendError(String error) {
 		SendWiFiLog("WiFi:Error...");
 		return;
 	}
-	String response = "{\"status\":\"error\",\"message\":\"" + error
-			+ "\",\"data\":{}}";
+	String response = "{\"status\":\"error\",\"message\":\"" + error + "\",\"data\":{}}";
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 	Udp.println(response);
 	Udp.endPacket();
@@ -365,6 +345,6 @@ void UDPSendError(String error) {
  * @param log
  */
 void SendWiFiLog(String log) {
-	Log(log);
+	funcChangeLog(log);
 
 }

@@ -7,8 +7,9 @@
 
 #include "AquaCanal.h"
 
-
 void AquaCanal::Init() {
+	Wire.begin();                       // Wire must be started first
+	Wire.setClock(400000);              // Supported baud rates are 100kHz, 400kHz, and 1000kHz
 
 	const int freq = 5000;
 	const int resolution = 12;
@@ -18,11 +19,12 @@ void AquaCanal::Init() {
 		ledcSetup(i, freq, resolution);
 		if (i < MAX_CHANALS) {
 			ledcAttachPin(Helper.data.nRelayDrive[i], i);
+			pinMode(Helper.data.nRelayDrive[i], OUTPUT);
 		} else {
 			ledcAttachPin(Helper.data.nPWMDrive[i - MAX_CHANALS], i);
+			pinMode(Helper.data.nPWMDrive[i - MAX_CHANALS], OUTPUT);
 		}
 	}
-
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {

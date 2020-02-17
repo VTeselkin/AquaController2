@@ -7,8 +7,6 @@
 #include "AquaEEPROM.h"
 
 void AquaEEPROM::Init() {
-	EEPROM.begin(EEPROM_SIZE);
-	OnFirstLunch();
 	LoadChanelState();
 	LoadDailyTimersReadFromERROM();
 	LoadHoursTimersReadFromERROM();
@@ -21,7 +19,6 @@ void AquaEEPROM::SaveChanalState() {
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 		EEPROM.write(ChanalsStateAddr - i, Helper.data.StateChanals[i]);
 	}
-	EEPROM.commit();
 }
 
 void AquaEEPROM::LoadChanelState() {
@@ -50,7 +47,6 @@ void AquaEEPROM::SaveDailyTimerToERROM() {
 		EEPROM.write(DailyTimerStateAddr - i, Helper.data.DailyTimerState[i]);
 		EEPROM.write(DailyTimerChanalAddr - i, Helper.data.DailyTimerChanal[i]);
 	}
-	EEPROM.commit();
 }
 void AquaEEPROM::LoadSecondsTimersReadFromERROM() {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
@@ -70,7 +66,6 @@ void AquaEEPROM::SaveSecondsTimerToERROM() {
 		EEPROM.write(SecondTimerStateAddr - i, Helper.data.SecondTimerState[i]);
 		EEPROM.write(SecondTimerCanalAddr - i, Helper.data.SecondTimerCanal[i]);
 	}
-	EEPROM.commit();
 }
 void AquaEEPROM::LoadHoursTimersReadFromERROM() {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
@@ -87,7 +82,6 @@ void AquaEEPROM::SaveHoursTimerToERROM() {
 		EEPROM.write(DailyHoursTimerStateAddr - i, Helper.data.HoursTimerState[i]);
 		EEPROM.write(DailyHoursTimerCanalAddr - i, Helper.data.HoursTimerCanal[i]);
 	}
-	EEPROM.commit();
 }
 
 void AquaEEPROM::LoadTempTimerFromERROM(DallasTemperature ds) {
@@ -109,7 +103,6 @@ void AquaEEPROM::LoadTempTimerFromERROM(DallasTemperature ds) {
 
 void AquaEEPROM::SaveTempSensorAdress(byte i, byte j) {
 	EEPROM.write(addrTempSensor - i * 8 + j, Helper.data.addrThermometer[i][j]);
-	EEPROM.commit();
 }
 
 void AquaEEPROM::SaveTempTimerToERROM() {
@@ -119,7 +112,6 @@ void AquaEEPROM::SaveTempTimerToERROM() {
 		EEPROM.write(TempTimerMaxEndAddr - i, Helper.data.TempTimerMaxEnd[i]);
 		EEPROM.write(TempTimerChanalAddr - i, Helper.data.TempTimerChanal[i]);
 	}
-	EEPROM.commit();
 }
 
 void AquaEEPROM::SavePHTimerToERROM() {
@@ -131,7 +123,6 @@ void AquaEEPROM::SavePHTimerToERROM() {
 		EEPROM.write(PHTimer401Addr - i * 2, Helper.data.PHTimer401[i]);
 		EEPROM.write(PHTimer686Addr - i * 2, Helper.data.PHTimer686[i]);
 	}
-	EEPROM.commit();
 }
 
 void AquaEEPROM::LoadPHTimerToERROM() {
@@ -150,7 +141,6 @@ void AquaEEPROM::SaveLcdSetings() {
 	EEPROM.write(LCD_BACK_ADDR, Helper.data.indexDelayLCDBackInmainScreen);
 	EEPROM.write(LCD_BUTTON_ADDR, Helper.data.indexDelayLCDButton);
 	EEPROM.write(LCD_SOUND_ADDR, Helper.data.isTone);
-	EEPROM.commit();
 
 }
 void AquaEEPROM::LoadLcdSetings() {
@@ -168,7 +158,6 @@ void AquaEEPROM::LoadWiFiSettings() {
 void AquaEEPROM::SaveWifiSettings() {
 	EEPROM.write(NTP_UPDATE_ADDR, (byte) Helper.data.ntp_update);
 	EEPROM.write(AUTO_CONNECT_ADDR, (byte) Helper.data.auto_connect);
-	EEPROM.commit();
 }
 
 uint16_t AquaEEPROM::SaveUTCSetting(uint16_t utc) {
@@ -181,15 +170,3 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 	return EEPROM.read(UTC_ADDR);
 }
 
-void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) == 0) {
-		for (unsigned int i = 0; i < EEPROM.length(); i++) {
-			EEPROM.write(i, 0);
-		}
-		EEPROM.write(ADDR_FIRST_LAUNCH, 1);
-		EEPROM.commit();
-		Serial.println(EEPROM.read(ADDR_FIRST_LAUNCH));
-		SaveWifiSettings();
-		SaveTempTimerToERROM();
-	}
-}

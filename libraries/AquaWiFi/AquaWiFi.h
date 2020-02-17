@@ -12,6 +12,7 @@
 #include <AquaNTP.h>
 #include <AquaHTTP.h>
 #include <AquaHelper.h>
+#include <AquaUpdate.h>
 
 class AquaWiFi {
 public:
