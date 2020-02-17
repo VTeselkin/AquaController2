@@ -25,11 +25,13 @@
 //Maximum number of PWM timers
 #define MAX_TIMERS_PWM 4
 
+#define I2C_SDA 4
+#define I2C_SCL 13
+#define I2C_CLOCK 400000
 //CHANAL HANDS CONTROLL
 #define OFF_CHANAL 1
 #define ON_CHANAL 2
 #define AUTO_CHANAL 3
-
 //Current state canals timer
 #define TIMER_OFF 1
 #define TIMER_ON 2

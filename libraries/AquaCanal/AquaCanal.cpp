@@ -8,8 +8,7 @@
 #include "AquaCanal.h"
 
 void AquaCanal::Init() {
-	Wire.begin();                       // Wire must be started first
-	Wire.setClock(400000);              // Supported baud rates are 100kHz, 400kHz, and 1000kHz
+
 
 	const int freq = 5000;
 	const int resolution = 12;

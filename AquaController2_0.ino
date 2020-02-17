@@ -53,6 +53,7 @@ bool isNeedEnableZeroCanal = false;
 
 void setup() {
 	Serial.begin(115200);
+	Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);                       // Wire must be started first
 	aquaEEPROM.Init();
 	aquaCanal.Init();
 	aquaTemp.Init(aquaEEPROM);
