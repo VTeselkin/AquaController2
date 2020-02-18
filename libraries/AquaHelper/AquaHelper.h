@@ -21,9 +21,9 @@
 #define MAX_CHANALS 8
 //Maximum number of timers
 #define MAX_TIMERS 10
-
 //Maximum number of PWM timers
 #define MAX_TIMERS_PWM 4
+#define MAX_EEPROM 1024
 
 #define I2C_SDA 4
 #define I2C_SCL 13
@@ -111,6 +111,8 @@
 /**
  * Addressing memory to store device states
  */
+const byte ADDR_FIRST_LAUNCH = 0;
+
 const byte ChanalsStateAddr = 20;
 
 const word AUTO_CONNECT_ADDR = 1000;

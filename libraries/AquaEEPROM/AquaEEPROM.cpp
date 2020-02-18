@@ -7,6 +7,8 @@
 #include "AquaEEPROM.h"
 
 void AquaEEPROM::Init() {
+	EEPROM.begin(MAX_EEPROM);
+	OnFirstLunch();
 	LoadChanelState();
 	LoadDailyTimersReadFromERROM();
 	LoadHoursTimersReadFromERROM();
@@ -170,3 +172,14 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 	return EEPROM.read(UTC_ADDR);
 }
 
+
+void AquaEEPROM::OnFirstLunch() {
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) == 0) {
+		for (unsigned int i = 0; i < EEPROM.length(); i++) {
+			EEPROM.write(i, 0);
+		}
+		EEPROM.write(ADDR_FIRST_LAUNCH, 1);
+		SaveWifiSettings();
+		SaveTempTimerToERROM();
+	}
+}
