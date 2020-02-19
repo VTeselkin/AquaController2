@@ -53,6 +53,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 		_isError = false;
 		SendWiFiLog("HTTP:Service started...");
 		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
+		StartCaching();
 		web.Init(responseCache);
 		if (isInterenetAvalible) {
 			ntp.SetNTPTimeToController(ChangeLog);
@@ -279,6 +280,21 @@ void SendFromUDPToController(String inString) {
 	} else if (inString.indexOf(INFO_COMMAND) != -1) {
 		return;
 	}
+}
+
+void AquaWiFi::StartCaching() {
+	SendWiFiLog("WiFi:Caching data...");
+
+	responseCache[DEVICE] = Helper.GetDevice();
+	responseCache[CANAL] = Helper.GetChanalState();
+	responseCache[PH]= Helper.GetPhStats();
+	responseCache[TEMPSTATS] = Helper.GetTempStats();
+	responseCache[TEMPSENSOR] = Helper.GetRealTemp();
+	responseCache[TIMERDAY] = Helper.GetDailyTimerState();
+	responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
+	responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
+	responseCache[TIMERTEMP] = Helper.GetTempState();
+	responseCache[PHTIMER] = Helper.GetPhTimerState();
 }
 
 

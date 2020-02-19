@@ -20,6 +20,7 @@ public:
 	void WaitRequest();
 	void CacheResponse(typeResponse type, String json);
 private:
+	void StartCaching();
 
 };
 void UDPSendMessage(String message, bool isBroadcast);
