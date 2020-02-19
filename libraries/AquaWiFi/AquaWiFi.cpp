@@ -47,6 +47,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastNTPtime = millis();
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
+	update.Init();
 	if (Connection()) {
 		_isConnected = true;
 		_isError = false;
@@ -78,8 +79,9 @@ bool Connection() {
 		 * if we couldn't connected to save WiFi access point
 		 * we will start our own access point with ip address 192.168.1.4
 		 */
-		if (wifiManager.autoConnect("AP: AquaController")) {
+		if (!wifiManager.autoConnect("AP: AquaController")) {
 			ESP.restart();
+			return false;
 		}
 		Udp.begin(localUdpPort);
 		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());

@@ -12,9 +12,15 @@
 
 HTTPClient httpUpdateClient;
 WiFiClient client;
+
+AquaUpdate::AquaUpdate(){
+
+}
+void AquaUpdate::Init(){
+	SPIFFS.begin(true);
+}
 void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffe) {
 	String url = "";
-
 	funcChangeLog("OTA: Web update");
 	url = OTAUpdate(UPDATE_URL + PATH_SPIFFS + "index.php", jsonBuffe);
 	if (url.length() > 0) {

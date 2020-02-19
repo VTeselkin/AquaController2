@@ -18,6 +18,8 @@
 
 class AquaUpdate {
 public:
+	AquaUpdate();
+	void Init();
 	void CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffe);
 };
 String OTAUpdate(String host, DynamicJsonBuffer &jsonBuffer);
