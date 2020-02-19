@@ -292,9 +292,11 @@ String AquaHelper::GetPhTimerState() {
  */
 String AquaHelper::GetPhStats() {
 	String result = "{\"status\":\"success\",\"message\":\"ph_state\",\"data\":{\"ph\":[";
-	for (byte i = 0; i < MAX_TIMERS_PH - 1; i++) {
+	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 		result += String(Helper.data.PHCurrent[i]);
-		result += ",";
+		if(i < MAX_TIMERS_PH - 1){
+			result += ",";
+		}
 	}
 	result += "],\"";
 	for (byte i = 0; i < MAX_TIMERS_PH; i++) {

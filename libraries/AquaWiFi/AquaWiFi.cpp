@@ -9,7 +9,7 @@
 #include <ping.h>
 #include <ArduinoJson.h>
 
-WiFiUDP Udp;
+WiFiUDP Udp; // @suppress("Abstract class cannot be instantiated")
 IPAddress broadcastAddress;
 AquaNTP ntp;
 AquaHTTP web;
@@ -131,9 +131,9 @@ void AquaWiFi::WaitRequest() {
 					}
 					incomingPacket[len] = 0;
 				}
-				digitalWrite(2, LOW);
-				delay(50);
 				digitalWrite(2, HIGH);
+				delay(50);
+				digitalWrite(2, LOW);
 				SendFromUDPToController(incomingPacket);
 				memset(incomingPacket, 0, sizeof(incomingPacket));
 
@@ -166,6 +166,7 @@ void AquaWiFi::WaitRequest() {
 	}
 	//get temp every DELAY_TEMP_UPDATE time
 	if (millis() > lastTemptime + DELAY_TEMP_UPDATE) {
+		lastTemptime = millis();
 		if (_isWiFiEnable && !_isError && _isConnected) {
 			UDPSendMessage(responseCache[TEMPSENSOR], true);
 			return;
@@ -173,6 +174,7 @@ void AquaWiFi::WaitRequest() {
 	}
 	//get PH every DELAY_PH_UPDATE time
 	if (millis() > lastPHTime + DELAY_PH_UPDATE) {
+		lastPHTime = millis();
 		if (_isWiFiEnable && !_isError && _isConnected) {
 			UDPSendMessage(responseCache[PH], true);
 			return;
@@ -181,9 +183,10 @@ void AquaWiFi::WaitRequest() {
 }
 
 void SendFromUDPToController(String inString) {
+	Serial.println(inString);
 	jsonBuffer.clear();
 	JsonObject& root = jsonBuffer.parseObject(inString);
-	if (inString.indexOf("data") == -1 || !root.success()) {
+	if (!root.success()) {
 		UDPSendError(RQUEST_JSON_CORUPTED);
 		return;
 	}
@@ -338,6 +341,7 @@ void UDPSendMessage(String message, bool isBroadcast) {
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+	Serial.println(message);
 	Udp.println(message);
 	Udp.endPacket();
 }
@@ -353,6 +357,7 @@ void UDPSendError(String error) {
 	}
 	String response = "{\"status\":\"error\",\"message\":\"" + error + "\",\"data\":{}}";
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+	Serial.println(response);
 	Udp.println(response);
 	Udp.endPacket();
 

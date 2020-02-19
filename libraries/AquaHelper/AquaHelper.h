@@ -385,14 +385,14 @@ typedef struct {
 
 
 
-	byte PHTimerStart[MAX_TIMERS_PH] = { 0 };
-	byte PHTimerEnd[MAX_TIMERS_PH] = { 0 };
-	byte PHTimerState[MAX_TIMERS_PH] = { 0 };
-	byte PHTimerCanal[MAX_TIMERS_PH] = { 0 };
-	uint16_t PHTimer401[MAX_TIMERS_PH] = { 1 };
-	uint16_t PHTimer686[MAX_TIMERS_PH] = { 1 };
+	byte PHTimerStart[MAX_TIMERS_PH] = { 0, 0 };
+	byte PHTimerEnd[MAX_TIMERS_PH] = { 0, 0 };
+	byte PHTimerState[MAX_TIMERS_PH] = { 0, 0 };
+	byte PHTimerCanal[MAX_TIMERS_PH] = { 0, 0 };
+	uint16_t PHTimer401[MAX_TIMERS_PH] = { 1, 1 };
+	uint16_t PHTimer686[MAX_TIMERS_PH] = { 1, 1 };
 	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = {};
-	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0 };
+	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
 
 	/** ------------------------------------ADC-------------------------------------- */
 	//Enabled canals for ADC
