@@ -21,8 +21,8 @@ void AquaUpdate::Init(){
 }
 void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffe) {
 	String url = "";
-	funcChangeLog("OTA: Web update");
 	url = OTAUpdate(UPDATE_URL + PATH_SPIFFS + "index.php", jsonBuffe);
+	funcChangeLog("OTA: Web update" + url);
 	if (url.length() > 0) {
 		if (isForce) {
 			SPIFFS.format();
@@ -36,8 +36,8 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 		funcChangeLog("OTA: No Update!");
 	}
 
-	funcChangeLog("OTA: Firmware update");
 	url = OTAUpdate(UPDATE_URL + PATH_FIRMWARE + "index.php", jsonBuffe);
+	funcChangeLog("OTA: Firmware update" + url);
 	if (url.length() > 0) {
 		if (isForce) {
 			httpUpdate.rebootOnUpdate(true);

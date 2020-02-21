@@ -30,4 +30,11 @@ void HttpSendTempJson();
 void HttpSendSensorJson();
 void HttpSendPhJson();
 void HttpSendStatsJson();
+void handleFileList();
+void handleFileCreate();
+void handleFileDelete();
+void handleFileUpload();
+bool handleFileRead(String path);
+String getContentType(String filename);
+void FS_init();
 
