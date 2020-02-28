@@ -78,6 +78,9 @@ String AquaHelper::GetDevice() {
 	result += "\",\"update\":";
 	result += data.auto_update;
 	result += ",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
+	result +=",\"time\":\"";
+	result += GetFormatTimeNow(GetTimeNow());
+	result += "\"";
 	result += SendEndMess();
 	return result;
 }
@@ -466,5 +469,13 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setHour(hour(epoch));
 	ds3231.setMinute(minute(epoch));
 	ds3231.setSecond(second(epoch));
+}
+
+String AquaHelper::GetFormatTimeNow(tmElements_t tm){
+	String time_fm = String(tm.Hour) +":";
+	time_fm += String(tm.Minute);
+	time_fm +=":";
+	time_fm += String(tm.Second);
+	return time_fm;
 }
 

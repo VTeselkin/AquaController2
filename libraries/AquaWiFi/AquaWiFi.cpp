@@ -54,7 +54,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 		SendWiFiLog("HTTP:Service started...");
 		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
 		StartCaching();
-		web.Init(responseCache);
+		web.Init(responseCache, jsonBuffer);
 		if (isInterenetAvalible) {
 			ntp.SetNTPTimeToController(ChangeLog);
 		} else {

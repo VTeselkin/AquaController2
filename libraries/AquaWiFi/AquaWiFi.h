@@ -13,6 +13,8 @@
 #include <AquaHTTP.h>
 #include <AquaHelper.h>
 #include <AquaUpdate.h>
+#include <SPIFFS.h>
+#include <FS.h>
 
 class AquaWiFi {
 public:

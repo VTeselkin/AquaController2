@@ -17,17 +17,21 @@ AquaUpdate::AquaUpdate(){
 
 }
 void AquaUpdate::Init(){
-	SPIFFS.begin(true);
+	if (!SPIFFS.begin(true)) {
+	    Serial.println("An Error has occurred while mounting SPIFFS");
+	    return;
+	  }
+	Serial.println("SPIFFS mounting success!");
+	Serial.println(SPIFFS.totalBytes());
+	Serial.println(SPIFFS.usedBytes());
 }
-void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffe) {
-	String url = "";
-	url = OTAUpdate(UPDATE_URL + PATH_SPIFFS + "index.php", jsonBuffe);
+void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffer) {
+	String url = UPDATE_URL + PATH_SPIFFS + "index.php";
 	funcChangeLog("OTA: Web update" + url);
 	if (url.length() > 0) {
 		if (isForce) {
-			SPIFFS.format();
 			httpUpdate.rebootOnUpdate(false);
-			auto res = httpUpdate.updateSpiffs(client, url);
+			auto res = httpUpdate.updateSpiffs(client, url, VERTION_FIRMWARE);
 			SendResultOTAUpdate(res, funcChangeLog);
 		} else {
 			funcChangeLog("OTA: YOU NEED UPDATE");
@@ -36,7 +40,7 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 		funcChangeLog("OTA: No Update!");
 	}
 
-	url = OTAUpdate(UPDATE_URL + PATH_FIRMWARE + "index.php", jsonBuffe);
+	url = OTAUpdate(UPDATE_URL + PATH_FIRMWARE + "index.php", jsonBuffer);
 	funcChangeLog("OTA: Firmware update" + url);
 	if (url.length() > 0) {
 		if (isForce) {
@@ -51,9 +55,6 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 		funcChangeLog("OTA: No Update!");
 	}
 
-	if (!SPIFFS.begin()) {
-		return;
-	}
 	auto root = SPIFFS.open("/");
 	auto file = root.openNextFile();
 	while (file) {

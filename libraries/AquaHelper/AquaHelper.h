@@ -243,7 +243,7 @@ const String VERTION_PROTOCOL = "/4/";
 const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
-const String VERTION_FIRMWARE = "139.bin";
+const String VERTION_FIRMWARE = "2.0.0";
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -422,6 +422,7 @@ public:
 	static String GetPhStats();
 	static String GetTempStats();
 	static tmElements_t GetTimeNow();
+	static String GetFormatTimeNow(tmElements_t time);
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);

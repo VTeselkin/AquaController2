@@ -13,23 +13,18 @@
 #include <HTTPUpdate.h>
 #include <HTTPClient.h>
 #include <WebServer.h>
+#include <SPIFFS.h>
+#include <FS.h>
 
 class AquaHTTP{
 public:
-	void Init(Dictionary &responseCache);
+	void Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer);
 	void HandleClient();
 private:
 };
 
-void HttpSendDeviceJson();
-void HttpSendCanalJson();
-void HttpSendDayJson();
-void HttpSendHourJson();
-void HttpSendSecJson();
-void HttpSendTempJson();
-void HttpSendSensorJson();
-void HttpSendPhJson();
-void HttpSendStatsJson();
+void HttpSendJson(typeResponse type, String data, String param);
+
 void handleFileList();
 void handleFileCreate();
 void handleFileDelete();
@@ -37,4 +32,3 @@ void handleFileUpload();
 bool handleFileRead(String path);
 String getContentType(String filename);
 void FS_init();
-
