@@ -12,7 +12,7 @@
 HTTPClient httpClient;
 WebServer http(80);
 DynamicJsonBuffer _jsonBuffer;
-
+WebSocketsServer sockets = WebSocketsServer(81);
 File fsUploadFile;
 
 Dictionary response = { { DEVICE, responseNull }, { CANAL, responseNull }, {
@@ -24,8 +24,6 @@ Dictionary response = { { DEVICE, responseNull }, { CANAL, responseNull }, {
 void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 
 	response = responseCache;
-
-
 	http.on("/", HTTP_GET, []() {
 		if (!handleFileRead("/"))
 			http.send(404, "text/plain", "FileNotFound");
@@ -49,6 +47,10 @@ void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 	http.onNotFound([]() {
 		if (!handleFileRead(http.uri()))
 			http.send(404, "text/plain", "FileNotFound");
+	});
+
+	http.on("/time", HTTP_GET, []() {
+		http.send(200, "application/json", Helper.GetTime());
 	});
 
 	http.on("/device", HTTP_GET, []() {
@@ -131,8 +133,35 @@ void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 	});
 
 	http.begin();
+	sockets.begin();
+	sockets.onEvent(cbWebSocketsEvent);
 }
 
+void cbWebSocketsEvent(uint8_t num, WStype_t type, uint8_t *payload,
+		size_t length) {
+	switch (type) {
+	case WStype_ERROR:
+	case WStype_DISCONNECTED: {
+		Serial.println("Socket Disconnected!");
+	}
+		break;
+	case WStype_CONNECTED: {
+		Serial.println("Socket Connected!");
+		auto response = Helper.GetTime();
+		sockets.sendTXT(num, response);
+	}
+		break;
+	case WStype_TEXT:
+	case WStype_BIN:
+	case WStype_FRAGMENT_TEXT_START:
+	case WStype_FRAGMENT_BIN_START:
+	case WStype_FRAGMENT:
+	case WStype_FRAGMENT_FIN:
+	case WStype_PING:
+	case WStype_PONG:
+		break;
+	}
+}
 String getContentType(String filename) {
 	if (http.hasArg("download"))
 		return "application/octet-stream";
@@ -260,25 +289,37 @@ void handleFileList() {
 	http.send(200, "text/json", output);
 }
 
+long lastDeviceTime = 0;
 void AquaHTTP::HandleClient() {
 	http.handleClient();
+	sockets.loop();
+
+	//send time device to web sockets
+	if (millis() > lastDeviceTime + DELAY_DEVICE_TIME_UPDATE) {
+		lastDeviceTime = millis();
+		SocketUpdate(Helper.GetTime());
+	}
+}
+
+void AquaHTTP::SocketUpdate(String updateJson) {
+	sockets.broadcastTXT(updateJson);
 }
 
 void HttpSendJson(typeResponse type, String data, String param) {
-	if(data.length() > 0 || param.length() > 0){
+	if (data.length() > 0 || param.length() > 0) {
 		_jsonBuffer.clear();
-			JsonObject& root = _jsonBuffer.parseObject(response[type]);
-			if (!root.success()) {
-				http.send(404, "text/plain", "Request error!");
-			}
+		JsonObject &root = _jsonBuffer.parseObject(response[type]);
+		if (!root.success()) {
+			http.send(404, "text/plain", "Request error!");
+		}
 
-			if(data == "short"){
-				JsonObject& data = root["data"];
-				if(data.containsKey(param)){
-					http.send(200, "application/json", data[param]);
-				}
-				http.send(200, "application/json", root["data"]);
+		if (data == "short") {
+			JsonObject &data = root["data"];
+			if (data.containsKey(param)) {
+				http.send(200, "application/json", data[param]);
 			}
+			http.send(200, "application/json", root["data"]);
+		}
 	}
 	http.send(200, "application/json", response[type]);
 }

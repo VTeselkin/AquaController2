@@ -97,6 +97,7 @@
 #define DELAY_PH_UPDATE 60000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
+#define DELAY_DEVICE_TIME_UPDATE 1000
 // 60 minutes
 #define DELAY_NTP_UPDATE 21600000
 #define MAX_STATS 24
@@ -409,7 +410,8 @@ public:
 	static void ToneForce(const word frequency, const word duration);
 	static void SetToneEnable(bool enable);
 	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, byte));
-	static String GetDevice();
+	static String GetDevice(String ip);
+	static String GetTime();
 	static String GetChanalState();
 	static String GetDailyTimerState();
 	static String GetHoursTimerState();

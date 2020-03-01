@@ -193,7 +193,7 @@ void SendFromUDPToController(String inString) {
 
 	if (inString.indexOf(GET_COMMAND) != -1) {
 		if (inString.indexOf(GET_DEVICE_INFO) != -1) {
-			responseCache[DEVICE] = Helper.GetDevice();
+			responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 			UDPSendMessage(responseCache[DEVICE], false);
 			return;
 		}
@@ -288,7 +288,7 @@ void SendFromUDPToController(String inString) {
 void AquaWiFi::StartCaching() {
 	SendWiFiLog("WiFi:Caching data...");
 
-	responseCache[DEVICE] = Helper.GetDevice();
+	responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 	responseCache[CANAL] = Helper.GetChanalState();
 	responseCache[PH]= Helper.GetPhStats();
 	responseCache[TEMPSTATS] = Helper.GetTempStats();
@@ -337,8 +337,10 @@ void UDPSendMessage(String message, bool isBroadcast) {
 		SendWiFiLog("WiFi:Error...");
 		return;
 	}
-	if (isBroadcast)
+	if (isBroadcast){
+		web.SocketUpdate(message);
 		Udp.beginPacket(broadcastAddress, localUdpPort);
+	}
 	else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 	Serial.println(message);
