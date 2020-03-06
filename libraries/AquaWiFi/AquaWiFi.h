@@ -24,6 +24,7 @@ public:
 private:
 	void StartCaching();
 
+
 };
 void UDPSendMessage(String message, bool isBroadcast);
 void UDPSendError(String error);
@@ -33,4 +34,5 @@ void SendWiFiLog(String log);
 void SendWifiIp(bool isNeedPing);
 bool Connection();
 void SendFromUDPToController(String inString);
+void SendPOSTSuccess(typeResponse type, String inString);
 

@@ -82,10 +82,12 @@ String AquaHelper::GetDevice(String ip) {
 	return result;
 }
 
-String AquaHelper::GetTime() {
+String AquaHelper::GetDataTime() {
 	String result = "{\"status\":\"success\",\"";
 	result += "time\":\"";
 	result += Helper.GetFormatTimeNow(Helper.GetTimeNow());
+	result += "\",\"date\":\"";
+	result += Helper.GetFormatDataNow(Helper.GetTimeNow());
 	result += "\"}";
 	return result;
 }
@@ -284,9 +286,9 @@ String AquaHelper::GetPhTimerState() {
 	result += GetJsonValue(data.PHTimerState, MAX_TIMERS_PH);
 	result += ",\"ph_c\"";
 	result += GetJsonValue(data.PHTimerCanal, MAX_TIMERS_PH);
-	result += ",\"ph_401\":";
+	result += ",\"ph_401\"";
 	result += GetJsonValue(data.PHTimer401, MAX_TIMERS_PH);
-	result += ",\"ph_686\":";
+	result += ",\"ph_686\"";
 	result += GetJsonValue(data.PHTimer686, MAX_TIMERS_PH);
 	result += "}}";
 	return result;
@@ -294,8 +296,8 @@ String AquaHelper::GetPhTimerState() {
 /**
  * @return {"status":"success","message":"ph_state","data":
  * {"ph":[113],
- * "ph1":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113],
- * "ph2":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113]
+ * "ph0":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113],
+ * "ph1":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113]
  * }}
  */
 String AquaHelper::GetPhStats() {
@@ -319,7 +321,7 @@ String AquaHelper::GetPhStats() {
 		result += String(Helper.data.PHStats[i][MAX_STATS - 1]);
 
 		if (i < MAX_TIMERS_PH - 1) {
-			result += "],";
+			result += "],\"";
 		} else {
 			result += "]";
 		}
@@ -518,3 +520,15 @@ String AquaHelper::GetFormatTimeNow(tmElements_t tm) {
 	return time_fm;
 }
 
+String AquaHelper::GetFormatDataNow(tmElements_t tm){
+	String data_fm = "";
+		if (tm.Day < 10)
+			data_fm += "0";
+		data_fm += String(tm.Day) + "/";
+		if (tm.Month < 10)
+			data_fm += "0";
+		data_fm += String(tm.Month);
+		data_fm += "/";
+		data_fm += String(y2kYearToTm(tmYearToCalendar(tm.Year)));
+		return data_fm;
+}

@@ -22,12 +22,19 @@ void AquaUpdate::Init(){
 	    return;
 	  }
 	Serial.println("SPIFFS mounting success!");
-	Serial.println(SPIFFS.totalBytes());
-	Serial.println(SPIFFS.usedBytes());
+	Serial.print("SPIFFS free space: ");
+	Serial.print((SPIFFS.totalBytes()-SPIFFS.usedBytes())/1024);
+	Serial.println(" Kb ");
+
+
 }
 void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffer) {
+	if(!Helper.data.auto_update){
+		funcChangeLog("OTA: DISABLE");
+		return;
+	}
 	String url = UPDATE_URL + PATH_SPIFFS + "index.php";
-	funcChangeLog("OTA: Web update" + url);
+	funcChangeLog("OTA: Web update = " + url);
 	if (url.length() > 0) {
 		if (isForce) {
 			httpUpdate.rebootOnUpdate(false);

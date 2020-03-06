@@ -50,7 +50,7 @@ void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 	});
 
 	http.on("/time", HTTP_GET, []() {
-		http.send(200, "application/json", Helper.GetTime());
+		http.send(200, "application/json", Helper.GetDataTime());
 	});
 
 	http.on("/device", HTTP_GET, []() {
@@ -147,7 +147,7 @@ void cbWebSocketsEvent(uint8_t num, WStype_t type, uint8_t *payload,
 		break;
 	case WStype_CONNECTED: {
 		Serial.println("Socket Connected!");
-		auto response = Helper.GetTime();
+		auto response = Helper.GetDataTime();
 		sockets.sendTXT(num, response);
 	}
 		break;
@@ -297,7 +297,7 @@ void AquaHTTP::HandleClient() {
 	//send time device to web sockets
 	if (millis() > lastDeviceTime + DELAY_DEVICE_TIME_UPDATE) {
 		lastDeviceTime = millis();
-		SocketUpdate(Helper.GetTime());
+		SocketUpdate(Helper.GetDataTime());
 	}
 }
 
