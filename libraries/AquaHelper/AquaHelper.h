@@ -111,7 +111,7 @@
 /**
  * Addressing memory to store device states
  */
-const byte ADDR_FIRST_LAUNCH = 0;
+const byte ADDR_FIRST_LAUNCH = 1;
 
 const byte ChanalsStateAddr = 20;
 
@@ -413,7 +413,7 @@ public:
 	static void SetToneEnable(bool enable);
 	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, byte));
 	static String GetDevice(String ip);
-	static String GetTime();
+	static String GetDataTime();
 	static String GetChanalState();
 	static String GetDailyTimerState();
 	static String GetHoursTimerState();
@@ -428,6 +428,7 @@ public:
 	static String GetTempStats();
 	static tmElements_t GetTimeNow();
 	static String GetFormatTimeNow(tmElements_t time);
+	static String GetFormatDataNow(tmElements_t time);
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
