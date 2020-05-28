@@ -256,26 +256,32 @@ void SendFromUDPToController(String inString) {
 		}
 		if (inString.indexOf(CANAL_STATE) != -1) {
 			funcGetUDPRequest(CANAL, inString);
+			UDPSendMessage(responseCache[CANAL], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_DAILY_STATE) != -1) {
 			funcGetUDPRequest(TIMERDAY, inString);
+			UDPSendMessage(responseCache[TIMERDAY], false);
 			return;
 		}
 		if (inString.indexOf(TEMP_STATE) != -1) {
 			funcGetUDPRequest(TIMERTEMP, inString);
+			UDPSendMessage(responseCache[TIMERTEMP], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_HOURS_STATE) != -1) {
 			funcGetUDPRequest(TIMERHOUR, inString);
+			UDPSendMessage(responseCache[TIMERHOUR], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_SECONDS_STATE) != -1) {
 			funcGetUDPRequest(TIMERSEC, inString);
+			UDPSendMessage(responseCache[TIMERSEC], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH_TIMER) != -1) {
 			funcGetUDPRequest(PHTIMER, inString);
+			UDPSendMessage(responseCache[PHTIMER], false);
 			return;
 
 		}

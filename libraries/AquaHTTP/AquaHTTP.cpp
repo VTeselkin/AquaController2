@@ -20,6 +20,13 @@ Dictionary response = { { DEVICE, responseNull }, { CANAL, responseNull }, {
 		responseNull }, { TIMERTEMP, responseNull },
 		{ TEMPSENSOR, responseNull }, { PH, responseNull }, { TEMPSTATS,
 				responseNull } };
+static const char serverIndex[] PROGMEM =
+  R"(<html><body><form method='POST' action='' enctype='multipart/form-data'>
+                  <input type='file' name='update'>
+                  <input type='submit' value='Update'>
+               </form>
+         </body></html>)";
+
 
 void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 
@@ -131,6 +138,37 @@ void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 			param = http.arg("param");
 		HttpSendJson(TEMPSTATS, data, param);
 	});
+
+	http.on("/serverIndex", HTTP_GET, []() {
+		http.sendHeader("Connection", "close");
+		http.send(200, "text/html", serverIndex);
+	  });
+
+	 /*handling uploading firmware file */
+	http.on("/update", HTTP_POST, []() {
+		http.sendHeader("Connection", "close");
+		http.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+	    ESP.restart();
+	  }, []() {
+	    HTTPUpload& upload = http.upload();
+	    if (upload.status == UPLOAD_FILE_START) {
+	      Serial.printf("Update: %s\n", upload.filename.c_str());
+	      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
+	        Update.printError(Serial);
+	      }
+	    } else if (upload.status == UPLOAD_FILE_WRITE) {
+	      /* flashing firmware to ESP*/
+	      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+	        Update.printError(Serial);
+	      }
+	    } else if (upload.status == UPLOAD_FILE_END) {
+	      if (Update.end(true)) { //true to set the size to the current progress
+	        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+	      } else {
+	        Update.printError(Serial);
+	      }
+	    }
+	  });
 
 	http.begin();
 	sockets.begin();

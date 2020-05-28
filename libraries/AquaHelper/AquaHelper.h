@@ -367,10 +367,12 @@ typedef struct {
 	 * AUTO_CHANAL 3
 	 */
 	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3 };
+
 	/**
 	 * The array of the current PWM canals power level
 	 */
 	word PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0 };
+
 	/**
 	 * Array of types of timers that enabled the canals
 	 * TIMER_OFF 1
@@ -416,6 +418,7 @@ public:
 	static String GetDailyTimerState();
 	static String GetHoursTimerState();
 	static String GetSecondsTimerState();
+	static String GetPWMTimerState();
 	static String GetWiFiSettings();
 	static String GetTempState();
 	static String GetRealTemp();

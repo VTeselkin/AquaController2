@@ -71,7 +71,7 @@ AquaHelper::AquaHelper() {
 
 String AquaHelper::GetDevice(String ip) {
 	String result = SendStartMess();
-	result += "dev\",\"data\":{\"ver\":\"AQ_CH08WP\",\"firm\":\"";
+	result += "dev\",\"data\":{\"ver\":\"AQ_V2_ESP32\",\"firm\":\"";
 	result += VERTION_FIRMWARE;
 	result += "\",\"update\":";
 	result += data.auto_update;
@@ -137,6 +137,16 @@ String AquaHelper::GetDailyTimerState() {
 	result += GetJsonValue(data.DailyTimerState, MAX_TIMERS);
 	result += ",\"dt_c\"";
 	result += GetJsonValue(data.DailyTimerChanal, MAX_TIMERS);
+	result += SendEndMess();
+	return result;
+}
+
+/**
+ *
+ * @return
+ */
+String AquaHelper::GetPWMTimerState(){
+	String result = SendStartMess();
 	result += SendEndMess();
 	return result;
 }
@@ -271,7 +281,7 @@ String AquaHelper::GetAlarmWaterLevel(int level) {
 /**
  * v0.6
  * @param data
- * {"status":"post","message":"ph_timer","data": {"ph_401":[844, 844],"ph_686":[797, 797],"ph_c":[1,1],"ph_e":[60, 60],"ph_s":[0,0],"ph_st":[1,1]}}
+ * {"status":"post","message":"ph_timer","data": {"ph_401v2":[844, 844],"ph_686v2":[797, 797],"ph_c":[1,1],"ph_e":[60, 60],"ph_s":[0,0],"ph_st":[1,1]}}
  */
 String AquaHelper::GetPhTimerState() {
 	String result = "";
@@ -284,9 +294,9 @@ String AquaHelper::GetPhTimerState() {
 	result += GetJsonValue(data.PHTimerState, MAX_TIMERS_PH);
 	result += ",\"ph_c\"";
 	result += GetJsonValue(data.PHTimerCanal, MAX_TIMERS_PH);
-	result += ",\"ph_401\":";
+	result += ",\"ph_401v2\"";
 	result += GetJsonValue(data.PHTimer401, MAX_TIMERS_PH);
-	result += ",\"ph_686\":";
+	result += ",\"ph_686v2\"";
 	result += GetJsonValue(data.PHTimer686, MAX_TIMERS_PH);
 	result += "}}";
 	return result;
@@ -307,9 +317,9 @@ String AquaHelper::GetPhStats() {
 			result += ",";
 		}
 	}
-	result += "],\"";
+	result += "],";
 	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
-		result += "ph";
+		result += "\"ph";
 		result += String(i);
 		result += "\":[";
 		for (byte j = 0; j < MAX_STATS - 1; j++) {
@@ -484,13 +494,12 @@ byte AquaHelper::ConvertPHWordToByte(const word ph) {
 
 tmElements_t AquaHelper::GetTimeNow() {
 	tmElements_t tm;
-	auto nowTime = RTC.now();
-	tm.Day = nowTime.day();
-	tm.Hour = nowTime.hour();
-	tm.Minute = nowTime.minute();
-	tm.Month = nowTime.month();
-	tm.Second = nowTime.second();
-	tm.Year = nowTime.year();
+	tm.Day = RTC.now().day();
+	tm.Hour = RTC.now().hour();
+	tm.Minute = RTC.now().minute();
+	tm.Month = RTC.now().month();
+	tm.Second = RTC.now().second();
+	tm.Year = RTC.now().year();
 	return tm;
 }
 
