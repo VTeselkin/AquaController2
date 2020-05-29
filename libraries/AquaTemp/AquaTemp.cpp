@@ -64,7 +64,7 @@ word ConvertTempByteToWord(unsigned short temp) {
 /**
  * Checking the status of programs for temperature sensors
  */
-void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(), bool isNeedEnableZeroCanal) {
+void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(String), bool isNeedEnableZeroCanal) {
 //	if (MenuIndex >= 31 && MenuIndex <= 35)
 //		return;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP == 0) {
@@ -95,7 +95,7 @@ void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(), bool isNeedEnableZe
  * If we have a conflict timer switches the channel then we change the type
  * of timer is on this channel in the property stateChanalsTimer
  */
-bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(), bool isNeedEnableZeroCanal) {
+bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(String), bool isNeedEnableZeroCanal) {
 	if (chanal == CHANAL_BTN_DISABLE && isNeedEnableZeroCanal)
 		return false;
 	if (isEnable) {
@@ -105,7 +105,7 @@ bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*Get
 		} else {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_TEMP && timerType == TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
-				GetChanalState();
+				GetChanalState("");
 			}
 
 			return false;

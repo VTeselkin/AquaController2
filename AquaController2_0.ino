@@ -87,8 +87,8 @@ void loop() {
 	aquaWiFi.WaitRequest();
 }
 
-void ChangeChanalState() {
-	//send to UDP
+void ChangeChanalState(String str) {
+	Serial.println(str);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {

@@ -78,17 +78,54 @@ String AquaHelper::GetDevice(String ip) {
 	result += ",\"ip\":\"";
 	result += ip;
 	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
+    result +=",\"time\":\"";
+    result += GetFormatTimeNow();
+    result += "\"";
 	result += SendEndMess();
 	return result;
 }
 
-String AquaHelper::GetTime() {
-	String result = "{\"status\":\"success\",\"";
-	result += "time\":\"";
-	result += Helper.GetFormatTimeNow(Helper.GetTimeNow());
-	result += "\"}";
-	return result;
+String AquaHelper::GetDataTime() {
+    String result = "{\"status\":\"success\",\"";
+    result += "time\":\"";
+    result += GetFormatTimeNow();
+    result += "\",\"date\":\"";
+    result += GetFormatDataNow();
+    result += "\"}";
+    return result;
 }
+
+String AquaHelper::GetFormatTimeNow() {
+	tmElements_t tm = GetTimeNow();
+	String time_fm = "";
+	if (tm.Hour < 10)
+		time_fm += "0";
+	time_fm += String(tm.Hour) + ":";
+	if (tm.Minute < 10)
+		time_fm += "0";
+	time_fm += String(tm.Minute);
+	time_fm += ":";
+	if (tm.Second < 10)
+		time_fm += "0";
+	time_fm += String(tm.Second);
+	return time_fm;
+}
+
+
+String AquaHelper::GetFormatDataNow(){
+	tmElements_t tm = GetTimeNow();
+    String data_fm = "";
+        if (tm.Day < 10)
+            data_fm += "0";
+        data_fm += String(tm.Day) + "/";
+        if (tm.Month < 10)
+            data_fm += "0";
+        data_fm += String(tm.Month);
+        data_fm += "/";
+        data_fm += String(y2kYearToTm(tmYearToCalendar(tm.Year)));
+        return data_fm;
+}
+
 /**
  {
  "status": "success",
@@ -492,6 +529,7 @@ byte AquaHelper::ConvertPHWordToByte(const word ph) {
 }
 //=================================================================================================
 
+
 tmElements_t AquaHelper::GetTimeNow() {
 	tmElements_t tm;
 	tm.Day = RTC.now().day();
@@ -512,18 +550,5 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setSecond(second(epoch));
 }
 
-String AquaHelper::GetFormatTimeNow(tmElements_t tm) {
-	String time_fm = "";
-	if (tm.Hour < 10)
-		time_fm += "0";
-	time_fm += String(tm.Hour) + ":";
-	if (tm.Minute < 10)
-		time_fm += "0";
-	time_fm += String(tm.Minute);
-	time_fm += ":";
-	if (tm.Second < 10)
-		time_fm += "0";
-	time_fm += String(tm.Second);
-	return time_fm;
-}
+
 

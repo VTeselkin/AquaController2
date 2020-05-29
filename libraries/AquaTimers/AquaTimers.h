@@ -17,11 +17,11 @@ class AquaTimers {
 
 public:
 
-	 void CheckStateTimer(int lastCheck, byte timerType, void (*GetChanalState)(), bool isNeedEnableZeroCanal);
-	 void CheckStateTimerHelper(byte TimerState[], byte TimerCanal[],void (*GetChanalState)(), byte timerType, byte max_canal, bool isNeedEnableZeroCanal);
+	 void CheckStateTimer(int lastCheck, byte timerType, void (*GetChanalState)(String), bool isNeedEnableZeroCanal);
+	 void CheckStateTimerHelper(byte TimerState[], byte TimerCanal[],void (*GetChanalState)(String), byte timerType, byte max_canal, bool isNeedEnableZeroCanal);
 
 private:
-	 	 bool CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(), bool isNeedEnableZeroCanal);
+	 	 bool CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(String), bool isNeedEnableZeroCanal);
 	 	 bool CheckStateDailyTimer(byte i);
 		 bool CheckStateHoursTimer(byte i);
 		 bool CheckStateSecondTimer(byte i);

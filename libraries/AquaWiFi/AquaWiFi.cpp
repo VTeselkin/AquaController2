@@ -198,47 +198,38 @@ void SendFromUDPToController(String inString) {
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH) != -1) {
-			responseCache[PH]= Helper.GetPhStats();
 			UDPSendMessage(responseCache[PH], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_TEMP_STATS) != -1) {
-			responseCache[TEMPSTATS] = Helper.GetTempStats();
 			UDPSendMessage(responseCache[TEMPSTATS], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_TEMP_SENSOR) != -1) {
-			responseCache[TEMPSENSOR] = Helper.GetRealTemp();
 			UDPSendMessage(responseCache[TEMPSENSOR], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_CHANAL_SETTINGS) != -1) {
-			responseCache[CANAL] = Helper.GetChanalState();
 			UDPSendMessage(responseCache[CANAL], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_DAILY_TIMER_SATE) != -1) {
-			responseCache[TIMERDAY] = Helper.GetDailyTimerState();
 			UDPSendMessage(responseCache[TIMERDAY], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_HOURS_TIMER_SATE) != -1) {
-			responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
 			UDPSendMessage(responseCache[TIMERHOUR], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_SECOND_TIMER_SATE) != -1) {
-			responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
 			UDPSendMessage(responseCache[TIMERSEC], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_TEMP_STATE) != -1) {
-			responseCache[TIMERTEMP] = Helper.GetTempState();
 			UDPSendMessage(responseCache[TIMERTEMP], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH_TIMER) != -1) {
-			responseCache[PHTIMER] = Helper.GetPhTimerState();
 			UDPSendMessage(responseCache[PHTIMER], false);
 			return;
 		}
@@ -256,31 +247,37 @@ void SendFromUDPToController(String inString) {
 		}
 		if (inString.indexOf(CANAL_STATE) != -1) {
 			funcGetUDPRequest(CANAL, inString);
+			responseCache[CANAL] = Helper.GetChanalState();
 			UDPSendMessage(responseCache[CANAL], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_DAILY_STATE) != -1) {
 			funcGetUDPRequest(TIMERDAY, inString);
+			responseCache[TIMERDAY] = Helper.GetDailyTimerState();
 			UDPSendMessage(responseCache[TIMERDAY], false);
 			return;
 		}
 		if (inString.indexOf(TEMP_STATE) != -1) {
 			funcGetUDPRequest(TIMERTEMP, inString);
+			responseCache[TIMERTEMP] = Helper.GetTempState();
 			UDPSendMessage(responseCache[TIMERTEMP], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_HOURS_STATE) != -1) {
 			funcGetUDPRequest(TIMERHOUR, inString);
+			responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
 			UDPSendMessage(responseCache[TIMERHOUR], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_SECONDS_STATE) != -1) {
 			funcGetUDPRequest(TIMERSEC, inString);
+			responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
 			UDPSendMessage(responseCache[TIMERSEC], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH_TIMER) != -1) {
 			funcGetUDPRequest(PHTIMER, inString);
+			responseCache[PHTIMER] = Helper.GetPhTimerState();
 			UDPSendMessage(responseCache[PHTIMER], false);
 			return;
 

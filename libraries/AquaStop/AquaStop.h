@@ -14,7 +14,7 @@
 
 class AquaStop{
 public:
-	bool GetTemporaryStopCanal(bool isNeedEnableZeroCanal, void (*GetChanalState)());
+	bool GetTemporaryStopCanal(bool isNeedEnableZeroCanal, void (*GetChanalState)(String));
 	bool SetTemporaryStopCanal(byte delay, bool isNeedEnableZeroCanal, void (*GetChanalState)());
 
 private:

@@ -427,8 +427,8 @@ public:
 	static String GetPhStats();
 	static String GetTempStats();
 	static tmElements_t GetTimeNow();
-	static String GetFormatTimeNow(tmElements_t time);
-	static String GetFormatDataNow(tmElements_t time);
+	static String GetFormatTimeNow();
+	static String GetFormatDataNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);

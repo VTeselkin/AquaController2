@@ -9,17 +9,15 @@
 
 void AquaCanal::Init() {
 
-
 	const int freq = 5000;
 	const int resolution = 12;
 
 	for (byte i = 0; i < MAX_CHANALS + MAX_CHANALS_PWM; i++) {
 
-		ledcSetup(i, freq, resolution);
 		if (i < MAX_CHANALS) {
-			ledcAttachPin(Helper.data.nRelayDrive[i], i);
 			pinMode(Helper.data.nRelayDrive[i], OUTPUT);
 		} else {
+			ledcSetup(i, freq, resolution);
 			ledcAttachPin(Helper.data.nPWMDrive[i - MAX_CHANALS], i);
 			pinMode(Helper.data.nPWMDrive[i - MAX_CHANALS], OUTPUT);
 		}
@@ -27,12 +25,9 @@ void AquaCanal::Init() {
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
-	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	if (state == HIGH) {
-		ledcWrite(canal, MAX_PWM_POWER_CALCULATE);
-	} else if (state == LOW) {
-		ledcWrite(canal, 0);
-	}
+	//canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	digitalWrite(canal, state);
+
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
@@ -41,12 +36,8 @@ void AquaCanal::SetPWMCanal(byte canal, word level) {
 }
 
 byte AquaCanal::GetCanal(byte canal) {
-	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	if (ledcRead(canal) > 0) {
-		return HIGH;
-	} else {
-		return LOW;
-	}
+	//canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
+	return digitalRead(canal);
 }
 
 uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
@@ -63,37 +54,51 @@ byte AquaCanal::GetPWMCanalState(byte canal) {
 	}
 }
 
-void AquaCanal::SetStateCanal(void (*GetChanalState)()) {
-	bool res = false;
+void AquaCanal::SetStateCanal(void (*GetChanalState)(String)) {
+
 	for (byte i = 0; i < MAX_CHANALS; i++) {
+
 		if (Helper.data.StateChanals[i] == AUTO_CHANAL) {
-			byte stateCanal = GetCanal(Helper.data.nRelayDrive[i]);
-			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF && stateCanal == LOW) {
+			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
 				SetCanal(Helper.data.nRelayDrive[i], HIGH);
-				res = true;
-			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF && stateCanal == HIGH) {
-				stateCanal = LOW;
+				GetChanalState("Set AUTO_CHANAL HIGH = " + i);
+			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF && GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
+
 				SetCanal(Helper.data.nRelayDrive[i], LOW);
-				res = true;
+				GetChanalState("Set AUTO_CHANAL LOW = " + i);
 			}
+		} else if (Helper.data.StateChanals[i] == ON_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
+
+			SetCanal(Helper.data.nRelayDrive[i], HIGH);
+			GetChanalState("Set MANUAL HIGH = " + i);
+		} else if (Helper.data.StateChanals[i] == OFF_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
+
+			SetCanal(Helper.data.nRelayDrive[i], LOW);
+			GetChanalState("Set MANUAL LOW = " + i);
+			if(GetCanal(Helper.data.nRelayDrive[i]) == HIGH){
+				GetChanalState("HIGH");
+			}else{
+				GetChanalState("LOW");
+			}
+
 		}
+
 	}
 
-	if (res) {
-		GetChanalState();
-	}
 }
 
-void AquaCanal::SetStatePWMCanal(void (*GetChanalState)()) {
+void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(String)) {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
 		auto canal = Helper.data.TimerPWMChanal[i];
 		if (Helper.data.StatePWMChanals[i] == AUTO_CHANAL) {
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == LOW) {
-				if (Helper.data.PowerPWMChanals[canal] >= 0 && Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+				if (Helper.data.PowerPWMChanals[canal]
+						>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
 					SetPWMOnCanal(true, i);
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == HIGH) {
-				if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE && Helper.data.PowerPWMChanals[canal] > 0) {
+				if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE
+						&& Helper.data.PowerPWMChanals[canal] > 0) {
 					SetPWMOnCanal(false, i);
 				}
 			}
@@ -138,7 +143,8 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]] = 0;
 			}
 		}
-		SetPWMCanal(Helper.data.TimerPWMChanal[timers], Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]]);
+		SetPWMCanal(Helper.data.TimerPWMChanal[timers],
+				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]]);
 
 	}
 }

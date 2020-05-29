@@ -18,8 +18,8 @@ public:
 	byte GetCanal(byte canal);
 	word GetPWMCanalLevel(byte canal);
 	byte GetPWMCanalState(byte canal);
-	void SetStateCanal(void (*GetChanalState)());
-	void SetStatePWMCanal(void (*GetChanalState)());
+	void SetStateCanal(void (*GetChanalState)(String));
+	void SetStatePWMCanal(void (*GetChanalState)(String));
 
 	private:
 	void SetPWMOnCanal(bool isOn, byte timers);
