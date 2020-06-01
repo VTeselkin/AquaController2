@@ -10,6 +10,8 @@ void AquaEEPROM::Init() {
 	EEPROM.begin(MAX_EEPROM);
 	OnFirstLunch();
 	LoadChanelState();
+	LoadPWMChanelState();
+	LoadPWMTimersReadFromERROM();
 	LoadDailyTimersReadFromERROM();
 	LoadHoursTimersReadFromERROM();
 	LoadSecondsTimersReadFromERROM();
@@ -30,6 +32,17 @@ void AquaEEPROM::LoadChanelState() {
 	}
 }
 
+void AquaEEPROM::SavePWMChanalState() {
+	for (byte i = 0; i < MAX_CHANALS_PWM; i++) {
+		EEPROM.write(ChanalsPWMStateAddr - i, Helper.data.StatePWMChanals[i]);
+	}
+	EEPROM.commit();
+}
+void AquaEEPROM::LoadPWMChanelState() {
+	for (byte i = 0; i < MAX_CHANALS; i++) {
+		Helper.data.StatePWMChanals[i] = EEPROM.read(ChanalsPWMStateAddr - i);
+	}
+}
 void AquaEEPROM::LoadDailyTimersReadFromERROM() {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
 		Helper.data.DailyTimerHourStart[i] = EEPROM.read(DailyTimerHourStartAddr - i);
@@ -52,6 +65,32 @@ void AquaEEPROM::SaveDailyTimerToERROM() {
 	}
 	EEPROM.commit();
 }
+
+void AquaEEPROM::LoadPWMTimersReadFromERROM() {
+	for (byte i = 0; i < MAX_TIMERS; i++) {
+		Helper.data.TimerPWMHourStart[i] = EEPROM.read(PWMTimerHourStartAddr - i);
+		Helper.data.TimerPWMHourEnd[i] = EEPROM.read(PWMTimerHourEndAddr - i);
+		Helper.data.TimerPWMMinStart[i] = EEPROM.read(PWMTimerMinStartAddr - i);
+		Helper.data.TimerPWMMinEnd[i] = EEPROM.read(PWMTimerMinEndAddr - i);
+		Helper.data.TimerPWMState[i] = EEPROM.read(PWMTimerStateAddr - i);
+		Helper.data.TimerPWMChanal[i] = EEPROM.read(PWMTimerChanalAddr - i);
+		Helper.data.TimerPWMDuration[i] = EEPROM.read(PWMTimerHourDurationAddr - i);
+	}
+}
+
+void AquaEEPROM::SavePWMTimerToERROM() {
+	for (byte i = 0; i < MAX_TIMERS; i++) {
+		EEPROM.write(PWMTimerHourStartAddr - i, Helper.data.TimerPWMHourStart[i]);
+		EEPROM.write(PWMTimerHourEndAddr - i, Helper.data.TimerPWMHourEnd[i]);
+		EEPROM.write(PWMTimerMinStartAddr - i, Helper.data.TimerPWMMinStart[i]);
+		EEPROM.write(PWMTimerMinEndAddr - i, Helper.data.TimerPWMMinEnd[i]);
+		EEPROM.write(PWMTimerStateAddr - i, Helper.data.TimerPWMState[i]);
+		EEPROM.write(PWMTimerChanalAddr - i, Helper.data.TimerPWMChanal[i]);
+		EEPROM.write(PWMTimerHourDurationAddr - i, Helper.data.TimerPWMDuration[i]);
+	}
+	EEPROM.commit();
+}
+
 void AquaEEPROM::LoadSecondsTimersReadFromERROM() {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
 		Helper.data.SecondTimerHourStart[i] = EEPROM.read(SecondTimerHourStartAddr - i);

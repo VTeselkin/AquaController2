@@ -7,6 +7,7 @@
 #pragma once
 #include "Arduino.h"
 #include <AquaHelper.h>
+#include <Adafruit_PWMServoDriver.h>
 
 class AquaCanal{
 public:

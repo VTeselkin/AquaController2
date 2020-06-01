@@ -149,6 +149,26 @@ String AquaHelper::GetChanalState() {
 /**
  {
  "status": "success",
+ "message": "pwm_c_s",
+ "data": {
+ "pwm_cl": [2, 1, 1, 1, 1, 1, 1, 1],
+ "pwm_c_t": [2, 3, 3, 3, 3, 3, 3, 3]
+ }
+ }
+ */
+String AquaHelper::GetChanalPWMState() {
+	String result = SendStartMess();
+	result += "pwm_c_s\",\"data\":{\"pwm_cl\"";
+	result += GetJsonValue(data.CurrentStatePWMChanalsByTypeTimer, MAX_CHANALS);
+	result += ",\"pwm_c_t\"";
+	result += GetJsonValue(data.StatePWMChanals, MAX_CHANALS);
+	result += SendEndMess();
+	return result;
+}
+
+/**
+ {
+ "status": "success",
  "message": "td_s",
  "data": {
  "dt_h_s": [0, 12, 12, 0, 0, 0, 0, 0, 0, 0],
@@ -179,14 +199,40 @@ String AquaHelper::GetDailyTimerState() {
 }
 
 /**
- *
- * @return
+ {
+ "status": "success",
+ "message": "pwm_timer",
+ "data": {
+ "pwm_h_s": [0, 12, 12, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_h_end": [0, 20, 21, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_m_s": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_m_e": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_s": [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_c": [0, 1, 2, 0, 0, 0, 0, 0, 0, 0],
+ "pwm_delay": [0, 1, 2, 0, 0, 0, 0, 0, 0, 0]
+ }
+ }
  */
-String AquaHelper::GetPWMTimerState(){
+String AquaHelper::GetPWMTimerState() {
 	String result = SendStartMess();
+	result += "pwm_timer\",\"data\":{\"pwm_h_s\"";
+	result += GetJsonValue(data.TimerPWMHourStart, MAX_TIMERS);
+	result += ",\"pwm_h_end\"";
+	result += GetJsonValue(data.TimerPWMHourEnd, MAX_TIMERS);
+	result += ",\"pwm_m_s\"";
+	result += GetJsonValue(data.TimerPWMMinStart, MAX_TIMERS);
+	result += ",\"pwm_m_e\"";
+	result += GetJsonValue(data.TimerPWMMinEnd, MAX_TIMERS);
+	result += ",\"pwm_s\"";
+	result += GetJsonValue(data.TimerPWMState, MAX_TIMERS);
+	result += ",\"pwm_c\"";
+	result += GetJsonValue(data.TimerPWMChanal, MAX_TIMERS);
+	result += ",\"pwm_delay\"";
+	result += GetJsonValue(data.TimerPWMDuration, MAX_TIMERS);
 	result += SendEndMess();
 	return result;
 }
+
 /**
  {
  "status": "success",
@@ -406,7 +452,9 @@ bool AquaHelper::SetPostRequest(String inString,
 		if (inString.indexOf("c_s") != -1) {
 			SetJsonValue(Helper.data.StateChanals, MAX_CHANALS, "c_t", request);
 			return true;
-		} else if (inString.indexOf("te_s") != -1) {
+		} else if(inString.indexOf("pwm_c_s")){
+			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "c_t", request);
+		}else if (inString.indexOf("te_s") != -1) {
 			SetJsonValue(Helper.data.TempTimerState, MAX_TEMP_SENSOR, "tt_s",
 					request);
 			SetJsonValue(Helper.data.TempTimerMinStart, MAX_TEMP_SENSOR,
@@ -452,7 +500,23 @@ bool AquaHelper::SetPostRequest(String inString,
 			SetJsonValue(Helper.data.SecondTimerCanal, MAX_TIMERS, "st_c",
 					request);
 			return true;
-		} else if (inString.indexOf("ph_timer") != -1) {
+		} else if (inString.indexOf("pwm_timer") != -1) {
+			SetJsonValue(Helper.data.TimerPWMHourStart, MAX_TIMERS, "pwm_h_s",
+					request);
+			SetJsonValue(Helper.data.TimerPWMHourEnd, MAX_TIMERS, "pwm_h_end",
+					request);
+			SetJsonValue(Helper.data.TimerPWMMinStart, MAX_TIMERS, "pwm_m_s",
+					request);
+			SetJsonValue(Helper.data.TimerPWMMinEnd, MAX_TIMERS, "pwm_m_e",
+					request);
+			SetJsonValue(Helper.data.TimerPWMState, MAX_TIMERS, "pwm_s",
+					request);
+			SetJsonValue(Helper.data.TimerPWMChanal, MAX_TIMERS, "pwm_c",
+					request);
+			SetJsonValue(Helper.data.TimerPWMDuration, MAX_TIMERS, "pwm_delay",
+								request);
+			return true;
+		}else if (inString.indexOf("ph_timer") != -1) {
 			if (inString.indexOf("ph_s") != -1)
 				SetJsonValue(Helper.data.PHTimerStart, MAX_TIMERS_PH, "ph_s",
 						request);

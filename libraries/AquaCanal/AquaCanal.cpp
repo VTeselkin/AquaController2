@@ -6,22 +6,28 @@
  */
 
 #include "AquaCanal.h"
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 void AquaCanal::Init() {
 
-	const int freq = 5000;
-	const int resolution = 12;
+	const int freq = 27000000;
+	const int PWMFreq = 1600;
 
-	for (byte i = 0; i < MAX_CHANALS + MAX_CHANALS_PWM; i++) {
+	  pwm.begin();
+	  pwm.setOscillatorFrequency(freq);
+	  pwm.setPWMFreq(PWMFreq);
 
-		if (i < MAX_CHANALS) {
+	for (byte i = 0; i < MAX_CHANALS; i++) {
 			pinMode(Helper.data.nRelayDrive[i], OUTPUT);
-		} else {
-			ledcSetup(i, freq, resolution);
-			ledcAttachPin(Helper.data.nPWMDrive[i - MAX_CHANALS], i);
-			pinMode(Helper.data.nPWMDrive[i - MAX_CHANALS], OUTPUT);
-		}
+			digitalWrite(Helper.data.nRelayDrive[i], LOW);
 	}
+	for (byte i = 0; i < MAX_CHANALS_PWM; i++) {
+		pwm.setPWM(i, 0, 4096);
+	}
+}
+
+byte AquaCanal::GetCanal(byte canal) {
+	return digitalRead(canal);
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
@@ -31,23 +37,15 @@ void AquaCanal::SetCanal(byte canal, byte state) {
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	ledcWrite(canal, level);
-}
-
-byte AquaCanal::GetCanal(byte canal) {
-	//canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	return digitalRead(canal);
+	pwm.setPWM(canal, GetPWMCanalLevel(canal), level );
 }
 
 uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
-	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	return ledcRead(canal);
+	return pwm.getPWM(canal);
 }
 
 byte AquaCanal::GetPWMCanalState(byte canal) {
-	canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
-	if (ledcRead(canal) > 0) {
+	if (GetPWMCanalLevel(canal) > 0) {
 		return HIGH;
 	} else {
 		return LOW;
@@ -92,8 +90,7 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(String)) {
 		auto canal = Helper.data.TimerPWMChanal[i];
 		if (Helper.data.StatePWMChanals[i] == AUTO_CHANAL) {
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == LOW) {
-				if (Helper.data.PowerPWMChanals[canal]
-						>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+				if (Helper.data.PowerPWMChanals[canal]>= 0 && Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
 					SetPWMOnCanal(true, i);
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == HIGH) {

@@ -21,8 +21,7 @@
 #define MAX_CHANALS 8
 //Maximum number of timers
 #define MAX_TIMERS 10
-//Maximum number of PWM timers
-#define MAX_TIMERS_PWM 4
+
 #define MAX_EEPROM 1024
 
 #define I2C_SDA 4
@@ -83,7 +82,7 @@
 // Maximum possible maximum temperature
 #define MAX_TEMP 3500
 //Maximum number of PWM canals
-#define MAX_CHANALS_PWM 4
+#define MAX_CHANALS_PWM 10
 //Maximum number of Power PWM canals
 #define  MAX_PWM_POWER_CALCULATE 32768
 //Maximum number of analog canals
@@ -124,6 +123,15 @@ const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 
+const byte PWMTimerHourDurationAddr = 437;
+const byte PWMTimerHourStartAddr = 427;
+const byte PWMTimerHourEndAddr = 417;
+const byte PWMTimerMinStartAddr = 407;
+const byte PWMTimerMinEndAddr = 397;
+const byte PWMTimerStateAddr = 387;
+const byte PWMTimerChanalAddr = 377;
+
+const byte ChanalsPWMStateAddr = 367;
 
 const word PHTimerStartAddr = 347;
 const word PHTimerEndAddr = 345;
@@ -215,6 +223,9 @@ const String SECOND_TIMER_DURATIONT = "st_d";
 const String SECOND_TIMER_STATE = "st_s";
 const String SECOND_TIMER_CANAL = "st_c";
 
+const String TIMER_DAILY_PWM_STATE = "pwm_timer";
+const String CANAL_STATE_PWM = "pwm_c_s";
+
 //--------------------------JSONs--------------------------------
 
 const String GET_PARAM_REQUEST = "{\"status\":\"get\",\"message\":\"set\"}";
@@ -244,7 +255,7 @@ const String VERTION_PROTOCOL = "/4/";
 const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
-const String VERTION_FIRMWARE = "2.0.0";
+const String VERTION_FIRMWARE = "200.bin";
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -262,7 +273,7 @@ const float Ph4_01 = 4.01f;
 
 
 
-typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS } typeResponse;
+typedef enum { DEVICE, CANAL, PWMCANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMTIMER } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
 String GetJsonValue(const uint8_t arrayData[], const byte count);
@@ -350,7 +361,7 @@ typedef struct {
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
-	const byte nPWMDrive[MAX_CHANALS_PWM] = { 26, 27, 32, 33 };
+	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 	byte TimerPWMHourStart[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMHourEnd[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -366,12 +377,12 @@ typedef struct {
 	 * ON_CHANAL 2
 	 * AUTO_CHANAL 3
 	 */
-	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3 };
+	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 
 	/**
 	 * The array of the current PWM canals power level
 	 */
-	word PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0 };
+	int PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/**
 	 * Array of types of timers that enabled the canals
@@ -383,7 +394,7 @@ typedef struct {
 	 * TIMER_TEMP 6
 	 * TIMER_PWM 7
 	 */
-	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1 };
+	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1,  1, 1, 1, 1, 1 };
 	unsigned long TimetoCheckPWMstate[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
@@ -399,7 +410,7 @@ typedef struct {
 
 	/** ------------------------------------ADC-------------------------------------- */
 	//Enabled canals for ADC
-		const byte nADCPins[MAX_CHANALS_PWM] = { 34, 35, 36, 39 };
+		const byte nADCPins[MAX_ADC_CANAL] = { 34, 35, 36, 39 };
 	/** ----------------------------------------------------------------------------- */
 } dataController;
 
@@ -415,6 +426,7 @@ public:
 	static String GetDevice(String ip);
 	static String GetDataTime();
 	static String GetChanalState();
+	static String GetChanalPWMState();
 	static String GetDailyTimerState();
 	static String GetHoursTimerState();
 	static String GetSecondsTimerState();

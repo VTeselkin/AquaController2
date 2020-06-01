@@ -17,7 +17,11 @@ public:
 	void Init();
 	void SaveChanalState();
 	void LoadChanelState();
+	void SavePWMChanalState();
+	void LoadPWMChanelState();
 	void LoadDailyTimersReadFromERROM();
+	void LoadPWMTimersReadFromERROM();
+	void SavePWMTimerToERROM();
 	void SaveDailyTimerToERROM();
 	void LoadSecondsTimersReadFromERROM();
 	void SaveSecondsTimerToERROM();

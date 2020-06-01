@@ -59,6 +59,17 @@ void setup() {
 	aquaTemp.Init(aquaEEPROM);
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
+
+
+			for (byte address = 10; address <= 127; address++) {
+				Wire.beginTransmission(address);
+				byte error = Wire.endTransmission();
+				if (error == 0) {
+					Serial.println(address, HEX);
+				}
+			}
+
+
 }
 
 void loop() {
@@ -131,6 +142,12 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		case TEMPSENSOR:
 			break;
 		case PH:
+			break;
+		case PWMTIMER:
+			aquaEEPROM.SavePWMTimerToERROM();
+			break;
+		case PWMCANAL:
+			aquaEEPROM.SavePWMChanalState();
 			break;
 		}
 	}
