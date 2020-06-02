@@ -123,15 +123,15 @@ const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 
-const byte PWMTimerHourDurationAddr = 437;
-const byte PWMTimerHourStartAddr = 427;
-const byte PWMTimerHourEndAddr = 417;
-const byte PWMTimerMinStartAddr = 407;
-const byte PWMTimerMinEndAddr = 397;
-const byte PWMTimerStateAddr = 387;
-const byte PWMTimerChanalAddr = 377;
+const word PWMTimerHourDurationAddr = 437;
+const word PWMTimerHourStartAddr = 427;
+const word PWMTimerHourEndAddr = 417;
+const word PWMTimerMinStartAddr = 407;
+const word PWMTimerMinEndAddr = 397;
+const word PWMTimerStateAddr = 387;
+const word PWMTimerChanalAddr = 377;
 
-const byte ChanalsPWMStateAddr = 367;
+const word ChanalsPWMStateAddr = 367;
 
 const word PHTimerStartAddr = 347;
 const word PHTimerEndAddr = 345;
@@ -224,7 +224,7 @@ const String SECOND_TIMER_STATE = "st_s";
 const String SECOND_TIMER_CANAL = "st_c";
 
 const String TIMER_DAILY_PWM_STATE = "pwm_timer";
-const String CANAL_STATE_PWM = "pwm_c_s";
+const String CANAL_STATE_PWM = "pwm_cs";
 
 //--------------------------JSONs--------------------------------
 
@@ -273,7 +273,7 @@ const float Ph4_01 = 4.01f;
 
 
 
-typedef enum { DEVICE, CANAL, PWMCANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMTIMER } typeResponse;
+typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMCANAL, PWMTIMER } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
 String GetJsonValue(const uint8_t arrayData[], const byte count);

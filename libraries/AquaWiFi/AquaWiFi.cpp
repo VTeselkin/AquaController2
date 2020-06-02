@@ -33,10 +33,10 @@ uint16_t (*funcNTPUpdate)(uint16_t);
 
 word UTC3 = 3; //UTC+3
 
-Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { PWMCANAL, responseNull }, { TIMERDAY,
-		responseNull }, { TIMERHOUR, responseNull }, { TIMERSEC, responseNull }, { TIMERTEMP, responseNull }, {
-		TEMPSENSOR, responseNull }, { PH, responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, {
-		PWMTIMER, responseNull } };
+Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
+		responseNull }, { TIMERSEC, responseNull }, { TIMERTEMP, responseNull }, { TEMPSENSOR, responseNull }, { PH,
+		responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, { PWMCANAL, responseNull }, { PWMTIMER,
+		responseNull } };
 
 void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
 		uint16_t (*NTPUpdate)(uint16_t)) {
@@ -49,22 +49,10 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
 	update.Init();
-	if (Connection()) {
-		_isConnected = true;
-		_isError = false;
-		SendWiFiLog("HTTP:Service started...");
-		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
-		StartCaching();
-		web.Init(responseCache, jsonBuffer);
-		if (isInterenetAvalible) {
-			ntp.SetNTPTimeToController(ChangeLog);
-		} else {
-			SendWiFiLog("WAN:Not connection..");
-		}
-	}
+	Connection();
 }
 
-bool Connection() {
+void AquaWiFi::Connection() {
 
 	if (_isWiFiEnable) {
 		SendWiFiLog("WiFi:Try connect...");
@@ -84,15 +72,26 @@ bool Connection() {
 		 */
 		if (!wifiManager.autoConnect("AP: AquaController")) {
 			ESP.restart();
-			return false;
+
 		}
 		Udp.begin(localUdpPort);
 		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());
 		SendWifiIp(true);
-		return true;
+		_isConnected = true;
+		_isError = false;
+		SendWiFiLog("HTTP:Service started...");
+		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
+		StartCaching();
+		web.Init(responseCache, jsonBuffer);
+		if (isInterenetAvalible) {
+			ntp.SetNTPTimeToController(funcChangeLog);
+		} else {
+			SendWiFiLog("WAN:Not connection..");
+		}
+
 	} else {
 		SendWiFiLog("WiFi:Disable...");
-		return false;
+
 	}
 }
 
@@ -194,6 +193,7 @@ void SendFromUDPToController(String inString) {
 	}
 
 	if (inString.indexOf(GET_COMMAND) != -1) {
+
 		if (inString.indexOf(GET_DEVICE_INFO) != -1) {
 			responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 			UDPSendMessage(responseCache[DEVICE], false);
@@ -215,7 +215,7 @@ void SendFromUDPToController(String inString) {
 			UDPSendMessage(responseCache[CANAL], false);
 			return;
 		}
-		if (inString.indexOf(CANAL_STATE_PWM)) {
+		if (inString.indexOf(CANAL_STATE_PWM) != -1) {
 			UDPSendMessage(responseCache[PWMCANAL], false);
 			return;
 		}

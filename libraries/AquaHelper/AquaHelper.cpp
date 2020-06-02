@@ -158,9 +158,9 @@ String AquaHelper::GetChanalState() {
  */
 String AquaHelper::GetChanalPWMState() {
 	String result = SendStartMess();
-	result += "pwm_c_s\",\"data\":{\"pwm_cl\"";
+	result += "pwm_cs\",\"data\":{\"pwm_cl\"";
 	result += GetJsonValue(data.CurrentStatePWMChanalsByTypeTimer, MAX_CHANALS);
-	result += ",\"pwm_c_t\"";
+	result += ",\"pwm_ct\"";
 	result += GetJsonValue(data.StatePWMChanals, MAX_CHANALS);
 	result += SendEndMess();
 	return result;
@@ -452,8 +452,9 @@ bool AquaHelper::SetPostRequest(String inString,
 		if (inString.indexOf("c_s") != -1) {
 			SetJsonValue(Helper.data.StateChanals, MAX_CHANALS, "c_t", request);
 			return true;
-		} else if(inString.indexOf("pwm_c_s")){
-			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "c_t", request);
+		} else if(inString.indexOf("pwm_cs")){
+			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "pwm_c_t", request);
+			return true;
 		}else if (inString.indexOf("te_s") != -1) {
 			SetJsonValue(Helper.data.TempTimerState, MAX_TEMP_SENSOR, "tt_s",
 					request);

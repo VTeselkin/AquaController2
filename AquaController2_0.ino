@@ -61,13 +61,13 @@ void setup() {
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
 
 
-			for (byte address = 10; address <= 127; address++) {
-				Wire.beginTransmission(address);
-				byte error = Wire.endTransmission();
-				if (error == 0) {
-					Serial.println(address, HEX);
-				}
-			}
+//			for (byte address = 10; address <= 127; address++) {
+//				Wire.beginTransmission(address);
+//				byte error = Wire.endTransmission();
+//				if (error == 0) {
+//					Serial.println(address, HEX);
+//				}
+//			}
 
 
 }
