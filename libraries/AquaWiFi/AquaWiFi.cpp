@@ -239,6 +239,10 @@ void SendFromUDPToController(String inString) {
 			UDPSendMessage(responseCache[PHTIMER], false);
 			return;
 		}
+		if (inString.indexOf(TIMER_DAILY_PWM_STATE) != -1) {
+			UDPSendMessage(responseCache[PWMTIMER], false);
+			return;
+		}
 
 	} else if (inString.indexOf(POST_COMMAND) != -1) {
 		if (inString.indexOf("data") == -1) {
@@ -253,51 +257,35 @@ void SendFromUDPToController(String inString) {
 		}
 		if (inString.indexOf(CANAL_STATE) != -1) {
 			funcGetUDPRequest(CANAL, inString);
-			responseCache[CANAL] = Helper.GetChanalState();
-			UDPSendMessage(responseCache[CANAL], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_DAILY_STATE) != -1) {
 			funcGetUDPRequest(TIMERDAY, inString);
-			responseCache[TIMERDAY] = Helper.GetDailyTimerState();
-			UDPSendMessage(responseCache[TIMERDAY], false);
 			return;
 		}
 		if (inString.indexOf(TEMP_STATE) != -1) {
 			funcGetUDPRequest(TIMERTEMP, inString);
-			responseCache[TIMERTEMP] = Helper.GetTempState();
-			UDPSendMessage(responseCache[TIMERTEMP], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_HOURS_STATE) != -1) {
 			funcGetUDPRequest(TIMERHOUR, inString);
-			responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
-			UDPSendMessage(responseCache[TIMERHOUR], false);
 			return;
 		}
 		if (inString.indexOf(TIMER_SECONDS_STATE) != -1) {
 			funcGetUDPRequest(TIMERSEC, inString);
-			responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
-			UDPSendMessage(responseCache[TIMERSEC], false);
 			return;
 		}
 		if (inString.indexOf(GET_DEVICE_PH_TIMER) != -1) {
 			funcGetUDPRequest(PHTIMER, inString);
-			responseCache[PHTIMER] = Helper.GetPhTimerState();
-			UDPSendMessage(responseCache[PHTIMER], false);
 			return;
 
 		}
 		if (inString.indexOf(TIMER_DAILY_PWM_STATE) != -1) {
 			funcGetUDPRequest(PWMTIMER, inString);
-			responseCache[PWMTIMER] = Helper.GetPWMTimerState();
-			UDPSendMessage(responseCache[PWMTIMER], false);
 			return;
 		}
 		if (inString.indexOf(CANAL_STATE_PWM) != -1) {
 			funcGetUDPRequest(PWMCANAL, inString);
-			responseCache[PWMCANAL] = Helper.GetChanalPWMState();
-			UDPSendMessage(responseCache[PWMCANAL], false);
 			return;
 		}
 
@@ -308,19 +296,62 @@ void SendFromUDPToController(String inString) {
 
 void AquaWiFi::StartCaching() {
 	SendWiFiLog("WiFi:Caching data...");
+	SendCacheResponse(DEVICE,false);
+	SendCacheResponse(CANAL,false);
+	SendCacheResponse(PH,false);
+	SendCacheResponse(TEMPSTATS,false);
+	SendCacheResponse(TEMPSENSOR,false);
+	SendCacheResponse(TIMERDAY,false);
+	SendCacheResponse(TIMERHOUR,false);
+	SendCacheResponse(TIMERSEC,false);
+	SendCacheResponse(TIMERTEMP,false);
+	SendCacheResponse(PHTIMER,false);
+	SendCacheResponse(PWMTIMER,false);
+	SendCacheResponse(PWMCANAL,false);
+}
 
-	responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
-	responseCache[CANAL] = Helper.GetChanalState();
-	responseCache[PH] = Helper.GetPhStats();
-	responseCache[TEMPSTATS] = Helper.GetTempStats();
-	responseCache[TEMPSENSOR] = Helper.GetRealTemp();
-	responseCache[TIMERDAY] = Helper.GetDailyTimerState();
-	responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
-	responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
-	responseCache[TIMERTEMP] = Helper.GetTempState();
-	responseCache[PHTIMER] = Helper.GetPhTimerState();
-	responseCache[PWMTIMER] = Helper.GetPWMTimerState();
-	responseCache[PWMCANAL] = Helper.GetChanalPWMState();
+void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache){
+	switch(type){
+
+	case DEVICE:
+		responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
+	break;
+	case CANAL:
+		responseCache[CANAL] = Helper.GetChanalState();
+		break;
+	case PH:
+		responseCache[PH] = Helper.GetPhStats();
+		break;
+	case TEMPSTATS:
+		responseCache[TEMPSTATS] = Helper.GetTempStats();
+		break;
+	case TEMPSENSOR:
+		responseCache[TEMPSENSOR] = Helper.GetRealTemp();
+		break;
+	case TIMERDAY:
+		responseCache[TIMERDAY] = Helper.GetDailyTimerState();
+		break;
+	case TIMERHOUR:
+		responseCache[TIMERHOUR] = Helper.GetHoursTimerState();
+		break;
+	case TIMERSEC:
+		responseCache[TIMERSEC] = Helper.GetSecondsTimerState();
+		break;
+	case TIMERTEMP:
+		responseCache[TIMERTEMP] = Helper.GetTempState();
+		break;
+	case PHTIMER:
+		responseCache[PHTIMER] = Helper.GetPhTimerState();
+		break;
+	case PWMTIMER:
+		responseCache[PWMTIMER] = Helper.GetPWMTimerState();
+		break;
+	case PWMCANAL:
+		responseCache[PWMCANAL] = Helper.GetChanalPWMState();
+		break;
+	}
+	if(sendCache)
+		UDPSendMessage(responseCache[type], false);
 }
 
 void AquaWiFi::CacheResponse(typeResponse type, String json) {

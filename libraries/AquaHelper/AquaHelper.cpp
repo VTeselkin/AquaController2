@@ -453,7 +453,7 @@ bool AquaHelper::SetPostRequest(String inString,
 			SetJsonValue(Helper.data.StateChanals, MAX_CHANALS, "c_t", request);
 			return true;
 		} else if(inString.indexOf("pwm_cs")){
-			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "pwm_c_t", request);
+			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "pwm_ct", request);
 			return true;
 		}else if (inString.indexOf("te_s") != -1) {
 			SetJsonValue(Helper.data.TempTimerState, MAX_TEMP_SENSOR, "tt_s",

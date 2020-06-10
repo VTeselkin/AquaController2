@@ -53,23 +53,12 @@ bool isNeedEnableZeroCanal = false;
 
 void setup() {
 	Serial.begin(115200);
-	Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);                       // Wire must be started first
+	Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
 	aquaEEPROM.Init();
 	aquaCanal.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
-
-
-//			for (byte address = 10; address <= 127; address++) {
-//				Wire.beginTransmission(address);
-//				byte error = Wire.endTransmission();
-//				if (error == 0) {
-//					Serial.println(address, HEX);
-//				}
-//			}
-
-
 }
 
 void loop() {
@@ -98,8 +87,8 @@ void loop() {
 	aquaWiFi.WaitRequest();
 }
 
-void ChangeChanalState(String str) {
-	Serial.println(str);
+void ChangeChanalState(typeResponse type) {
+	aquaWiFi.SendCacheResponse(type, true);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
@@ -116,38 +105,52 @@ void ChangeWiFiLog(String log) {
 
 void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 	if (Helper.SetPostRequest(json, SetPHSensorConfig)) {
+		aquaCanal.SetStateCanal(ChangeChanalState);
+		aquaCanal.SetStatePWMCanal(ChangeChanalState);
 		switch (type) {
 		case CANAL:
 			aquaEEPROM.SaveChanalState();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERDAY:
 			aquaEEPROM.SaveDailyTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERHOUR:
 			aquaEEPROM.SaveHoursTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERSEC:
 			aquaEEPROM.SaveSecondsTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERTEMP:
 			aquaEEPROM.SaveTempTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PHTIMER:
 			aquaEEPROM.SavePHTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TEMPSTATS:
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case DEVICE:
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TEMPSENSOR:
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PH:
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PWMTIMER:
 			aquaEEPROM.SavePWMTimerToERROM();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PWMCANAL:
 			aquaEEPROM.SavePWMChanalState();
+			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		}
 	}

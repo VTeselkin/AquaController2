@@ -221,9 +221,15 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 
 
 void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 1) {
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 2) {
+		for(int i = 0; i < MAX_EEPROM; i++){
+			EEPROM.write(i, 0);
+		}
+		EEPROM.commit();
 		Serial.println("OnFirstLunch");
 		SaveChanalState();
+		SavePWMChanalState();
+		SavePWMTimerToERROM();
 		SaveDailyTimerToERROM();
 		SaveSecondsTimerToERROM();
 		SaveHoursTimerToERROM();

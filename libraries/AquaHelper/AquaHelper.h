@@ -27,14 +27,15 @@
 #define I2C_SDA 4
 #define I2C_SCL 13
 #define I2C_CLOCK 400000
+
 //CHANAL HANDS CONTROLL
 #define OFF_CHANAL 1
 #define ON_CHANAL 2
 #define AUTO_CHANAL 3
+
 //Current state canals timer
 #define TIMER_OFF 1
 #define TIMER_ON 2
-
 #define TIMER_MIN 3
 #define TIMER_OTHER 4
 #define TIMER_SEC 5
@@ -84,7 +85,7 @@
 //Maximum number of PWM canals
 #define MAX_CHANALS_PWM 10
 //Maximum number of Power PWM canals
-#define  MAX_PWM_POWER_CALCULATE 32768
+#define  MAX_PWM_POWER_CALCULATE 4096
 //Maximum number of analog canals
 #define MAX_ADC_CANAL 4
 //Buffer size for UDP

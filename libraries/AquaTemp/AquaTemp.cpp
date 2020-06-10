@@ -64,7 +64,7 @@ word ConvertTempByteToWord(unsigned short temp) {
 /**
  * Checking the status of programs for temperature sensors
  */
-void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(String), bool isNeedEnableZeroCanal) {
+void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
 //	if (MenuIndex >= 31 && MenuIndex <= 35)
 //		return;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP == 0) {
@@ -95,24 +95,25 @@ void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(String), bool isNeedEn
  * If we have a conflict timer switches the channel then we change the type
  * of timer is on this channel in the property stateChanalsTimer
  */
-bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(String), bool isNeedEnableZeroCanal) {
+bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
 	if (chanal == CHANAL_BTN_DISABLE && isNeedEnableZeroCanal)
 		return false;
 	if (isEnable) {
 		if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] == TIMER_OFF) {
 			Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
+			GetChanalState(CANAL);
 			return true;
 		} else {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_TEMP && timerType == TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
-				GetChanalState("");
+				GetChanalState(CANAL);
 			}
-
 			return false;
 		}
 	} else if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_OFF) {
 		if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] == timerType) {
 			Helper.data.CurrentStateChanalsByTypeTimer[chanal] = TIMER_OFF;
+			GetChanalState(CANAL);
 			return true;
 		}
 	}

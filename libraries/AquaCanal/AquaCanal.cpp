@@ -6,23 +6,16 @@
  */
 
 #include "AquaCanal.h"
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
+PCA9685 pwm;
 void AquaCanal::Init() {
 
-	const int freq = 27000000;
-	const int PWMFreq = 1600;
-
-	  pwm.begin();
-	  pwm.setOscillatorFrequency(freq);
-	  pwm.setPWMFreq(PWMFreq);
-
+	pwm.setupSingleDevice(Wire,0x40);
+	pwm.setupOutputEnablePin(2);
+	pwm.enableOutputs(2);
+	pwm.setToFrequency(200);
 	for (byte i = 0; i < MAX_CHANALS; i++) {
-			pinMode(Helper.data.nRelayDrive[i], OUTPUT);
-			digitalWrite(Helper.data.nRelayDrive[i], LOW);
-	}
-	for (byte i = 0; i < MAX_CHANALS_PWM; i++) {
-		pwm.setPWM(i, 0, 4096);
+		pinMode(Helper.data.nRelayDrive[i], OUTPUT);
+		digitalWrite(Helper.data.nRelayDrive[i], LOW);
 	}
 }
 
@@ -31,17 +24,29 @@ byte AquaCanal::GetCanal(byte canal) {
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
-	//canal = Helper.data.nPinsESP32[canal]; //Hack for ESP32
 	digitalWrite(canal, state);
 
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	pwm.setPWM(canal, GetPWMCanalLevel(canal), level );
+	pwm.setChannelPulseWidth(canal, level,0);
+}
+
+void AquaCanal::SetPWMCanalOn(byte canal) {
+	Serial.print("Canal ON = ");
+	Serial.println(canal);
+	pwm.setChannelPulseWidth(canal, MAX_PWM_POWER_CALCULATE,0);
+
+}
+
+void AquaCanal::SetPWMCanalOff(byte canal) {
+	Serial.print("Canal OFF = ");
+	Serial.println(canal);
+	pwm.setChannelPulseWidth(canal, 0,0);
 }
 
 uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
-	return pwm.getPWM(canal);
+	return 0;
 }
 
 byte AquaCanal::GetPWMCanalState(byte canal) {
@@ -52,32 +57,26 @@ byte AquaCanal::GetPWMCanalState(byte canal) {
 	}
 }
 
-void AquaCanal::SetStateCanal(void (*GetChanalState)(String)) {
+void AquaCanal::SetStateCanal(void (*GetChanalState)(typeResponse type)) {
 
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 
 		if (Helper.data.StateChanals[i] == AUTO_CHANAL) {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
 				SetCanal(Helper.data.nRelayDrive[i], HIGH);
-				GetChanalState("Set AUTO_CHANAL HIGH = " + i);
-			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF && GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
-
+				GetChanalState(CANAL);
+			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF
+					&& GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
 				SetCanal(Helper.data.nRelayDrive[i], LOW);
-				GetChanalState("Set AUTO_CHANAL LOW = " + i);
+				GetChanalState(CANAL);
 			}
 		} else if (Helper.data.StateChanals[i] == ON_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
-
 			SetCanal(Helper.data.nRelayDrive[i], HIGH);
-			GetChanalState("Set MANUAL HIGH = " + i);
+			GetChanalState(CANAL);
 		} else if (Helper.data.StateChanals[i] == OFF_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
-
 			SetCanal(Helper.data.nRelayDrive[i], LOW);
-			GetChanalState("Set MANUAL LOW = " + i);
-			if(GetCanal(Helper.data.nRelayDrive[i]) == HIGH){
-				GetChanalState("HIGH");
-			}else{
-				GetChanalState("LOW");
-			}
+			GetChanalState(CANAL);
+
 
 		}
 
@@ -85,42 +84,48 @@ void AquaCanal::SetStateCanal(void (*GetChanalState)(String)) {
 
 }
 
-void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(String)) {
+void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
+
 	for (byte i = 0; i < MAX_TIMERS; i++) {
 		auto canal = Helper.data.TimerPWMChanal[i];
+
 		if (Helper.data.StatePWMChanals[i] == AUTO_CHANAL) {
+
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == LOW) {
-				if (Helper.data.PowerPWMChanals[canal]>= 0 && Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
-					SetPWMOnCanal(true, i);
+
+				if (Helper.data.PowerPWMChanals[canal]
+						>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+					//SetPWMOnCanal(true, i);
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == HIGH) {
+
 				if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE
 						&& Helper.data.PowerPWMChanals[canal] > 0) {
-					SetPWMOnCanal(false, i);
+					//SetPWMOnCanal(false, i);
 				}
 			}
-			// Manual start PWM canal
-		} else if (Helper.data.StatePWMChanals[i] == ON_CHANAL) {
-			if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE) {
-				Helper.data.TimetoCheckPWMstate[i] = 0;
-				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_ON;
-				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[i]] = MAX_PWM_POWER_CALCULATE;
-				if (GetPWMCanalLevel(canal) < MAX_PWM_POWER_CALCULATE) {
-					SetPWMCanal(canal, Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[i]]);
-				}
-			}
-			// Manual shutdown PWM canal
-		} else if (Helper.data.StatePWMChanals[i] == OFF_CHANAL) {
-			if (Helper.data.PowerPWMChanals[canal] > 0) {
-				Helper.data.TimetoCheckPWMstate[i] = 0;
-				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_OFF;
-				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[i]] = 0;
-				if (GetPWMCanalLevel(canal) > 0) {
-					SetPWMCanal(canal, Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[i]]);
-				}
-			}
+
 		}
 
+	}
+	// Manual start PWM canal
+	for (byte canal = 0; canal < MAX_CHANALS_PWM; canal++) {
+		if (Helper.data.StatePWMChanals[canal] == ON_CHANAL) {
+			if (Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_ON;
+				Helper.data.PowerPWMChanals[canal] = MAX_PWM_POWER_CALCULATE;
+				SetPWMCanalOn(canal);
+				GetChanalState(PWMCANAL);
+			}
+			// Manual shutdown PWM canal
+		} else if (Helper.data.StatePWMChanals[canal] == OFF_CHANAL) {
+			if (Helper.data.PowerPWMChanals[canal] > 0 && Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] != TIMER_OFF) {
+				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_OFF;
+				Helper.data.PowerPWMChanals[canal] = 0;
+				SetPWMCanalOff(canal);
+				GetChanalState(PWMCANAL);
+			}
+		}
 	}
 }
 void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {

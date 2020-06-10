@@ -21,9 +21,10 @@ public:
 	void Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t));
 	void WaitRequest();
 	void CacheResponse(typeResponse type, String json);
+	void SendCacheResponse(typeResponse type, bool sendCache);
 	void Connection();
-private:
 	void StartCaching();
+private:
 
 
 };

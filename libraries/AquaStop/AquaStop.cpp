@@ -10,24 +10,24 @@
 byte minForDisableZeroChanal = 0;
 
 
-bool AquaStop::GetTemporaryStopCanal(bool isNeedEnableZeroCanal, void (*GetChanalState)(String)) {
+bool AquaStop::GetTemporaryStopCanal(bool isNeedEnableZeroCanal, void (*GetChanalState)(typeResponse type)) {
 
 		if (isNeedEnableZeroCanal) {
 			if (Helper.GetTimeNow().Minute == minForDisableZeroChanal) {
 				isNeedEnableZeroCanal = false;
 				Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] = TIMER_ON;
-				GetChanalState("");
+				GetChanalState(CANAL);
 			} else {
 				if (Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] == TIMER_ON) {
 					Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] = TIMER_OFF;
-					GetChanalState("");
+					GetChanalState(CANAL);
 				}
 			}
 		}
 		return isNeedEnableZeroCanal;
 }
 
-bool AquaStop::SetTemporaryStopCanal(byte delay, bool isNeedEnableZeroCanal, void (*GetChanalState)()) {
+bool AquaStop::SetTemporaryStopCanal(byte delay, bool isNeedEnableZeroCanal, void (*GetChanalState)(typeResponse type)) {
 
 	if (Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] == TIMER_ON && !isNeedEnableZeroCanal) {
 		Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] = TIMER_OFF;
@@ -36,11 +36,11 @@ bool AquaStop::SetTemporaryStopCanal(byte delay, bool isNeedEnableZeroCanal, voi
 		if (minForDisableZeroChanal > MINUTE) {
 			minForDisableZeroChanal -= (MINUTE + 1);
 		}
-		GetChanalState();
+		GetChanalState(CANAL);
 	} else if (isNeedEnableZeroCanal) {
 		Helper.data.CurrentStateChanalsByTypeTimer[CHANAL_BTN_DISABLE] = TIMER_ON;
 		isNeedEnableZeroCanal = false;
-		GetChanalState();
+		GetChanalState(CANAL);
 	}
 	return isNeedEnableZeroCanal;
 }

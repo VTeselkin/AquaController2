@@ -7,7 +7,7 @@
 #pragma once
 #include "Arduino.h"
 #include <AquaHelper.h>
-#include <Adafruit_PWMServoDriver.h>
+#include <PCA9685.h>
 
 class AquaCanal{
 public:
@@ -19,8 +19,10 @@ public:
 	byte GetCanal(byte canal);
 	word GetPWMCanalLevel(byte canal);
 	byte GetPWMCanalState(byte canal);
-	void SetStateCanal(void (*GetChanalState)(String));
-	void SetStatePWMCanal(void (*GetChanalState)(String));
+	void SetStateCanal(void (*GetChanalState)(typeResponse type));
+	void SetStatePWMCanal(void (*GetChanalState)(typeResponse type));
+	void SetPWMCanalOn(byte canal);
+	void SetPWMCanalOff(byte canal);
 
 	private:
 	void SetPWMOnCanal(bool isOn, byte timers);
