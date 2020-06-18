@@ -62,16 +62,11 @@ void setup() {
 }
 
 void loop() {
-	isNeedEnableZeroCanal = aquaStop.GetTemporaryStopCanal(
-			isNeedEnableZeroCanal, ChangeChanalState);
-	aquaTimers.CheckStateTimer(_timerForCheck, TIMER_MIN, ChangeChanalState,
-			isNeedEnableZeroCanal);
-	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER,
-			ChangeChanalState, isNeedEnableZeroCanal);
-	aquaTimers.CheckStateTimer(_secondTimerForCheck, TIMER_SEC,
-			ChangeChanalState, isNeedEnableZeroCanal);
-	aquaTimers.CheckStateTimer(_pwmTimerForCheck, TIMER_PWM, ChangeChanalState,
-			isNeedEnableZeroCanal);
+	isNeedEnableZeroCanal = aquaStop.GetTemporaryStopCanal(isNeedEnableZeroCanal, ChangeChanalState);
+	aquaTimers.CheckStateTimer(_timerForCheck, TIMER_MIN, ChangeChanalState, isNeedEnableZeroCanal);
+	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER, ChangeChanalState, isNeedEnableZeroCanal);
+	aquaTimers.CheckStateTimer(_secondTimerForCheck, TIMER_SEC, ChangeChanalState, isNeedEnableZeroCanal);
+	aquaTimers.CheckStateTimer(_pwmTimerForCheck, TIMER_PWM, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTemp.GetTemperature();
 	aquaTemp.CheckStateTempTimer(ChangeChanalState, isNeedEnableZeroCanal);
 	aquaCanal.SetStateCanal(ChangeChanalState);
@@ -88,7 +83,12 @@ void loop() {
 }
 
 void ChangeChanalState(typeResponse type) {
-	aquaWiFi.SendCacheResponse(type, true);
+	if (PWMTIMER) {
+		Serial.println("CHANGE CANAL BY PWM TIMERS!!!");
+		aquaWiFi.SendCacheResponse(CANAL, true);
+	} else {
+		aquaWiFi.SendCacheResponse(type, true);
+	}
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
@@ -153,6 +153,8 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		}
+	} else {
+		Serial.println("ERROR POST UDP");
 	}
 }
 

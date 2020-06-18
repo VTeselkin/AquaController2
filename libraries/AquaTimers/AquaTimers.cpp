@@ -187,17 +187,17 @@ bool AquaTimers::CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte time
 		bool isNeedEnableZeroCanal) {
 	if (timerType == TIMER_PWM) {
 		if (isEnable) {
-			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] == TIMER_OFF) {
-				Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] = timerType;
-				GetChanalState(CANAL);
+			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] != TIMER_PWM) {
+				Serial.println("START PWM TIMER");
+				Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] = TIMER_PWM;
+				GetChanalState(PWMTIMER);
 				return true;
 			}
 		}else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] != TIMER_OFF) {
-			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] == timerType) {
+			Serial.println("STOP PWM TIMER");
 				Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] = TIMER_OFF;
-				GetChanalState(CANAL);
+				GetChanalState(PWMTIMER);
 				return true;
-			}
 		}
 		return false;
 	}

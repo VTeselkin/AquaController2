@@ -9,7 +9,7 @@
 PCA9685 pwm;
 void AquaCanal::Init() {
 
-	pwm.setupSingleDevice(Wire,0x40);
+	pwm.setupSingleDevice(Wire, 0x40);
 	pwm.setupOutputEnablePin(2);
 	pwm.enableOutputs(2);
 	pwm.setToFrequency(200);
@@ -29,20 +29,20 @@ void AquaCanal::SetCanal(byte canal, byte state) {
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	pwm.setChannelPulseWidth(canal, level,0);
+	pwm.setChannelPulseWidth(canal, level, 0);
 }
 
 void AquaCanal::SetPWMCanalOn(byte canal) {
 	Serial.print("Canal ON = ");
 	Serial.println(canal);
-	pwm.setChannelPulseWidth(canal, MAX_PWM_POWER_CALCULATE,0);
+	pwm.setChannelPulseWidth(canal, MAX_PWM_POWER_CALCULATE, 0);
 
 }
 
 void AquaCanal::SetPWMCanalOff(byte canal) {
 	Serial.print("Canal OFF = ");
 	Serial.println(canal);
-	pwm.setChannelPulseWidth(canal, 0,0);
+	pwm.setChannelPulseWidth(canal, 0, 0);
 }
 
 uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
@@ -62,7 +62,8 @@ void AquaCanal::SetStateCanal(void (*GetChanalState)(typeResponse type)) {
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 
 		if (Helper.data.StateChanals[i] == AUTO_CHANAL) {
-			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
+			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF
+					&& GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
 				SetCanal(Helper.data.nRelayDrive[i], HIGH);
 				GetChanalState(CANAL);
 			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF
@@ -77,7 +78,6 @@ void AquaCanal::SetStateCanal(void (*GetChanalState)(typeResponse type)) {
 			SetCanal(Helper.data.nRelayDrive[i], LOW);
 			GetChanalState(CANAL);
 
-
 		}
 
 	}
@@ -89,19 +89,18 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 	for (byte i = 0; i < MAX_TIMERS; i++) {
 		auto canal = Helper.data.TimerPWMChanal[i];
 
-		if (Helper.data.StatePWMChanals[i] == AUTO_CHANAL) {
+		if (Helper.data.StatePWMChanals[Helper.data.TimerPWMChanal[i]] == AUTO_CHANAL && Helper.data.TimerPWMState[i] == ENABLE_TIMER) {
 
-			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == LOW) {
+			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_PWM) {
 
-				if (Helper.data.PowerPWMChanals[canal]
-						>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
-					//SetPWMOnCanal(true, i);
+				if (Helper.data.PowerPWMChanals[canal]>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+					SetPWMOnCanal(true, i);
 				}
-			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == HIGH) {
+			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_OFF) {
 
 				if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE
 						&& Helper.data.PowerPWMChanals[canal] > 0) {
-					//SetPWMOnCanal(false, i);
+					SetPWMOnCanal(false, i);
 				}
 			}
 
@@ -119,7 +118,8 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 			}
 			// Manual shutdown PWM canal
 		} else if (Helper.data.StatePWMChanals[canal] == OFF_CHANAL) {
-			if (Helper.data.PowerPWMChanals[canal] > 0 && Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] != TIMER_OFF) {
+			if (Helper.data.PowerPWMChanals[canal]
+					> 0&& Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] != TIMER_OFF) {
 				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_OFF;
 				Helper.data.PowerPWMChanals[canal] = 0;
 				SetPWMCanalOff(canal);
@@ -133,7 +133,10 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 	if (Helper.data.TimetoCheckPWMstate[timers] == 0 || millis() < Helper.data.TimetoCheckPWMstate[timers]) {
 		Helper.data.TimetoCheckPWMstate[timers] = millis();
 	}
-	auto millisForOne = 1000 / (MAX_PWM_POWER_CALCULATE / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
+	if (Helper.data.TimerPWMDuration[timers] == 0) {
+		Helper.data.TimerPWMDuration[timers] = 1;
+	}
+	float millisForOne = 1000.0 / (MAX_PWM_POWER_CALCULATE / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
 	unsigned int countStep = (millis() - Helper.data.TimetoCheckPWMstate[timers]) / millisForOne;
 	if (countStep > 0) {
 		if (isOn)

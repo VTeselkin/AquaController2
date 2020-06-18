@@ -443,16 +443,19 @@ String AquaHelper::GetTempStats() {
 }
 
 //============================================POST==============================================
-bool AquaHelper::SetPostRequest(String inString,
-		void (*GetPHLevelConfig)(bool, byte)) {
+bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, byte)) {
 	if (inString.indexOf("post") != -1) {
 		DynamicJsonBuffer jsonBuffer(200);
 		JsonObject &root = jsonBuffer.parseObject(inString);
+		if (!root.success()) {
+			Serial.print("ERROR PARSE = ");
+			Serial.println(inString);
+		}
 		JsonObject &request = root["data"];
 		if (inString.indexOf("c_s") != -1) {
 			SetJsonValue(Helper.data.StateChanals, MAX_CHANALS, "c_t", request);
 			return true;
-		} else if(inString.indexOf("pwm_cs")){
+		} else if(inString.indexOf("pwm_cs")!= -1){
 			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "pwm_ct", request);
 			return true;
 		}else if (inString.indexOf("te_s") != -1) {
