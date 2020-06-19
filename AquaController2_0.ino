@@ -84,7 +84,6 @@ void loop() {
 
 void ChangeChanalState(typeResponse type) {
 	if (PWMTIMER) {
-		Serial.println("CHANGE CANAL BY PWM TIMERS!!!");
 		aquaWiFi.SendCacheResponse(CANAL, true);
 	} else {
 		aquaWiFi.SendCacheResponse(type, true);

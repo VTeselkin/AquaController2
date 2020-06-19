@@ -93,14 +93,18 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_PWM) {
 
-				if (Helper.data.PowerPWMChanals[canal]>= 0&& Helper.data.PowerPWMChanals[canal] < MAX_PWM_POWER_CALCULATE) {
+				if (Helper.data.PowerPWMChanals[canal]>= 0 && Helper.data.PowerPWMChanals[canal] < Helper.GetLevelPWM(i)) {
 					SetPWMOnCanal(true, i);
+				}else{
+					Helper.data.TimetoCheckPWMstate[i] = 0;
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_OFF) {
 
-				if (Helper.data.PowerPWMChanals[canal] <= MAX_PWM_POWER_CALCULATE
+				if (Helper.data.PowerPWMChanals[canal] <= Helper.GetLevelPWM(i)
 						&& Helper.data.PowerPWMChanals[canal] > 0) {
 					SetPWMOnCanal(false, i);
+				}else{
+					Helper.data.TimetoCheckPWMstate[i] = 0;
 				}
 			}
 
@@ -136,14 +140,19 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 	if (Helper.data.TimerPWMDuration[timers] == 0) {
 		Helper.data.TimerPWMDuration[timers] = 1;
 	}
-	float millisForOne = 1000.0 / (MAX_PWM_POWER_CALCULATE / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
+	float millisForOne = 1000.0 / (Helper.GetLevelPWM(timers) / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
 	unsigned int countStep = (millis() - Helper.data.TimetoCheckPWMstate[timers]) / millisForOne;
 	if (countStep > 0) {
-		if (isOn)
+		if (isOn){
+			Serial.print("START PWM TIMER ");
+			Serial.println(countStep);
 			Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]] = countStep;
+		}
 		else {
-			if (MAX_PWM_POWER_CALCULATE >= countStep) {
-				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]] = MAX_PWM_POWER_CALCULATE - countStep;
+			Serial.print("STOP PWM TIMER ");
+			Serial.println(countStep);
+			if (Helper.GetLevelPWM(timers) >= countStep) {
+				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]] = Helper.GetLevelPWM(timers) - countStep;
 			} else {
 				Helper.data.PowerPWMChanals[Helper.data.TimerPWMChanal[timers]] = 0;
 			}

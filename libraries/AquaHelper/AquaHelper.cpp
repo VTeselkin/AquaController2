@@ -34,8 +34,7 @@ void AquaHelper::ToneForce(const word frequency, const word duration) {
 	ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
 }
 
-void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency,
-		unsigned long duration, uint8_t channel) {
+void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel) {
 	if (ledcRead(channel)) {
 		log_e("Tone channel %d is already in use", ledcRead(channel));
 		return;
@@ -78,21 +77,21 @@ String AquaHelper::GetDevice(String ip) {
 	result += ",\"ip\":\"";
 	result += ip;
 	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
-    result +=",\"time\":\"";
-    result += GetFormatTimeNow();
-    result += "\"";
+	result += ",\"time\":\"";
+	result += GetFormatTimeNow();
+	result += "\"";
 	result += SendEndMess();
 	return result;
 }
 
 String AquaHelper::GetDataTime() {
-    String result = "{\"status\":\"success\",\"";
-    result += "time\":\"";
-    result += GetFormatTimeNow();
-    result += "\",\"date\":\"";
-    result += GetFormatDataNow();
-    result += "\"}";
-    return result;
+	String result = "{\"status\":\"success\",\"";
+	result += "time\":\"";
+	result += GetFormatTimeNow();
+	result += "\",\"date\":\"";
+	result += GetFormatDataNow();
+	result += "\"}";
+	return result;
 }
 
 String AquaHelper::GetFormatTimeNow() {
@@ -111,19 +110,18 @@ String AquaHelper::GetFormatTimeNow() {
 	return time_fm;
 }
 
-
-String AquaHelper::GetFormatDataNow(){
+String AquaHelper::GetFormatDataNow() {
 	tmElements_t tm = GetTimeNow();
-    String data_fm = "";
-        if (tm.Day < 10)
-            data_fm += "0";
-        data_fm += String(tm.Day) + "/";
-        if (tm.Month < 10)
-            data_fm += "0";
-        data_fm += String(tm.Month);
-        data_fm += "/";
-        data_fm += String(y2kYearToTm(tmYearToCalendar(tm.Year)));
-        return data_fm;
+	String data_fm = "";
+	if (tm.Day < 10)
+		data_fm += "0";
+	data_fm += String(tm.Day) + "/";
+	if (tm.Month < 10)
+		data_fm += "0";
+	data_fm += String(tm.Month);
+	data_fm += "/";
+	data_fm += String(y2kYearToTm(tmYearToCalendar(tm.Year)));
+	return data_fm;
 }
 
 /**
@@ -229,6 +227,8 @@ String AquaHelper::GetPWMTimerState() {
 	result += GetJsonValue(data.TimerPWMChanal, MAX_TIMERS);
 	result += ",\"pwm_delay\"";
 	result += GetJsonValue(data.TimerPWMDuration, MAX_TIMERS);
+	result += ",\"pwm_level\"";
+	result += GetJsonValue(data.TimerPWMLevel, MAX_TIMERS);
 	result += SendEndMess();
 	return result;
 }
@@ -368,8 +368,7 @@ String AquaHelper::GetAlarmWaterLevel(int level) {
  */
 String AquaHelper::GetPhTimerState() {
 	String result = "";
-	result +=
-			"{\"status\":\"success\",\"message\":\"ph_timer\",\"data\":{\"ph_s\"";
+	result += "{\"status\":\"success\",\"message\":\"ph_timer\",\"data\":{\"ph_s\"";
 	result += GetJsonValue(data.PHTimerStart, MAX_TIMERS_PH);
 	result += ",\"ph_e\"";
 	result += GetJsonValue(data.PHTimerEnd, MAX_TIMERS_PH);
@@ -392,8 +391,7 @@ String AquaHelper::GetPhTimerState() {
  * }}
  */
 String AquaHelper::GetPhStats() {
-	String result =
-			"{\"status\":\"success\",\"message\":\"ph_state\",\"data\":{\"ph\":[";
+	String result = "{\"status\":\"success\",\"message\":\"ph_state\",\"data\":{\"ph\":[";
 	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 		result += String(Helper.data.PHCurrent[i]);
 		if (i < MAX_TIMERS_PH - 1) {
@@ -423,8 +421,7 @@ String AquaHelper::GetPhStats() {
 }
 
 String AquaHelper::GetTempStats() {
-	String result =
-			"{\"status\":\"success\",\"message\":\"temp_stats\",\"data\":{";
+	String result = "{\"status\":\"success\",\"message\":\"temp_stats\",\"data\":{";
 	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
 		if (j != 0) {
 			result += ",";
@@ -455,84 +452,56 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, 
 		if (inString.indexOf("c_s") != -1) {
 			SetJsonValue(Helper.data.StateChanals, MAX_CHANALS, "c_t", request);
 			return true;
-		} else if(inString.indexOf("pwm_cs")!= -1){
+		} else if (inString.indexOf("pwm_cs") != -1) {
 			SetJsonValue(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "pwm_ct", request);
 			return true;
-		}else if (inString.indexOf("te_s") != -1) {
-			SetJsonValue(Helper.data.TempTimerState, MAX_TEMP_SENSOR, "tt_s",
-					request);
-			SetJsonValue(Helper.data.TempTimerMinStart, MAX_TEMP_SENSOR,
-					"tt_m_s", request);
-			SetJsonValue(Helper.data.TempTimerMaxEnd, MAX_TEMP_SENSOR, "tt_m_e",
-					request);
-			SetJsonValue(Helper.data.TempTimerChanal, MAX_TEMP_SENSOR, "tt_c",
-					request);
+		} else if (inString.indexOf("te_s") != -1) {
+			SetJsonValue(Helper.data.TempTimerState, MAX_TEMP_SENSOR, "tt_s", request);
+			SetJsonValue(Helper.data.TempTimerMinStart, MAX_TEMP_SENSOR, "tt_m_s", request);
+			SetJsonValue(Helper.data.TempTimerMaxEnd, MAX_TEMP_SENSOR, "tt_m_e", request);
+			SetJsonValue(Helper.data.TempTimerChanal, MAX_TEMP_SENSOR, "tt_c", request);
 			return true;
 		} else if (inString.indexOf("td_s") != -1) {
-			SetJsonValue(Helper.data.DailyTimerHourStart, MAX_TIMERS, "dt_h_s",
-					request);
-			SetJsonValue(Helper.data.DailyTimerHourEnd, MAX_TIMERS, "dt_h_end",
-					request);
-			SetJsonValue(Helper.data.DailyTimerMinStart, MAX_TIMERS, "dt_m_s",
-					request);
-			SetJsonValue(Helper.data.DailyTimerMinEnd, MAX_TIMERS, "dt_m_e",
-					request);
-			SetJsonValue(Helper.data.DailyTimerState, MAX_TIMERS, "dt_s",
-					request);
-			SetJsonValue(Helper.data.DailyTimerChanal, MAX_TIMERS, "dt_c",
-					request);
+			SetJsonValue(Helper.data.DailyTimerHourStart, MAX_TIMERS, "dt_h_s", request);
+			SetJsonValue(Helper.data.DailyTimerHourEnd, MAX_TIMERS, "dt_h_end", request);
+			SetJsonValue(Helper.data.DailyTimerMinStart, MAX_TIMERS, "dt_m_s", request);
+			SetJsonValue(Helper.data.DailyTimerMinEnd, MAX_TIMERS, "dt_m_e", request);
+			SetJsonValue(Helper.data.DailyTimerState, MAX_TIMERS, "dt_s", request);
+			SetJsonValue(Helper.data.DailyTimerChanal, MAX_TIMERS, "dt_c", request);
 			return true;
 		} else if (inString.indexOf("th_s") != -1) {
-			SetJsonValue(Helper.data.HoursTimerMinStart, MAX_TIMERS, "ht_m_st",
-					request);
-			SetJsonValue(Helper.data.HoursTimerMinStop, MAX_TIMERS, "ht_m_sp",
-					request);
-			SetJsonValue(Helper.data.HoursTimerState, MAX_TIMERS, "ht_s",
-					request);
-			SetJsonValue(Helper.data.HoursTimerCanal, MAX_TIMERS, "ht_c",
-					request);
+			SetJsonValue(Helper.data.HoursTimerMinStart, MAX_TIMERS, "ht_m_st", request);
+			SetJsonValue(Helper.data.HoursTimerMinStop, MAX_TIMERS, "ht_m_sp", request);
+			SetJsonValue(Helper.data.HoursTimerState, MAX_TIMERS, "ht_s", request);
+			SetJsonValue(Helper.data.HoursTimerCanal, MAX_TIMERS, "ht_c", request);
 			return true;
 		} else if (inString.indexOf("ts_s") != -1) {
-			SetJsonValue(Helper.data.SecondTimerHourStart, MAX_TIMERS, "st_h_s",
-					request);
-			SetJsonValue(Helper.data.SecondTimerMinStart, MAX_TIMERS, "st_m_s",
-					request);
-			SetJsonValue(Helper.data.SecondTimerDuration, MAX_TIMERS, "st_d",
-					request);
-			SetJsonValue(Helper.data.SecondTimerState, MAX_TIMERS, "st_s",
-					request);
-			SetJsonValue(Helper.data.SecondTimerCanal, MAX_TIMERS, "st_c",
-					request);
+			SetJsonValue(Helper.data.SecondTimerHourStart, MAX_TIMERS, "st_h_s", request);
+			SetJsonValue(Helper.data.SecondTimerMinStart, MAX_TIMERS, "st_m_s", request);
+			SetJsonValue(Helper.data.SecondTimerDuration, MAX_TIMERS, "st_d", request);
+			SetJsonValue(Helper.data.SecondTimerState, MAX_TIMERS, "st_s", request);
+			SetJsonValue(Helper.data.SecondTimerCanal, MAX_TIMERS, "st_c", request);
 			return true;
 		} else if (inString.indexOf("pwm_timer") != -1) {
-			SetJsonValue(Helper.data.TimerPWMHourStart, MAX_TIMERS, "pwm_h_s",
-					request);
-			SetJsonValue(Helper.data.TimerPWMHourEnd, MAX_TIMERS, "pwm_h_end",
-					request);
-			SetJsonValue(Helper.data.TimerPWMMinStart, MAX_TIMERS, "pwm_m_s",
-					request);
-			SetJsonValue(Helper.data.TimerPWMMinEnd, MAX_TIMERS, "pwm_m_e",
-					request);
-			SetJsonValue(Helper.data.TimerPWMState, MAX_TIMERS, "pwm_s",
-					request);
-			SetJsonValue(Helper.data.TimerPWMChanal, MAX_TIMERS, "pwm_c",
-					request);
-			SetJsonValue(Helper.data.TimerPWMDuration, MAX_TIMERS, "pwm_delay",
-								request);
+			SetJsonValue(Helper.data.TimerPWMHourStart, MAX_TIMERS, "pwm_h_s", request);
+			SetJsonValue(Helper.data.TimerPWMHourEnd, MAX_TIMERS, "pwm_h_end", request);
+			SetJsonValue(Helper.data.TimerPWMMinStart, MAX_TIMERS, "pwm_m_s", request);
+			SetJsonValue(Helper.data.TimerPWMMinEnd, MAX_TIMERS, "pwm_m_e", request);
+			SetJsonValue(Helper.data.TimerPWMState, MAX_TIMERS, "pwm_s", request);
+			SetJsonValue(Helper.data.TimerPWMChanal, MAX_TIMERS, "pwm_c", request);
+			SetJsonValue(Helper.data.TimerPWMDuration, MAX_TIMERS, "pwm_delay", request);
+			SetJsonValue(Helper.data.TimerPWMLevel, MAX_TIMERS, "pwm_level", request);
+
 			return true;
-		}else if (inString.indexOf("ph_timer") != -1) {
+		} else if (inString.indexOf("ph_timer") != -1) {
 			if (inString.indexOf("ph_s") != -1)
-				SetJsonValue(Helper.data.PHTimerStart, MAX_TIMERS_PH, "ph_s",
-						request);
+				SetJsonValue(Helper.data.PHTimerStart, MAX_TIMERS_PH, "ph_s", request);
 			if (inString.indexOf("ph_e") != -1)
-				SetJsonValue(Helper.data.PHTimerEnd, MAX_TIMERS_PH, "ph_e",
-						request);
+				SetJsonValue(Helper.data.PHTimerEnd, MAX_TIMERS_PH, "ph_e", request);
 			if (inString.indexOf("ph_st") != -1)
-				SetJsonValue(Helper.data.PHTimerState, MAX_TIMERS_PH, "ph_st",
-						request);
+				SetJsonValue(Helper.data.PHTimerState, MAX_TIMERS_PH, "ph_st", request);
 			if (inString.indexOf("ph_c") != -1)
-				SetJsonValue(Helper.data.PHTimerCanal, MAX_TIMERS_PH, "ph_c",
-						request);
+				SetJsonValue(Helper.data.PHTimerCanal, MAX_TIMERS_PH, "ph_c", request);
 			return true;
 		} else if (inString.indexOf("ph_timer") != -1) {
 			//{"status":"post","message":"ph_config","data": {"ph_401":0,"ph_686":0}}
@@ -581,8 +550,7 @@ String GetJsonValue(const uint16_t arrayData[], const byte count) {
 	return result;
 }
 
-bool SetJsonValue(byte arrayData[], const byte count, const String key,
-		const JsonObject &root) {
+bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject &root) {
 	if (!root.containsKey(key))
 		return false;
 	for (byte i = 0; i < count; i++) {
@@ -591,12 +559,14 @@ bool SetJsonValue(byte arrayData[], const byte count, const String key,
 	return true;
 }
 
+int AquaHelper::GetLevelPWM(byte timer){
+	return MAX_PWM_POWER_CALCULATE * Helper.data.TimerPWMLevel[timer] / 100;
+}
 //==========================================PH HELPER==============================================
 byte AquaHelper::ConvertPHWordToByte(const word ph) {
 	return (ph - MIN_PH) / STEP_PH;
 }
 //=================================================================================================
-
 
 tmElements_t AquaHelper::GetTimeNow() {
 	tmElements_t tm;
@@ -617,6 +587,4 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setMinute(minute(epoch));
 	ds3231.setSecond(second(epoch));
 }
-
-
 

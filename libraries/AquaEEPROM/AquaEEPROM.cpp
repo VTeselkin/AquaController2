@@ -75,6 +75,7 @@ void AquaEEPROM::LoadPWMTimersReadFromERROM() {
 		Helper.data.TimerPWMState[i] = EEPROM.read(PWMTimerStateAddr - i);
 		Helper.data.TimerPWMChanal[i] = EEPROM.read(PWMTimerChanalAddr - i);
 		Helper.data.TimerPWMDuration[i] = EEPROM.read(PWMTimerHourDurationAddr - i);
+		Helper.data.TimerPWMLevel[i] = EEPROM.read(PWMTimerHourLevelAddr - i);
 	}
 }
 
@@ -87,6 +88,7 @@ void AquaEEPROM::SavePWMTimerToERROM() {
 		EEPROM.write(PWMTimerStateAddr - i, Helper.data.TimerPWMState[i]);
 		EEPROM.write(PWMTimerChanalAddr - i, Helper.data.TimerPWMChanal[i]);
 		EEPROM.write(PWMTimerHourDurationAddr - i, Helper.data.TimerPWMDuration[i]);
+		EEPROM.write(PWMTimerHourLevelAddr - i, Helper.data.TimerPWMLevel[i]);
 	}
 	EEPROM.commit();
 }
@@ -221,7 +223,7 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 
 
 void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 2) {
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 1) {
 		for(int i = 0; i < MAX_EEPROM; i++){
 			EEPROM.write(i, 0);
 		}
@@ -240,7 +242,5 @@ void AquaEEPROM::OnFirstLunch() {
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();
-	}else{
-		Serial.println(EEPROM.read(ADDR_FIRST_LAUNCH));
 	}
 }

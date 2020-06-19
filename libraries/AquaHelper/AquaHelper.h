@@ -124,6 +124,7 @@ const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 
+const word PWMTimerHourLevelAddr = 447;
 const word PWMTimerHourDurationAddr = 437;
 const word PWMTimerHourStartAddr = 427;
 const word PWMTimerHourEndAddr = 417;
@@ -371,6 +372,7 @@ typedef struct {
 	byte TimerPWMState[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMChanal[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMDuration[MAX_TIMERS] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	byte TimerPWMLevel[MAX_TIMERS] = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
 
 	/**
 	 * The array of the current PWM canals status
@@ -446,6 +448,7 @@ public:
 	static byte ConvertPHWordToByte(const word ph);
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
 	static void ESP_noTone(uint8_t pin, uint8_t channel);
+	static int GetLevelPWM(byte timer);
 private:
 };
 
