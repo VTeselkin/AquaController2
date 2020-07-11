@@ -59,6 +59,7 @@ void setup() {
 	aquaTemp.Init(aquaEEPROM);
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
+	Helper.ToneForce(2000, 500);
 }
 
 void loop() {

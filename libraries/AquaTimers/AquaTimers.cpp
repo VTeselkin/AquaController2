@@ -9,23 +9,24 @@
 /**
  *  Every second check the status of all timers
  */
-void AquaTimers::CheckStateTimer(int lastCheck, byte timerType, void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
+void AquaTimers::CheckStateTimer(int lastCheck, byte timerType, void (*GetChanalState)(typeResponse type),
+		bool isNeedEnableZeroCanal) {
 	switch (timerType) {
 	case TIMER_MIN:
-		CheckStateTimerHelper(Helper.data.DailyTimerState, Helper.data.DailyTimerChanal,
-				GetChanalState, timerType, MAX_CHANALS, isNeedEnableZeroCanal);
+		CheckStateTimerHelper(Helper.data.DailyTimerState, Helper.data.DailyTimerChanal, GetChanalState, timerType,
+				MAX_CHANALS, isNeedEnableZeroCanal);
 		break;
 	case TIMER_OTHER:
-		CheckStateTimerHelper(Helper.data.HoursTimerState, Helper.data.HoursTimerCanal,
-				GetChanalState, timerType, MAX_CHANALS, isNeedEnableZeroCanal);
+		CheckStateTimerHelper(Helper.data.HoursTimerState, Helper.data.HoursTimerCanal, GetChanalState, timerType,
+				MAX_CHANALS, isNeedEnableZeroCanal);
 		break;
 	case TIMER_SEC:
-		CheckStateTimerHelper(Helper.data.SecondTimerState, Helper.data.SecondTimerCanal,
-				GetChanalState, timerType, MAX_CHANALS, isNeedEnableZeroCanal);
+		CheckStateTimerHelper(Helper.data.SecondTimerState, Helper.data.SecondTimerCanal, GetChanalState, timerType,
+				MAX_CHANALS, isNeedEnableZeroCanal);
 		break;
 	case TIMER_PWM:
-		CheckStateTimerHelper(Helper.data.TimerPWMState, Helper.data.TimerPWMChanal,
-				GetChanalState, timerType, MAX_CHANALS_PWM, isNeedEnableZeroCanal);
+		CheckStateTimerHelper(Helper.data.TimerPWMState, Helper.data.TimerPWMChanal, GetChanalState, timerType,
+				MAX_CHANALS_PWM, isNeedEnableZeroCanal);
 		break;
 	}
 
@@ -34,16 +35,16 @@ void AquaTimers::CheckStateTimer(int lastCheck, byte timerType, void (*GetChanal
 	}
 
 }
-void AquaTimers::CheckStateTimerHelper(byte TimerState[], byte TimerCanal[], void (*GetChanalState)(typeResponse type), byte timerType,
-		byte max_canal, bool isNeedEnableZeroCanal) {
+void AquaTimers::CheckStateTimerHelper(byte TimerState[], byte TimerCanal[], void (*GetChanalState)(typeResponse type),
+		byte timerType, byte max_canal, bool isNeedEnableZeroCanal) {
 	for (byte j = 0; j < max_canal; j++) {
 		bool result = false;
 		for (byte i = 0; i < MAX_TIMERS; i++) {
 			if (TimerState[i] == ENABLE_TIMER) {
 				byte state = 0;
-				if(timerType != MAX_CHANALS_PWM){
+				if (timerType != MAX_CHANALS_PWM) {
 					state = Helper.data.StateChanals[TimerCanal[i]];
-				}else{
+				} else {
 					state = Helper.data.StatePWMChanals[TimerCanal[i]];
 				}
 				if (TimerCanal[i] == j && state == AUTO_CHANAL) {
@@ -112,7 +113,8 @@ bool AquaTimers::CheckStateHoursTimer(byte i) {
 	if (Helper.data.HoursTimerMinStart[i] == Helper.data.HoursTimerMinStop[i])
 		return false;
 	if (Helper.data.HoursTimerMinStart[i] < Helper.data.HoursTimerMinStop[i]) {
-		if (Helper.GetTimeNow().Minute >= Helper.data.HoursTimerMinStart[i] && Helper.GetTimeNow().Minute < Helper.data.HoursTimerMinStop[i]) {
+		if (Helper.GetTimeNow().Minute >= Helper.data.HoursTimerMinStart[i]
+				&& Helper.GetTimeNow().Minute < Helper.data.HoursTimerMinStop[i]) {
 			return true;
 		}
 	} else {
@@ -131,9 +133,11 @@ bool AquaTimers::CheckStateHoursTimer(byte i) {
  */
 bool AquaTimers::CheckStateSecondTimer(byte i) {
 
-	unsigned long timeSecondStart = (Helper.data.SecondTimerHourStart[i] * SEC_IN_MIN * SEC_IN_MIN) + (Helper.data.SecondTimerMinStart[i] * 60);
+	unsigned long timeSecondStart = (Helper.data.SecondTimerHourStart[i] * SEC_IN_MIN * SEC_IN_MIN)
+			+ (Helper.data.SecondTimerMinStart[i] * 60);
 	unsigned long timeSecondFinish = timeSecondStart + Helper.data.SecondTimerDuration[i];
-	unsigned long currentTime = Helper.GetTimeNow().Hour * SEC_IN_MIN * SEC_IN_MIN + Helper.GetTimeNow().Minute * SEC_IN_MIN + Helper.GetTimeNow().Second;
+	unsigned long currentTime = Helper.GetTimeNow().Hour * SEC_IN_MIN * SEC_IN_MIN
+			+ Helper.GetTimeNow().Minute * SEC_IN_MIN + Helper.GetTimeNow().Second;
 	if (timeSecondFinish <= SECOND_BY_DAY) {
 		if (currentTime >= timeSecondStart && currentTime < timeSecondFinish) {
 			return true;
@@ -183,8 +187,8 @@ bool AquaTimers::CheckStatePWMTimer(byte i) {
  * If we have a conflict timer switches the channel then we change the type
  * of timer is on this channel in the property stateChanalsTimer
  */
-bool AquaTimers::CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type),
-		bool isNeedEnableZeroCanal) {
+bool AquaTimers::CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte timerType,
+		void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
 	if (timerType == TIMER_PWM) {
 		if (isEnable) {
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] != TIMER_PWM) {
@@ -192,10 +196,10 @@ bool AquaTimers::CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte time
 				GetChanalState(PWMTIMER);
 				return true;
 			}
-		}else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] != TIMER_OFF) {
-				Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] = TIMER_OFF;
-				GetChanalState(PWMTIMER);
-				return true;
+		} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] != TIMER_OFF) {
+			Helper.data.CurrentStatePWMChanalsByTypeTimer[chanal] = TIMER_OFF;
+			GetChanalState(PWMTIMER);
+			return true;
 		}
 		return false;
 	}
@@ -210,14 +214,16 @@ bool AquaTimers::CheckCollisionsOtherTimer(byte chanal, bool isEnable, byte time
 			if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_TEMP && timerType == TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
 				GetChanalState(CANAL);
-			} else if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_MIN && timerType == TIMER_MIN && timerType != TIMER_TEMP) {
+			} else if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_MIN && timerType == TIMER_MIN
+					&& timerType != TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
 				GetChanalState(CANAL);
 			} else if (Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_SEC && timerType == TIMER_SEC
 					&& Helper.data.CurrentStateChanalsByTypeTimer[chanal] != TIMER_MIN && timerType != TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
 				GetChanalState(CANAL);
-			} else if (timerType == TIMER_OTHER && Helper.data.CurrentStateChanalsByTypeTimer[chanal] == TIMER_OFF && timerType != TIMER_TEMP) {
+			} else if (timerType == TIMER_OTHER && Helper.data.CurrentStateChanalsByTypeTimer[chanal] == TIMER_OFF
+					&& timerType != TIMER_TEMP) {
 				Helper.data.CurrentStateChanalsByTypeTimer[chanal] = timerType;
 				GetChanalState(CANAL);
 			}

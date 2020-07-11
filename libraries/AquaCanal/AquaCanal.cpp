@@ -96,15 +96,14 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 				if (Helper.data.PowerPWMChanals[canal]>= 0 && Helper.data.PowerPWMChanals[canal] < Helper.GetLevelPWM(i)) {
 					SetPWMOnCanal(true, i);
 				}else{
-					Helper.data.TimetoCheckPWMstate[i] = 0;
+					Helper.data.TimetoCheckPWMstate[i] = millis();
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_OFF) {
 
-				if (Helper.data.PowerPWMChanals[canal] <= Helper.GetLevelPWM(i)
-						&& Helper.data.PowerPWMChanals[canal] > 0) {
+				if (Helper.data.PowerPWMChanals[canal] <= Helper.GetLevelPWM(i) && Helper.data.PowerPWMChanals[canal] > 0) {
 					SetPWMOnCanal(false, i);
 				}else{
-					Helper.data.TimetoCheckPWMstate[i] = 0;
+					Helper.data.TimetoCheckPWMstate[i] = millis();
 				}
 			}
 
@@ -122,8 +121,7 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 			}
 			// Manual shutdown PWM canal
 		} else if (Helper.data.StatePWMChanals[canal] == OFF_CHANAL) {
-			if (Helper.data.PowerPWMChanals[canal]
-					> 0&& Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] != TIMER_OFF) {
+			if (Helper.data.PowerPWMChanals[canal]> 0) {
 				Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] = TIMER_OFF;
 				Helper.data.PowerPWMChanals[canal] = 0;
 				SetPWMCanalOff(canal);
@@ -132,7 +130,12 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 		}
 	}
 }
+
 void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
+	if(Helper.data.TimetoCheckPWMLastState[timers] != isOn){
+		Helper.data.TimetoCheckPWMLastState[timers] = isOn;
+		Helper.data.TimetoCheckPWMstate[timers] = millis();
+	}
 	// https://www.arduino.cc/reference/en/language/functions/time/millis/
 	if (Helper.data.TimetoCheckPWMstate[timers] == 0 || millis() < Helper.data.TimetoCheckPWMstate[timers]) {
 		Helper.data.TimetoCheckPWMstate[timers] = millis();

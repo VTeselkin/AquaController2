@@ -67,7 +67,7 @@
 //Maximum number of temperature sensors
 #define MAX_TEMP_SENSOR 4
 //Used Arduino terminals for temperature sensors
-#define TEMP_SENS 3
+#define TEMP_SENS 32
 //State temperature sensors
 #define DISCONNECT_SENSOR 0
 //State temperature sensors
@@ -105,7 +105,7 @@
 #define MAX_TIMERS_PH 2
 #define MAX_LEVEL_PH 17600 //https://microcontrollerslab.com/ads1115-external-adc-with-esp32/
 
-#define TONE_PIN 2
+#define TONE_PIN 15
 
 #define BUZZER_CHANNEL 0
 /**
@@ -323,7 +323,7 @@ typedef struct {
 	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = {};
 
 	// Enabled channels for relays
-	const byte nRelayDrive[MAX_CHANALS] = { 16, 17, 18, 19, 21, 22, 23, 25 };
+	const byte nRelayDrive[MAX_CHANALS] = { 18, 19, 21, 22, 23, 25, 26, 33 };
 
 	const byte nPinsESP32[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 8, 9, 10, 0, 0 , 0, 0, 11, 12, 0, 0, 0, 0, 0, 0 };
 	/**
@@ -399,6 +399,7 @@ typedef struct {
 	 */
 	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1,  1, 1, 1, 1, 1 };
 	unsigned long TimetoCheckPWMstate[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	bool TimetoCheckPWMLastState[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
 

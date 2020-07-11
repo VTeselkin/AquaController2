@@ -26,6 +26,7 @@ void AquaAnalog::Update() {
 		adc[1] = analogRead(Helper.data.nADCPins[1]);
 		adc[2] = analogRead(Helper.data.nADCPins[2]);
 		adc[3] = analogRead(Helper.data.nADCPins[3]);
+		Serial.println(adc[0]);
 	}
 }
 
