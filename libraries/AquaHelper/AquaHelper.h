@@ -397,7 +397,7 @@ typedef struct {
 	 * TIMER_TEMP 6
 	 * TIMER_PWM 7
 	 */
-	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1,  1, 1, 1, 1, 1 };
+	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	unsigned long TimetoCheckPWMstate[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	bool TimetoCheckPWMLastState[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 

@@ -157,9 +157,9 @@ String AquaHelper::GetChanalState() {
 String AquaHelper::GetChanalPWMState() {
 	String result = SendStartMess();
 	result += "pwm_cs\",\"data\":{\"pwm_cl\"";
-	result += GetJsonValue(data.CurrentStatePWMChanalsByTypeTimer, MAX_CHANALS);
+	result += GetJsonValue(data.CurrentStatePWMChanalsByTypeTimer, MAX_CHANALS_PWM);
 	result += ",\"pwm_ct\"";
-	result += GetJsonValue(data.StatePWMChanals, MAX_CHANALS);
+	result += GetJsonValue(data.StatePWMChanals, MAX_CHANALS_PWM);
 	result += SendEndMess();
 	return result;
 }
