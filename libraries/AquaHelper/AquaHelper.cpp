@@ -293,9 +293,9 @@ String AquaHelper::GetSecondsTimerState() {
  */
 String AquaHelper::GetWiFiSettings() {
 	String result = SendStartMess();
-	result += "set\",\"NTP\":";
+	result += "settings\",\"NTP\":";
 	result += data.ntp_update;
-	result += ",\"AUTO\":";
+	result += ",\"update\":";
 	result += data.auto_connect;
 	result += ",\"TIMERS\":";
 	result += MAX_TIMERS;
@@ -385,7 +385,7 @@ String AquaHelper::GetPhTimerState() {
 }
 /**
  * @return {"status":"success","message":"ph_state","data":
- * {"ph":[113],
+ * {"ph":[113 113],
  * "ph1":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113],
  * "ph2":[113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113]
  * }}
@@ -440,7 +440,7 @@ String AquaHelper::GetTempStats() {
 }
 
 //============================================POST==============================================
-bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, byte)) {
+bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
 	if (inString.indexOf("post") != -1) {
 		DynamicJsonBuffer jsonBuffer(200);
 		JsonObject &root = jsonBuffer.parseObject(inString);
@@ -491,7 +491,6 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, 
 			SetJsonValue(Helper.data.TimerPWMChanal, MAX_TIMERS, "pwm_c", request);
 			SetJsonValue(Helper.data.TimerPWMDuration, MAX_TIMERS, "pwm_delay", request);
 			SetJsonValue(Helper.data.TimerPWMLevel, MAX_TIMERS, "pwm_level", request);
-
 			return true;
 		} else if (inString.indexOf("ph_timer") != -1) {
 			if (inString.indexOf("ph_s") != -1)
@@ -502,28 +501,47 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, 
 				SetJsonValue(Helper.data.PHTimerState, MAX_TIMERS_PH, "ph_st", request);
 			if (inString.indexOf("ph_c") != -1)
 				SetJsonValue(Helper.data.PHTimerCanal, MAX_TIMERS_PH, "ph_c", request);
+			if (inString.indexOf("ph_401v2") != -1)
+				SetJsonValue(Helper.data.PHTimer401, MAX_TIMERS_PH, "ph_401v2", request);
+			if (inString.indexOf("ph_686v2") != -1)
+				SetJsonValue(Helper.data.PHTimer686, MAX_TIMERS_PH, "ph_686v2", request);
+			GetPHLevelConfig();
 			return true;
-		} else if (inString.indexOf("ph_timer") != -1) {
-			//{"status":"post","message":"ph_config","data": {"ph_401":0,"ph_686":0}}
-			if (inString.indexOf("ph_401") != -1) {
-				byte canal = request["ph_401"].as<byte>();
-				if (canal > 0 && canal <= 2) {
-					GetPHLevelConfig(LOW, canal);
-				}
-			}
-			if (inString.indexOf("ph_686") != -1) {
-				byte canal = request["ph_686"].as<byte>();
-				if (canal > 0 && canal <= 2) {
-					GetPHLevelConfig(HIGH, canal);
-				}
-			}
-
+			//{"status":"post","message":"settings","data": {"NTP":0,"update":0}}
+		}else if (inString.indexOf(SETTINGS_DEV) != -1) {
+			Helper.data.ntp_update = request[SETTINGS_NTP].as<bool>();
+			Helper.data.auto_update = request[SETTINGS_UPDATE].as<bool>();
+			return true;
 		}
 		return false;
 	}
 	return false;
 }
 //=========================================GSON HELPER===========================================
+
+bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject &root) {
+	if (!root.containsKey(key))
+		return false;
+	for (byte i = 0; i < count; i++) {
+		arrayData[i] = root[key][i].as<byte>();
+	}
+	return true;
+}
+
+String GetJsonValue(const word arrayData[], const byte count) {
+	String result = "";
+	result = ":[";
+	for (byte i = 0; i < count; i++) {
+		result += arrayData[i];
+		if (i != count - 1) {
+			result += ",";
+		}
+	}
+	result += "]";
+	return result;
+}
+
+
 String GetJsonValue(const byte arrayData[], const byte count) {
 	String result = "";
 	result = ":[";
@@ -537,29 +555,16 @@ String GetJsonValue(const byte arrayData[], const byte count) {
 	return result;
 }
 
-String GetJsonValue(const uint16_t arrayData[], const byte count) {
-	String result = "";
-	result = ":[";
-	for (byte i = 0; i < count; i++) {
-		result += arrayData[i];
-		if (i != count - 1) {
-			result += ",";
-		}
-	}
-	result += "]";
-	return result;
-}
-
-bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject &root) {
+bool SetJsonValue(word arrayData[], const byte count, const String key, const JsonObject &root) {
 	if (!root.containsKey(key))
 		return false;
 	for (byte i = 0; i < count; i++) {
-		arrayData[i] = root[key][i].as<byte>();
+		arrayData[i] = root[key][i].as<word>();
 	}
 	return true;
 }
 
-int AquaHelper::GetLevelPWM(byte timer){
+int AquaHelper::GetLevelPWM(byte timer) {
 	return MAX_PWM_POWER_CALCULATE * Helper.data.TimerPWMLevel[timer] / 100;
 }
 //==========================================PH HELPER==============================================

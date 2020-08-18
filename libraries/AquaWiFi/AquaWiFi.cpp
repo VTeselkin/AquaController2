@@ -36,7 +36,7 @@ word UTC3 = 3; //UTC+3
 Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
 		responseNull }, { TIMERSEC, responseNull }, { TIMERTEMP, responseNull }, { TEMPSENSOR, responseNull }, { PH,
 		responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, { PWMCANAL, responseNull }, { PWMTIMER,
-		responseNull } };
+		responseNull }, { SETTINGS, responseNull } };
 
 void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
 		uint16_t (*NTPUpdate)(uint16_t)) {
@@ -184,7 +184,7 @@ void AquaWiFi::WaitRequest() {
 }
 
 void SendFromUDPToController(String inString) {
-	Serial.println(inString);
+	if(inString.length() == 0) return;
 	jsonBuffer.clear();
 	JsonObject &root = jsonBuffer.parseObject(inString);
 	if (!root.success()) {
@@ -193,7 +193,7 @@ void SendFromUDPToController(String inString) {
 	}
 
 	if (inString.indexOf(GET_COMMAND) != -1) {
-
+		Serial.println("[GET] : " + inString);
 		if (inString.indexOf(GET_DEVICE_INFO) != -1) {
 			responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 			UDPSendMessage(responseCache[DEVICE], false);
@@ -245,6 +245,7 @@ void SendFromUDPToController(String inString) {
 		}
 
 	} else if (inString.indexOf(POST_COMMAND) != -1) {
+		Serial.println("[POST] : " + inString);
 		if (inString.indexOf("data") == -1) {
 			UDPSendError(RQUEST_DATA_CORUPTED);
 			return;
@@ -288,34 +289,39 @@ void SendFromUDPToController(String inString) {
 			funcGetUDPRequest(PWMCANAL, inString);
 			return;
 		}
+		if (inString.indexOf(SETTINGS_DEV) != -1) {
+			funcGetUDPRequest(SETTINGS, inString);
+			return;
+		}
 
 	} else if (inString.indexOf(INFO_COMMAND) != -1) {
+		Serial.println("[INFO] : " + inString);
 		return;
 	}
 }
 
 void AquaWiFi::StartCaching() {
 	SendWiFiLog("WiFi:Caching data...");
-	SendCacheResponse(DEVICE,false);
-	SendCacheResponse(CANAL,false);
-	SendCacheResponse(PH,false);
-	SendCacheResponse(TEMPSTATS,false);
-	SendCacheResponse(TEMPSENSOR,false);
-	SendCacheResponse(TIMERDAY,false);
-	SendCacheResponse(TIMERHOUR,false);
-	SendCacheResponse(TIMERSEC,false);
-	SendCacheResponse(TIMERTEMP,false);
-	SendCacheResponse(PHTIMER,false);
-	SendCacheResponse(PWMTIMER,false);
-	SendCacheResponse(PWMCANAL,false);
+	SendCacheResponse(DEVICE, false);
+	SendCacheResponse(CANAL, false);
+	SendCacheResponse(PH, false);
+	SendCacheResponse(TEMPSTATS, false);
+	SendCacheResponse(TEMPSENSOR, false);
+	SendCacheResponse(TIMERDAY, false);
+	SendCacheResponse(TIMERHOUR, false);
+	SendCacheResponse(TIMERSEC, false);
+	SendCacheResponse(TIMERTEMP, false);
+	SendCacheResponse(PHTIMER, false);
+	SendCacheResponse(PWMTIMER, false);
+	SendCacheResponse(PWMCANAL, false);
 }
 
-void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache){
-	switch(type){
+void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache) {
+	switch (type) {
 
 	case DEVICE:
 		responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
-	break;
+		break;
 	case CANAL:
 		responseCache[CANAL] = Helper.GetChanalState();
 		break;
@@ -349,8 +355,12 @@ void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache){
 	case PWMCANAL:
 		responseCache[PWMCANAL] = Helper.GetChanalPWMState();
 		break;
+	case SETTINGS:
+		responseCache[SETTINGS] = Helper.GetWiFiSettings();
+		break;
+
 	}
-	if(sendCache)
+	if (sendCache)
 		UDPSendMessage(responseCache[type], false);
 }
 

@@ -26,7 +26,6 @@ void AquaAnalog::Update() {
 		adc[1] = analogRead(Helper.data.nADCPins[1]);
 		adc[2] = analogRead(Helper.data.nADCPins[2]);
 		adc[3] = analogRead(Helper.data.nADCPins[3]);
-		Serial.println(adc[0]);
 	}
 }
 
@@ -50,13 +49,11 @@ void AquaAnalog::CheckWaterLevel(void (*GetChanalState)(bool, byte)) {
 
 /**
  *
- * @param canal 1 - first PH canal; 2 - second PH canal
+ * @param canal 0 - first PH canal; 1 - second PH canal
  * @return 0 - 1024
  */
 uint16_t AquaAnalog::CheckPhLevel(byte canal) {
-	if (canal != 1 || canal != 2)
-		return 0;
-	uint16_t level = map(GetADCLevel(canal - 1), 0, MAX_LEVEL_PH, 0, 1024);
+	uint16_t level = map(GetADCLevel(canal), 0, MAX_LEVEL_PH, 0, 1024);
 	return level;
 }
 

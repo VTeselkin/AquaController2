@@ -29,10 +29,12 @@ void AquaUpdate::Init(){
 
 }
 void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffer) {
+
 	if(!Helper.data.auto_update){
 		funcChangeLog("OTA: DISABLE");
 		return;
 	}
+
 	String url = UPDATE_URL + PATH_SPIFFS + "index.php";
 	funcChangeLog("OTA: Web update = " + url);
 	if (url.length() > 0) {
@@ -47,12 +49,12 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 		funcChangeLog("OTA: No Update!");
 	}
 
-	url = OTAUpdate(UPDATE_URL + PATH_FIRMWARE + "index.php", jsonBuffer);
+	url = UPDATE_URL + PATH_FIRMWARE + "index.php";
 	funcChangeLog("OTA: Firmware update" + url);
 	if (url.length() > 0) {
 		if (isForce) {
 			httpUpdate.rebootOnUpdate(true);
-			auto res = httpUpdate.update(client, url);
+			auto res = httpUpdate.update(client, url, VERTION_FIRMWARE);
 			SendResultOTAUpdate(res, funcChangeLog);
 		} else {
 			funcChangeLog("OTA: YOU NEED UPDATE");
@@ -69,24 +71,6 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), Dyn
 		file = root.openNextFile();
 	}
 
-}
-
-String OTAUpdate(String host, DynamicJsonBuffer &jsonBuffer) {
-
-	httpUpdateClient.begin(host);
-	int httpCode = httpUpdateClient.GET();
-	if (httpCode > 0) {
-		jsonBuffer.clear();
-		JsonObject& root = jsonBuffer.parseObject(httpUpdateClient.getString());
-		JsonArray& array = root["downloads"].asArray();
-		String url = array[array.size() - 1]["url"];
-		String id = array[array.size() - 1]["file"];
-
-		if (id.length() > 0 && !id.equals(VERTION_FIRMWARE)) {
-			return url;
-		}
-	}
-	return "";
 }
 
 void SendResultOTAUpdate(t_httpUpdate_return ret, void (*funcChangeLog)(String)) {

@@ -123,6 +123,7 @@ const word LCD_BUTTON_ADDR = 992;
 const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
+const word AUTO_UPDATE_ADDR = 978;
 
 const word PWMTimerHourLevelAddr = 447;
 const word PWMTimerHourDurationAddr = 437;
@@ -227,7 +228,7 @@ const String SECOND_TIMER_CANAL = "st_c";
 
 const String TIMER_DAILY_PWM_STATE = "pwm_timer";
 const String CANAL_STATE_PWM = "pwm_cs";
-
+const String SETTINGS_DEV = "settings";
 //--------------------------JSONs--------------------------------
 
 const String GET_PARAM_REQUEST = "{\"status\":\"get\",\"message\":\"set\"}";
@@ -245,11 +246,12 @@ const String GET_DEVICE_PH = "ph_state";
 //---------------------------------------------------------------
 
 //settings param
-const String SETTINGS = "set";
+
 const String SETTINGS_SSID = "SSID";
 const String SETTINGS_PASS = "PASS";
 const String SETTINGS_NTP = "NTP";
 const String SETTINGS_AUTO = "AUTO";
+const String SETTINGS_UPDATE = "update";
 const String SETTINGS_MAX_CHANALS = "TIMERS";
 const String SETTINGS_MAX_TEMP_SENSOR = "SENSOR";
 const String SETTINGS_UTC = "utc";
@@ -257,7 +259,8 @@ const String VERTION_PROTOCOL = "/4/";
 const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
-const String VERTION_FIRMWARE = "200.bin";
+
+const String VERTION_FIRMWARE = "200";
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -275,13 +278,14 @@ const float Ph4_01 = 4.01f;
 
 
 
-typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMCANAL, PWMTIMER } typeResponse;
+typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMCANAL, PWMTIMER, SETTINGS } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
 String GetJsonValue(const uint8_t arrayData[], const byte count);
-String GetJsonValue(const uint16_t arrayData[], const byte count);
+String GetJsonValue(const word arrayData[], const byte count);
 
 bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject& root);
+bool SetJsonValue(word arrayData[], const byte count, const String key, const JsonObject& root);
 
 typedef struct {
 	/**
@@ -407,8 +411,8 @@ typedef struct {
 	byte PHTimerEnd[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerState[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerCanal[MAX_TIMERS_PH] = { 0, 0 };
-	uint16_t PHTimer401[MAX_TIMERS_PH] = { 1, 1 };
-	uint16_t PHTimer686[MAX_TIMERS_PH] = { 1, 1 };
+	word PHTimer401[MAX_TIMERS_PH] = { 1, 1 };
+	word PHTimer686[MAX_TIMERS_PH] = { 1, 1 };
 	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = {};
 	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
 
@@ -426,7 +430,7 @@ public:
 	static void Tone(const word frequency, const word duration);
 	static void ToneForce(const word frequency, const word duration);
 	static void SetToneEnable(bool enable);
-	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)(bool, byte));
+	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)());
 	static String GetDevice(String ip);
 	static String GetDataTime();
 	static String GetChanalState();

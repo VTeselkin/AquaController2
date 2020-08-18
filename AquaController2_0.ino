@@ -110,60 +110,67 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		switch (type) {
 		case CANAL:
 			aquaEEPROM.SaveChanalState();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERDAY:
 			aquaEEPROM.SaveDailyTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERHOUR:
 			aquaEEPROM.SaveHoursTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERSEC:
 			aquaEEPROM.SaveSecondsTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TIMERTEMP:
 			aquaEEPROM.SaveTempTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PHTIMER:
 			aquaEEPROM.SavePHTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TEMPSTATS:
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case DEVICE:
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case TEMPSENSOR:
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PH:
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PWMTIMER:
 			aquaEEPROM.SavePWMTimerToERROM();
-			aquaWiFi.SendCacheResponse(type, true);
 			break;
 		case PWMCANAL:
 			aquaEEPROM.SavePWMChanalState();
-			aquaWiFi.SendCacheResponse(type, true);
+			break;
+		case SETTINGS:
+			aquaEEPROM.SaveWifiSettings();
+			type = DEVICE;
 			break;
 		}
+		aquaWiFi.SendCacheResponse(type, true);
 	} else {
 		Serial.println("ERROR POST UDP");
 	}
 }
 
-void SetPHSensorConfig(bool ph_686, byte sensor) {
-	if (ph_686) {
-		Helper.data.PHTimer686[sensor] = aquaAnalog.CheckPhLevel(sensor);
-	} else {
-		Helper.data.PHTimer401[sensor] = aquaAnalog.CheckPhLevel(sensor);
+void SetPHSensorConfig() {
+	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
+		if (Helper.data.PHTimer686[i] == 0) {
+			Serial.print("CheckPhLevel PHTimer686 canal = ");
+			Serial.println(i);
+			auto level = aquaAnalog.CheckPhLevel(i);
+			if (level == 0)
+				level = 1;
+			Helper.data.PHTimer686[i] = level;
+		}
+		if (Helper.data.PHTimer401[i] == 0) {
+			Serial.print("CheckPhLevel PHTimer401 canal = ");
+			Serial.println(i);
+			auto level = aquaAnalog.CheckPhLevel(i);
+			if (level == 0)
+				level = 1;
+			Helper.data.PHTimer401[i] = level;
+		}
 	}
+
 }
 uint16_t SaveUTCSetting(uint16_t utc) {
 	return aquaEEPROM.SaveUTCSetting(utc);
