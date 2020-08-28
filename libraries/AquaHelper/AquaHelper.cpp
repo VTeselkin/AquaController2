@@ -593,3 +593,7 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setSecond(second(epoch));
 }
 
+byte AquaHelper::GetHourNow() {
+	return RTC.now().hour();
+}
+

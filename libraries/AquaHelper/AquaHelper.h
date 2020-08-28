@@ -41,6 +41,7 @@
 #define TIMER_SEC 5
 #define TIMER_TEMP 6
 #define TIMER_PWM 7
+#define TIMER_TEMPFAN 8
 
 #define ENABLE_TIMER 1
 #define DISABLE_TIMER 0
@@ -83,7 +84,9 @@
 // Maximum possible maximum temperature
 #define MAX_TEMP 3500
 //Maximum number of PWM canals
-#define MAX_CHANALS_PWM 10
+#define MAX_CHANALS_PWM 12
+//Maximum number of FAN canals
+#define MAX_CHANALS_FAN 2
 //Maximum number of Power PWM canals
 #define  MAX_PWM_POWER_CALCULATE 4096
 //Maximum number of analog canals
@@ -134,7 +137,7 @@ const word PWMTimerMinEndAddr = 397;
 const word PWMTimerStateAddr = 387;
 const word PWMTimerChanalAddr = 377;
 
-const word ChanalsPWMStateAddr = 367;
+const word ChanalsPWMStateAddr = 365;
 
 const word PHTimerStartAddr = 347;
 const word PHTimerEndAddr = 345;
@@ -175,7 +178,6 @@ const byte TempTimerMinStartAddr = 105;
 const byte TempTimerMaxEndAddr = 101;
 const byte TempTimerStateAddr = 97;
 const byte TempTimerChanalAddr = 93;
-
 
 const String responseNull = "{\"status\":\"error\",\"message\":\"Not Initialized\",\"data\":{}}";
 
@@ -255,6 +257,7 @@ const String SETTINGS_UPDATE = "update";
 const String SETTINGS_MAX_CHANALS = "TIMERS";
 const String SETTINGS_MAX_TEMP_SENSOR = "SENSOR";
 const String SETTINGS_UTC = "utc";
+const String SETTINGS_EPOCH = "epoch";
 const String VERTION_PROTOCOL = "/4/";
 const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
@@ -276,16 +279,28 @@ const byte STEP_PH = 10;
 const float Ph6_86 = 6.86f;
 const float Ph4_01 = 4.01f;
 
-
-
-typedef enum { DEVICE, CANAL, TIMERDAY, TIMERHOUR, TIMERSEC, TIMERTEMP, TEMPSENSOR, PH, PHTIMER, TEMPSTATS, PWMCANAL, PWMTIMER, SETTINGS } typeResponse;
+typedef enum {
+	DEVICE,
+	CANAL,
+	TIMERDAY,
+	TIMERHOUR,
+	TIMERSEC,
+	TIMERTEMP,
+	TEMPSENSOR,
+	PH,
+	PHTIMER,
+	TEMPSTATS,
+	PWMCANAL,
+	PWMTIMER,
+	SETTINGS
+} typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
 String GetJsonValue(const uint8_t arrayData[], const byte count);
 String GetJsonValue(const word arrayData[], const byte count);
 
-bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject& root);
-bool SetJsonValue(word arrayData[], const byte count, const String key, const JsonObject& root);
+bool SetJsonValue(byte arrayData[], const byte count, const String key, const JsonObject &root);
+bool SetJsonValue(word arrayData[], const byte count, const String key, const JsonObject &root);
 
 typedef struct {
 	/**
@@ -324,12 +339,13 @@ typedef struct {
 	byte TempTimerMaxEnd[MAX_TEMP_SENSOR] = { MAX_INDEX_TEMP, MAX_INDEX_TEMP, MAX_INDEX_TEMP, MAX_INDEX_TEMP };
 	byte TempSensor[MAX_TEMP_SENSOR] = { 0, 0, 0, 0 };
 	byte TempTimerChanal[MAX_TEMP_SENSOR] = { 0, 0, 0, 0 };
-	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = {};
+	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = { };
 
 	// Enabled channels for relays
 	const byte nRelayDrive[MAX_CHANALS] = { 18, 19, 21, 22, 23, 25, 26, 33 };
 
-	const byte nPinsESP32[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 8, 9, 10, 0, 0 , 0, 0, 11, 12, 0, 0, 0, 0, 0, 0 };
+	const byte nPinsESP32[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 8, 9, 10,
+			0, 0, 0, 0, 11, 12, 0, 0, 0, 0, 0, 0 };
 	/**
 	 * The array of the current PWM canals status
 	 * OFF_CHANAL 1
@@ -360,14 +376,14 @@ typedef struct {
 
 	// Speaker Setup
 	byte isTone = 1;
-	bool ntp_update = 1;
+	bool ntp_update = 0;
 	bool auto_connect = 1;
 	bool auto_update = 0;
 
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
-	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
 	byte TimerPWMHourStart[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMHourEnd[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -384,12 +400,12 @@ typedef struct {
 	 * ON_CHANAL 2
 	 * AUTO_CHANAL 3
 	 */
-	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+	byte StatePWMChanals[MAX_CHANALS_PWM] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 
 	/**
 	 * The array of the current PWM canals power level
 	 */
-	int PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	int PowerPWMChanals[MAX_CHANALS_PWM] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/**
 	 * Array of types of timers that enabled the canals
@@ -401,24 +417,33 @@ typedef struct {
 	 * TIMER_TEMP 6
 	 * TIMER_PWM 7
 	 */
-	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	byte CurrentStatePWMChanalsByTypeTimer[MAX_CHANALS_PWM] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	unsigned long TimetoCheckPWMstate[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	bool TimetoCheckPWMLastState[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+	/** ------------------------------------FAN-------------------------------------- */
+	const byte nFANDrive[MAX_CHANALS_FAN] = { 10, 11 };
+	byte FANTimerState[MAX_CHANALS_FAN] = { 0, 0 };
+	byte FANSensorState[MAX_CHANALS_FAN] = { 0, 0 };
+	byte FANTimerMinStart[MAX_CHANALS_FAN] = { MIN_INDEX_TEMP, MIN_INDEX_TEMP };
+	byte FANTimerMaxEnd[MAX_CHANALS_FAN] = { MAX_INDEX_TEMP, MAX_INDEX_TEMP };
+	byte FANSensor[MAX_CHANALS_FAN] = { 0, 0};
+	byte FANTimerChanal[MAX_CHANALS_FAN] = { 0, 0 };
 
 
+	/** ------------------------------------PH-------------------------------------- */
 	byte PHTimerStart[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerEnd[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerState[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerCanal[MAX_TIMERS_PH] = { 0, 0 };
 	word PHTimer401[MAX_TIMERS_PH] = { 1, 1 };
 	word PHTimer686[MAX_TIMERS_PH] = { 1, 1 };
-	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = {};
+	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = { };
 	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
 
 	/** ------------------------------------ADC-------------------------------------- */
 	//Enabled canals for ADC
-		const byte nADCPins[MAX_ADC_CANAL] = { 34, 35, 36, 39 };
+	const byte nADCPins[MAX_ADC_CANAL] = { 34, 35, 36, 39 };
 	/** ----------------------------------------------------------------------------- */
 } dataController;
 
@@ -446,6 +471,7 @@ public:
 	static String GetPhTimerState();
 	static String GetPhStats();
 	static String GetTempStats();
+	static byte GetHourNow();
 	static tmElements_t GetTimeNow();
 	static String GetFormatTimeNow();
 	static String GetFormatDataNow();

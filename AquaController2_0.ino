@@ -34,6 +34,7 @@
 #include <AquaEEPROM.h>
 #include <AquaAnalog.h>
 #include <AquaWiFi.h>
+#include <AquaFAN.h>
 
 AquaTimers aquaTimers;
 AquaTemp aquaTemp;
@@ -42,6 +43,7 @@ AquaCanal aquaCanal;
 AquaEEPROM aquaEEPROM;
 AquaAnalog aquaAnalog;
 AquaWiFi aquaWiFi;
+AquaFAN aquaFAN;
 
 unsigned int _timerForCheck = 0;
 unsigned int _hourTimerForCheck = 0;
@@ -55,8 +57,8 @@ void setup() {
 	Serial.begin(115200);
 	Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
 	aquaEEPROM.Init();
-	aquaCanal.Init();
 	aquaTemp.Init(aquaEEPROM);
+	aquaCanal.Init();
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
 	Helper.ToneForce(2000, 500);
@@ -68,16 +70,16 @@ void loop() {
 	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_secondTimerForCheck, TIMER_SEC, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_pwmTimerForCheck, TIMER_PWM, ChangeChanalState, isNeedEnableZeroCanal);
-	aquaTemp.GetTemperature();
+	aquaTemp.GetTemperature(ChangeChanalState);
 	aquaTemp.CheckStateTempTimer(ChangeChanalState, isNeedEnableZeroCanal);
 	aquaCanal.SetStateCanal(ChangeChanalState);
 	aquaCanal.SetStatePWMCanal(ChangeChanalState);
 	aquaAnalog.Update();
 	if (aquaAnalog.AddPhElementToStats()) {
-		aquaWiFi.CacheResponse(PH, Helper.GetPhStats());
+		aquaWiFi.SendCacheResponse(PH, true);
 	}
 	if (aquaTemp.AddTempElementToStats()) {
-		aquaWiFi.CacheResponse(TEMPSTATS, Helper.GetTempStats());
+		aquaWiFi.SendCacheResponse(TEMPSTATS, true);
 	}
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
 	aquaWiFi.WaitRequest();
@@ -90,6 +92,7 @@ void ChangeChanalState(typeResponse type) {
 		aquaWiFi.SendCacheResponse(type, true);
 	}
 }
+
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
 	if (warning) {
@@ -170,8 +173,8 @@ void SetPHSensorConfig() {
 			Helper.data.PHTimer401[i] = level;
 		}
 	}
-
 }
+
 uint16_t SaveUTCSetting(uint16_t utc) {
 	return aquaEEPROM.SaveUTCSetting(utc);
 }

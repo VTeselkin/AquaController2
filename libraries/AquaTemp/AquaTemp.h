@@ -15,9 +15,6 @@
 #include <OneWire.h>
 #include <AquaEEPROM.h>
 
-
-
-
 void CheckStateWarningTemp(byte sensorIndex, bool isWarming);
 bool CheckStateTemp(byte sensorIndex, byte canalIndex);
 bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal);
@@ -29,7 +26,7 @@ class AquaTemp {
 public:
 void Init(AquaEEPROM aquaEEPROM);
 void CheckStateTempTimer(void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal);
-void GetTemperature();
+void GetTemperature( void (*GetChanalState)(typeResponse type));
 bool GetTemperatureIsWarning();
 byte GetTemperatereSensorIndexWarning();
 void SetDalasSensor(AquaEEPROM eeprom);

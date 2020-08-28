@@ -27,6 +27,7 @@ void AquaAnalog::Update() {
 		adc[2] = analogRead(Helper.data.nADCPins[2]);
 		adc[3] = analogRead(Helper.data.nADCPins[3]);
 	}
+
 }
 
 uint16_t AquaAnalog::GetADCLevel(byte canal) {
@@ -67,8 +68,8 @@ bool AquaAnalog::AddPhElementToStats() {
 		float voltage = 5 / 1024.0 * measure;
 		float PH_probe = Ph6_86 - ((V6_86 - voltage) / PH_step);
 		Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
-		if (millis() > lastPHStateTime + DELAY_PH_UPDATE_STATE) {
-			lastPHStateTime = millis();
+		if (millis() > lastPHStateTime) {
+			lastPHStateTime = millis() + DELAY_PH_UPDATE_STATE;
 			for (byte j = 1; j < MAX_STATS; j++) {
 				Helper.data.PHStats[i][j - 1] = Helper.data.PHStats[i][j];
 			}
@@ -78,3 +79,5 @@ bool AquaAnalog::AddPhElementToStats() {
 	}
 	return false;
 }
+
+

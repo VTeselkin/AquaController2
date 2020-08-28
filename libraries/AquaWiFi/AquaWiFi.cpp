@@ -253,6 +253,7 @@ void SendFromUDPToController(String inString) {
 		JsonObject &data = root["data"];
 		if (inString.indexOf("time_NTP") != -1) {
 			UTC3 = funcNTPUpdate(data[SETTINGS_UTC].as<uint16_t>());
+			Helper.SetTimeNow(data[SETTINGS_EPOCH].as<unsigned long>());
 			UDPSendMessage("{\"status\":\"success\",\"message\":\"Time update\",\"data\":{}}", false);
 			return;
 		}

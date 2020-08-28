@@ -18,21 +18,22 @@ unsigned long lastTempStatetime = 0;
  * Bus initialization for temperature sensors
  */
 void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
-	ds.begin();
 	ds.setWaitForConversion(false);
+	ds.begin();
+
 	aquaEEPROM.LoadTempTimerFromERROM(ds);
+	SetDalasSensor(aquaEEPROM);
 }
 
 /**
  * Obtaining temperature with DS18B20
  */
-void AquaTemp::GetTemperature() {
-
+void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
+	bool isNeedUpdate = false;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP != 0) {
 		isUpdateTemp = false;
 		return;
 	}
-
 	if (isUpdateTemp)
 		return;
 	isUpdateTemp = true;
@@ -42,14 +43,23 @@ void AquaTemp::GetTemperature() {
 		word temp = (word) (ds.getTempC(Helper.data.addrThermometer[var]) * 100);
 
 		if (temp > MAX_TEMP || temp < MIN_TEMP) {
+			if (Helper.data.TempSensorState[var] != DISCONNECT_SENSOR) {
+				isNeedUpdate = true;
+			}
 			Helper.data.TempSensorState[var] = DISCONNECT_SENSOR;
-			Helper.data.TempSensor[var] = 0;
 		} else {
+			temp = ConvertTempWordToByte(temp);
+			if (Helper.data.TempSensorState[var] != CONNECT_SENSOR || Helper.data.TempSensor[var] != temp) {
+				isNeedUpdate = true;
+			}
 			Helper.data.TempSensorState[var] = CONNECT_SENSOR;
-			Helper.data.TempSensor[var] = ConvertTempWordToByte(temp);
+			Helper.data.TempSensor[var] = temp;
 		}
 	}
-
+	if (isNeedUpdate) {
+		GetTempState(TEMPSENSOR);
+	}
+	AddTempElementToStats();
 	return;
 }
 
@@ -65,8 +75,6 @@ word ConvertTempByteToWord(unsigned short temp) {
  * Checking the status of programs for temperature sensors
  */
 void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
-//	if (MenuIndex >= 31 && MenuIndex <= 35)
-//		return;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP == 0) {
 		if (!isWaitTemp) {
 			isTempCanalWarning = false;
@@ -74,8 +82,9 @@ void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(typeResponse type), bo
 			for (byte canalIndex = 0; canalIndex < MAX_CHANALS; canalIndex++) {
 				bool result = false;
 				for (byte indexSensor = 0; indexSensor < MAX_TEMP_SENSOR; indexSensor++) {
-					if (Helper.data.TempTimerChanal[indexSensor] == canalIndex&& Helper.data.TempTimerState[indexSensor] == ENABLE_TIMER
-					&& Helper.data.TempSensorState[indexSensor] != DISCONNECT_SENSOR) {
+					if (Helper.data.TempTimerChanal[indexSensor]
+							== canalIndex&& Helper.data.TempTimerState[indexSensor] == ENABLE_TIMER
+							&& Helper.data.TempSensorState[indexSensor] != DISCONNECT_SENSOR) {
 						if (Helper.data.StateChanals[Helper.data.TempTimerChanal[indexSensor]] == AUTO_CHANAL) {
 							if (CheckStateTemp(indexSensor, canalIndex))
 								result = true;
@@ -95,7 +104,8 @@ void AquaTemp::CheckStateTempTimer(void (*GetChanalState)(typeResponse type), bo
  * If we have a conflict timer switches the channel then we change the type
  * of timer is on this channel in the property stateChanalsTimer
  */
-bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal) {
+bool CheckCollisionsTemp(byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type),
+		bool isNeedEnableZeroCanal) {
 	if (chanal == CHANAL_BTN_DISABLE && isNeedEnableZeroCanal)
 		return false;
 	if (isEnable) {
@@ -142,7 +152,8 @@ bool AquaTemp::CheckStateTemp(byte sensorIndex, byte canalIndex) {
 			return true;
 		}
 //-----Tmin=25------Tmax=22----Tcur=24--/
-		if (Helper.data.TempSensor[sensorIndex] < Helper.data.TempTimerMinStart[sensorIndex] && Helper.data.TempSensor[sensorIndex] > Helper.data.TempTimerMaxEnd[sensorIndex]) {
+		if (Helper.data.TempSensor[sensorIndex] < Helper.data.TempTimerMinStart[sensorIndex]
+				&& Helper.data.TempSensor[sensorIndex] > Helper.data.TempTimerMaxEnd[sensorIndex]) {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[sensorIndex] == TIMER_TEMP) {
 				CheckStateWarningTemp(sensorIndex, false);
 				return true;
@@ -159,7 +170,8 @@ bool AquaTemp::CheckStateTemp(byte sensorIndex, byte canalIndex) {
 			return true;
 		}
 //-----Tmin=20---Tcur=22---Tmax=25------/
-		if (Helper.data.TempSensor[sensorIndex] >= Helper.data.TempTimerMinStart[sensorIndex] && Helper.data.TempSensor[sensorIndex] < Helper.data.TempTimerMaxEnd[sensorIndex]) {
+		if (Helper.data.TempSensor[sensorIndex] >= Helper.data.TempTimerMinStart[sensorIndex]
+				&& Helper.data.TempSensor[sensorIndex] < Helper.data.TempTimerMaxEnd[sensorIndex]) {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[canalIndex] == TIMER_TEMP) {
 				CheckStateWarningTemp(sensorIndex, true);
 				return true;
@@ -199,32 +211,32 @@ void AquaTemp::CheckStateWarningTemp(byte sensorIndex, bool isWarming) {
 
 }
 
-
 /**
  * Sensor initialization method DS18B20
  */
 void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 	DeviceAddress device;
 	byte newIndex = 0;
+	byte var = 0;
 //Search all temperatures device
-	for (byte var = 0; var < ds.getDeviceCount(); var++) {
+
 //If we found the address of the sensor
-		if (ds.getAddress(device, var)) {
-			bool isNew = true;
+	while (ds.getAddress(device, var)) {
+		bool isNew = true;
 //Looking for the address of the found device in the current address list
-			for (byte i = 0; i < sizeof(Helper.data.addrThermometer); i++) {
-				if (CompareDeviceAddress(Helper.data.addrThermometer[i], device)) {
-					isNew = false;
-				}
-			}
-//If the address is new, we add it to the list of new addresses
-			if (isNew) {
-				for (byte i = 0; i < 8; i++) {
-					Helper.data.addrNewThermometer[newIndex][i] = device[i];
-				}
-				newIndex++;
+		for (byte i = 0; i < sizeof(Helper.data.addrThermometer); i++) {
+			if (CompareDeviceAddress(Helper.data.addrThermometer[i], device)) {
+				isNew = false;
 			}
 		}
+//If the address is new, we add it to the list of new addresses
+		if (isNew) {
+			for (byte i = 0; i < 8; i++) {
+				Helper.data.addrNewThermometer[newIndex][i] = device[i];
+			}
+			newIndex++;
+		}
+		var++;
 	}
 
 //Replace the disabled sensors with new ones
@@ -235,7 +247,7 @@ void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 		if (Helper.data.TempSensorState[i] == DISCONNECT_SENSOR && newIndex > newIndex2) {
 			for (byte j = 0; j < 8; j++) {
 				Helper.data.addrThermometer[i][j] = Helper.data.addrNewThermometer[newIndex2][j];
-				eeprom.SaveTempSensorAdress(i,j);
+				eeprom.SaveTempSensorAdress(i, j);
 			}
 			newIndex2++;
 		}
@@ -254,16 +266,14 @@ bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2) {
 	return true;
 }
 
-bool AquaTemp::AddTempElementToStats(){
-	if (millis() > lastTempStatetime + DELAY_TEMP_UPDATE_STATE) {
-		lastTempStatetime = millis();
+bool AquaTemp::AddTempElementToStats() {
+	if (millis() > lastTempStatetime) {
+		lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
+		byte hour = Helper.GetHourNow();
+		if (hour > 23)
+			return false;
 		for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
-			for (byte i = 1; i < MAX_STATS; i++) {
-				Helper.data.TempStats[j][i - 1] = Helper.data.TempStats[j][i];
-			}
-		}
-		for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
-			Helper.data.TempStats[j][MAX_STATS - 1] = Helper.data.TempSensor[j];
+			Helper.data.TempStats[j][hour] = Helper.data.TempSensor[j];
 		}
 		return true;
 	}
