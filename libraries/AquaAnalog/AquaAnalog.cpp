@@ -59,25 +59,21 @@ uint16_t AquaAnalog::CheckPhLevel(byte canal) {
 }
 
 bool AquaAnalog::AddPhElementToStats() {
-
-	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
-		uint16_t measure = CheckPhLevel(i);
-		float V6_86 = 5 / 1024.0 * Helper.data.PHTimer686[i];
-		float V4_01 = 5 / 1024.0 * Helper.data.PHTimer401[i];
-		float PH_step = (V6_86 - V4_01) / (Ph6_86 - Ph4_01);
-		float voltage = 5 / 1024.0 * measure;
-		float PH_probe = Ph6_86 - ((V6_86 - voltage) / PH_step);
-		Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
-		if (millis() > lastPHStateTime) {
+	if (millis() > lastPHStateTime + 10000) {
+		for (byte i = 0; i < MAX_TIMERS_PH; i++) {
+			uint16_t measure = CheckPhLevel(i);
+			float V6_86 = 5 / 1024.0 * Helper.data.PHTimer686[i];
+			float V4_01 = 5 / 1024.0 * Helper.data.PHTimer401[i];
+			float PH_step = (V6_86 - V4_01) / (Ph6_86 - Ph4_01);
+			float voltage = 5 / 1024.0 * measure;
+			float PH_probe = Ph6_86 - ((V6_86 - voltage) / PH_step);
+			Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
+			byte hour = Helper.GetHourNow();
 			lastPHStateTime = millis() + DELAY_PH_UPDATE_STATE;
-			for (byte j = 1; j < MAX_STATS; j++) {
-				Helper.data.PHStats[i][j - 1] = Helper.data.PHStats[i][j];
-			}
-			Helper.data.PHStats[i][MAX_STATS - 1] = Helper.data.PHCurrent[i];
+			Helper.data.PHStats[i][hour] = Helper.data.PHCurrent[i];
 			return true;
 		}
 	}
 	return false;
 }
-
 

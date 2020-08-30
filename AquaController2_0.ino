@@ -70,7 +70,7 @@ void loop() {
 	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_secondTimerForCheck, TIMER_SEC, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_pwmTimerForCheck, TIMER_PWM, ChangeChanalState, isNeedEnableZeroCanal);
-	aquaTemp.GetTemperature(ChangeChanalState);
+	aquaTemp.GetTemperature(ChangeTempState);
 	aquaTemp.CheckStateTempTimer(ChangeChanalState, isNeedEnableZeroCanal);
 	aquaCanal.SetStateCanal(ChangeChanalState);
 	aquaCanal.SetStatePWMCanal(ChangeChanalState);
@@ -79,6 +79,7 @@ void loop() {
 		aquaWiFi.SendCacheResponse(PH, true);
 	}
 	if (aquaTemp.AddTempElementToStats()) {
+		Serial.print("ChangeTempState 2");
 		aquaWiFi.SendCacheResponse(TEMPSTATS, true);
 	}
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
@@ -89,10 +90,15 @@ void ChangeChanalState(typeResponse type) {
 	if (PWMTIMER) {
 		aquaWiFi.SendCacheResponse(CANAL, true);
 	} else {
+		Serial.print("1");
 		aquaWiFi.SendCacheResponse(type, true);
 	}
 }
 
+void ChangeTempState(typeResponse type) {
+	Serial.print("ChangeTempState 1");
+		aquaWiFi.SendCacheResponse(type, true);
+}
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
 	if (warning) {

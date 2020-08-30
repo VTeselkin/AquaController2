@@ -27,7 +27,7 @@ public:
 	void SaveSecondsTimerToERROM();
 	void LoadHoursTimersReadFromERROM();
 	void SaveHoursTimerToERROM();
-	void LoadTempTimerFromERROM(DallasTemperature ds);
+	void LoadTempTimerFromERROM();
 	void SaveTempSensorAdress(byte i, byte j);
 	void SaveTempTimerToERROM();
 	void SaveLcdSetings();

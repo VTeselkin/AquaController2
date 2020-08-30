@@ -15,6 +15,7 @@ void AquaEEPROM::Init() {
 	LoadDailyTimersReadFromERROM();
 	LoadHoursTimersReadFromERROM();
 	LoadSecondsTimersReadFromERROM();
+	LoadTempTimerFromERROM();
 	LoadLcdSetings();
 	LoadWiFiSettings();
 }
@@ -131,12 +132,11 @@ void AquaEEPROM::SaveHoursTimerToERROM() {
 	EEPROM.commit();
 }
 
-void AquaEEPROM::LoadTempTimerFromERROM(DallasTemperature ds) {
+void AquaEEPROM::LoadTempTimerFromERROM() {
 	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
 		for (byte i = 0; i < 8; i++) {
 			Helper.data.addrThermometer[j][i] = EEPROM.read(addrTempSensor - j * 8 + i);
 		}
-		ds.setResolution(Helper.data.addrThermometer[j], TEMPERATURE_PRECISION);
 	}
 	for (byte i = 0; i < MAX_TEMP_SENSOR; i++) {
 		Helper.data.TempTimerState[i] = EEPROM.read(TempTimerStateAddr - i);

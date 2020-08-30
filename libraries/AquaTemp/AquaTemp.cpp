@@ -18,10 +18,10 @@ unsigned long lastTempStatetime = 0;
  * Bus initialization for temperature sensors
  */
 void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
-	ds.setWaitForConversion(false);
 	ds.begin();
-
-	aquaEEPROM.LoadTempTimerFromERROM(ds);
+	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
+		ds.setResolution(Helper.data.addrThermometer[j], TEMPERATURE_PRECISION);
+	}
 	SetDalasSensor(aquaEEPROM);
 }
 
@@ -29,7 +29,6 @@ void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
  * Obtaining temperature with DS18B20
  */
 void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
-	bool isNeedUpdate = false;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP != 0) {
 		isUpdateTemp = false;
 		return;
@@ -40,27 +39,20 @@ void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 	ds.requestTemperatures();
 	for (byte var = 0; var < MAX_TEMP_SENSOR; var++) {
 		//We obtain the temperature index
-		word temp = (word) (ds.getTempC(Helper.data.addrThermometer[var]) * 100);
 
+		unsigned short temp = abs(ds.getTempC(Helper.data.addrThermometer[var]) * 100);
+
+		Serial.print("TEMP = ");
+		Serial.println(temp);
 		if (temp > MAX_TEMP || temp < MIN_TEMP) {
-			if (Helper.data.TempSensorState[var] != DISCONNECT_SENSOR) {
-				isNeedUpdate = true;
-			}
 			Helper.data.TempSensorState[var] = DISCONNECT_SENSOR;
+			Helper.data.TempSensor[var] = 0;
 		} else {
-			temp = ConvertTempWordToByte(temp);
-			if (Helper.data.TempSensorState[var] != CONNECT_SENSOR || Helper.data.TempSensor[var] != temp) {
-				isNeedUpdate = true;
-			}
 			Helper.data.TempSensorState[var] = CONNECT_SENSOR;
-			Helper.data.TempSensor[var] = temp;
+			Helper.data.TempSensor[var] = ConvertTempWordToByte(temp);
 		}
 	}
-	if (isNeedUpdate) {
-		GetTempState(TEMPSENSOR);
-	}
-	AddTempElementToStats();
-	return;
+	GetTempState(TEMPSENSOR);
 }
 
 byte ConvertTempWordToByte(unsigned short temp) {
@@ -231,9 +223,12 @@ void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 		}
 //If the address is new, we add it to the list of new addresses
 		if (isNew) {
+			Serial.print("TEMP FIND SENSOR = ");
 			for (byte i = 0; i < 8; i++) {
+				Serial.print(device[i]);
 				Helper.data.addrNewThermometer[newIndex][i] = device[i];
 			}
+			Serial.println("");
 			newIndex++;
 		}
 		var++;
@@ -267,7 +262,7 @@ bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2) {
 }
 
 bool AquaTemp::AddTempElementToStats() {
-	if (millis() > lastTempStatetime) {
+	if (millis() > lastTempStatetime + 10000) {
 		lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
 		byte hour = Helper.GetHourNow();
 		if (hour > 23)
