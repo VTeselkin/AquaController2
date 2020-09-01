@@ -79,7 +79,6 @@ void loop() {
 		aquaWiFi.SendCacheResponse(PH, true);
 	}
 	if (aquaTemp.AddTempElementToStats()) {
-		Serial.print("ChangeTempState 2");
 		aquaWiFi.SendCacheResponse(TEMPSTATS, true);
 	}
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
@@ -90,13 +89,11 @@ void ChangeChanalState(typeResponse type) {
 	if (PWMTIMER) {
 		aquaWiFi.SendCacheResponse(CANAL, true);
 	} else {
-		Serial.print("1");
 		aquaWiFi.SendCacheResponse(type, true);
 	}
 }
 
 void ChangeTempState(typeResponse type) {
-	Serial.print("ChangeTempState 1");
 		aquaWiFi.SendCacheResponse(type, true);
 }
 
@@ -152,6 +149,9 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		case SETTINGS:
 			aquaEEPROM.SaveWifiSettings();
 			type = DEVICE;
+			break;
+		case FAN:
+			aquaEEPROM.SaveFANSettings();
 			break;
 		}
 		aquaWiFi.SendCacheResponse(type, true);

@@ -32,6 +32,8 @@ public:
 	void SaveTempTimerToERROM();
 	void SaveLcdSetings();
 	void LoadLcdSetings();
+	void SaveFANSettings();
+	void LoadFANSettings();
 	void LoadWiFiSettings();
 	void SaveWifiSettings();
 	void SavePHTimerToERROM();

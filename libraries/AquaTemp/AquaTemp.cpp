@@ -29,6 +29,7 @@ void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
  * Obtaining temperature with DS18B20
  */
 void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
+	bool isNeedSendTemp = false;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP != 0) {
 		isUpdateTemp = false;
 		return;
@@ -39,20 +40,25 @@ void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 	ds.requestTemperatures();
 	for (byte var = 0; var < MAX_TEMP_SENSOR; var++) {
 		//We obtain the temperature index
-
 		unsigned short temp = abs(ds.getTempC(Helper.data.addrThermometer[var]) * 100);
-
-		Serial.print("TEMP = ");
-		Serial.println(temp);
 		if (temp > MAX_TEMP || temp < MIN_TEMP) {
 			Helper.data.TempSensorState[var] = DISCONNECT_SENSOR;
-			Helper.data.TempSensor[var] = 0;
+			if (Helper.data.TempSensor[var] != 0) {
+				Helper.data.TempSensor[var] = 0;
+				isNeedSendTemp = true;
+			}
 		} else {
 			Helper.data.TempSensorState[var] = CONNECT_SENSOR;
-			Helper.data.TempSensor[var] = ConvertTempWordToByte(temp);
+			if (Helper.data.TempSensor[var] != ConvertTempWordToByte(temp)) {
+				Helper.data.TempSensor[var] = ConvertTempWordToByte(temp);
+				isNeedSendTemp = true;
+			}
 		}
 	}
-	GetTempState(TEMPSENSOR);
+	if (isNeedSendTemp) {
+		GetTempState(TEMPSENSOR);
+	}
+
 }
 
 byte ConvertTempWordToByte(unsigned short temp) {
@@ -262,7 +268,7 @@ bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2) {
 }
 
 bool AquaTemp::AddTempElementToStats() {
-	if (millis() > lastTempStatetime + 10000) {
+	if (millis() > lastTempStatetime + 20000) {
 		lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
 		byte hour = Helper.GetHourNow();
 		if (hour > 23)

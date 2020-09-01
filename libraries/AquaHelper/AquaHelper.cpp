@@ -36,7 +36,6 @@ void AquaHelper::ToneForce(const word frequency, const word duration) {
 
 void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel) {
 	if (ledcRead(channel)) {
-		log_e("Tone channel %d is already in use", ledcRead(channel));
 		return;
 	}
 	ledcAttachPin(pin, channel);
@@ -348,6 +347,18 @@ String AquaHelper::GetRealTemp() {
 	return result;
 }
 
+String AquaHelper::GetFANTemp() {
+	String result = SendStartMess();
+	result += "t_fan\",\"data\":{\"t_fan_s\"";
+	result += GetJsonValue(data.FANTimerMinStart, MAX_CHANALS_FAN);
+	result += ",\"t_fan_e\"";
+	result += GetJsonValue(data.FANTimerMaxEnd, MAX_CHANALS_FAN);
+	result += ",\"t_fan_se\"";
+	result += GetJsonValue(data.FANSensor, MAX_CHANALS_FAN);
+	result += SendEndMess();
+	return result;
+}
+
 /**
  * v0.6
  * {"status":"success","message":"info","data":{"type" : 1024}}
@@ -508,9 +519,17 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
 			GetPHLevelConfig();
 			return true;
 			//{"status":"post","message":"settings","data": {"NTP":0,"update":0}}
-		}else if (inString.indexOf(SETTINGS_DEV) != -1) {
+		} else if (inString.indexOf(SETTINGS_DEV) != -1) {
 			Helper.data.ntp_update = request[SETTINGS_NTP].as<bool>();
 			Helper.data.auto_update = request[SETTINGS_UPDATE].as<bool>();
+			return true;
+		} else if (inString.indexOf(GET_DEVICE_FAN) != -1) {
+			if (inString.indexOf("t_fan_s") != -1)
+				SetJsonValue(Helper.data.FANTimerMinStart, MAX_CHANALS_FAN, "t_fan_s", request);
+			if (inString.indexOf("t_fan_e") != -1)
+				SetJsonValue(Helper.data.FANTimerMaxEnd, MAX_CHANALS_FAN, "t_fan_e", request);
+			if (inString.indexOf("t_fan_se") != -1)
+				SetJsonValue(Helper.data.FANSensor, MAX_CHANALS_FAN, "t_fan_se", request);
 			return true;
 		}
 		return false;
@@ -540,7 +559,6 @@ String GetJsonValue(const word arrayData[], const byte count) {
 	result += "]";
 	return result;
 }
-
 
 String GetJsonValue(const byte arrayData[], const byte count) {
 	String result = "";

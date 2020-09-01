@@ -18,6 +18,7 @@ void AquaEEPROM::Init() {
 	LoadTempTimerFromERROM();
 	LoadLcdSetings();
 	LoadWiFiSettings();
+	LoadFANSettings();
 }
 
 void AquaEEPROM::SaveChanalState() {
@@ -199,7 +200,20 @@ void AquaEEPROM::LoadLcdSetings() {
 	Helper.data.indexDelayLCDButton = EEPROM.read(LCD_BUTTON_ADDR);
 	Helper.data.isTone = EEPROM.read(LCD_SOUND_ADDR);
 }
-
+void AquaEEPROM::LoadFANSettings(){
+	for (byte i = 0; i < MAX_CHANALS_FAN; i++) {
+		Helper.data.FANTimerMinStart[i] = EEPROM.read(FANTimerMinStartAddr - i);
+		Helper.data.FANTimerMaxEnd[i] = EEPROM.read(FANTimerMaxEndAddr - i);
+		Helper.data.FANSensor[i] = EEPROM.read(FANSensorAddr - i);
+	}
+}
+void AquaEEPROM::SaveFANSettings() {
+	for (byte i = 0; i < MAX_CHANALS_FAN; i++) {
+		EEPROM.write(FANTimerMinStartAddr - i, Helper.data.FANTimerMinStart[i]);
+		EEPROM.write(FANTimerMinStartAddr - i, Helper.data.FANTimerMaxEnd[i]);
+		EEPROM.write(FANSensorAddr - i, Helper.data.FANSensor[i]);
+	}
+}
 void AquaEEPROM::LoadWiFiSettings() {
 	Helper.data.ntp_update = (bool) EEPROM.read(NTP_UPDATE_ADDR);
 	Helper.data.auto_connect = (bool) EEPROM.read(AUTO_CONNECT_ADDR);
@@ -240,9 +254,11 @@ void AquaEEPROM::OnFirstLunch() {
 		SaveTempTimerToERROM();
 		SavePHTimerToERROM();
 		SaveUTCSetting(3);
+		SaveFANSettings();
 		EEPROM.write(ADDR_FIRST_LAUNCH, 1);
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();
+
 	}
 }

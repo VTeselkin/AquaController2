@@ -7,7 +7,6 @@
 
 #include "AquaFAN.h"
 
-
 /**
  * Checking the status of programs for temperature sensors
  */
@@ -67,12 +66,14 @@ bool AquaFAN::CheckStateFAN(byte canal) {
 	if (Helper.data.FANTimerMinStart[canal] > Helper.data.FANTimerMaxEnd[canal]) {
 //-----Tmin=25------Tmax=20----Tcur=26--/
 		if (Helper.data.TempSensor[Helper.data.FANSensor[canal]] >= Helper.data.FANTimerMinStart[canal]) {
+			SetStateFANCanal(canal, true);
 			return true;
 		}
 //-----Tmin=25------Tmax=22----Tcur=24--/
 		if (Helper.data.TempSensor[Helper.data.FANSensor[canal]] < Helper.data.FANTimerMinStart[canal]
 				&& Helper.data.TempSensor[Helper.data.FANSensor[canal]] > Helper.data.FANTimerMaxEnd[canal]) {
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_TEMPFAN) {
+				SetStateFANCanal(canal, true);
 				return true;
 			}
 		}
@@ -83,12 +84,14 @@ bool AquaFAN::CheckStateFAN(byte canal) {
 	} else if (Helper.data.FANTimerMinStart[canal] < Helper.data.FANTimerMaxEnd[canal]) {
 //--Tcur=19---Tmin=20------Tmax=25------/
 		if (Helper.data.TempSensor[Helper.data.FANSensor[canal]] < Helper.data.FANTimerMinStart[canal]) {
+			SetStateFANCanal(canal, false);
 			return true;
 		}
 //-----Tmin=20---Tcur=22---Tmax=25------/
 		if (Helper.data.TempSensor[canal] >= Helper.data.FANTimerMinStart[canal]
 				&& Helper.data.TempSensor[Helper.data.FANSensor[canal]] < Helper.data.FANTimerMaxEnd[canal]) {
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_TEMPFAN) {
+				SetStateFANCanal(canal, false);
 				return true;
 			}
 		}
@@ -100,5 +103,18 @@ bool AquaFAN::CheckStateFAN(byte canal) {
 
 }
 
-void AquaFAN::SetStateFANCanal(byte canal) {}
+void AquaFAN::SetStateFANCanal(byte canal, bool isCooling) {
+	auto temp = Helper.data.TempSensor[Helper.data.FANSensor[canal]];
+	auto level = 0;
+	if (isCooling) {
+		//map(25, 20, 30, 0, 2048)
+		level = map(temp, Helper.data.FANTimerMaxEnd[canal], Helper.data.FANTimerMinStart[canal], 0,
+				MAX_PWM_POWER_CALCULATE);
+	}else{
+		level = map(temp, Helper.data.FANTimerMinStart[canal], Helper.data.FANTimerMaxEnd[canal], 0,
+						MAX_PWM_POWER_CALCULATE);
+	}
+
+	Helper.data.PowerPWMChanals[canal] = level;
+}
 

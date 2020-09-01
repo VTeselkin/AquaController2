@@ -23,5 +23,5 @@ void CheckStateFANTimer(void (*GetChanalState)(typeResponse type));
 bool CheckStateFAN(byte canal);
 private:
 bool CheckCollisionsFAN( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type));
-void SetStateFANCanal(byte canal);
+void SetStateFANCanal(byte canal, bool isCooling);
 };

@@ -59,7 +59,7 @@ uint16_t AquaAnalog::CheckPhLevel(byte canal) {
 }
 
 bool AquaAnalog::AddPhElementToStats() {
-	if (millis() > lastPHStateTime + 10000) {
+	if (millis() > lastPHStateTime + 20000) {
 		for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 			uint16_t measure = CheckPhLevel(i);
 			float V6_86 = 5 / 1024.0 * Helper.data.PHTimer686[i];

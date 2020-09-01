@@ -128,6 +128,10 @@ const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 const word AUTO_UPDATE_ADDR = 978;
 
+const word FANSensorAddr = 454;
+const word FANTimerMinStartAddr = 452;
+const word FANTimerMaxEndAddr = 450;
+
 const word PWMTimerHourLevelAddr = 447;
 const word PWMTimerHourDurationAddr = 437;
 const word PWMTimerHourStartAddr = 427;
@@ -244,6 +248,7 @@ const String GET_DEVICE_SECOND_TIMER_SATE = "ts_s";
 const String GET_DEVICE_TEMP_STATS = "temp_stats";
 const String GET_DEVICE_PH_TIMER = "ph_timer";
 const String GET_DEVICE_PH = "ph_state";
+const String GET_DEVICE_FAN = "t_fan";
 
 //---------------------------------------------------------------
 
@@ -292,7 +297,8 @@ typedef enum {
 	TEMPSTATS,
 	PWMCANAL,
 	PWMTIMER,
-	SETTINGS
+	SETTINGS,
+	FAN
 } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
@@ -423,12 +429,12 @@ typedef struct {
 
 	/** ------------------------------------FAN-------------------------------------- */
 	const byte nFANDrive[MAX_CHANALS_FAN] = { 10, 11 };
-	byte FANTimerState[MAX_CHANALS_FAN] = { 0, 0 };
-	byte FANSensorState[MAX_CHANALS_FAN] = { 0, 0 };
+	//byte FANTimerState[MAX_CHANALS_FAN] = { 0, 0 };
+	//byte FANSensorState[MAX_CHANALS_FAN] = { 0, 0 };
 	byte FANTimerMinStart[MAX_CHANALS_FAN] = { MIN_INDEX_TEMP, MIN_INDEX_TEMP };
 	byte FANTimerMaxEnd[MAX_CHANALS_FAN] = { MAX_INDEX_TEMP, MAX_INDEX_TEMP };
 	byte FANSensor[MAX_CHANALS_FAN] = { 0, 0};
-	byte FANTimerChanal[MAX_CHANALS_FAN] = { 0, 0 };
+	//byte FANTimerChanal[MAX_CHANALS_FAN] = { 0, 0 };
 
 
 	/** ------------------------------------PH-------------------------------------- */
@@ -467,6 +473,7 @@ public:
 	static String GetWiFiSettings();
 	static String GetTempState();
 	static String GetRealTemp();
+	static String GetFANTemp();
 	static String GetAlarmWaterLevel(int level);
 	static String GetPhTimerState();
 	static String GetPhStats();
