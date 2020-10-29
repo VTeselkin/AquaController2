@@ -19,7 +19,6 @@ const size_t bufferSize = 6 * JSON_ARRAY_SIZE(10) + JSON_OBJECT_SIZE(3) + JSON_O
 DynamicJsonBuffer jsonBuffer(bufferSize);
 
 bool _isWiFiEnable = false;
-bool _isError = false;
 bool _isConnected = false;
 bool isInterenetAvalible = false;
 
@@ -29,6 +28,7 @@ unsigned int localUdpPort = 8888;
 char incomingPacket[MAX_BUFFER];
 void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
+void(*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
 uint16_t (*funcNTPUpdate)(uint16_t);
 
 word UTC3 = 3; //UTC+3
@@ -38,12 +38,12 @@ Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, 
 		responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, { PWMCANAL, responseNull }, { PWMTIMER,
 		responseNull }, { SETTINGS, responseNull }, { FAN, responseNull } };
 
-void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
-		uint16_t (*NTPUpdate)(uint16_t)) {
+void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t), void(*chandeDebugLED)(typeDebugLED led, typeLightLED type)) {
 	pinMode(2, OUTPUT);
 	funcChangeLog = ChangeLog;
 	funcGetUDPRequest = GetUDPRequest;
 	funcNTPUpdate = NTPUpdate;
+	ChandeDebugLED = chandeDebugLED;
 	timeIP = millis();
 	lastNTPtime = millis();
 	lastTemptime = millis();
@@ -55,7 +55,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 void AquaWiFi::Connection() {
 
 	if (_isWiFiEnable) {
-		SendWiFiLog("WiFi:Try connect...");
+		funcChangeLog("WiFi:Try connect...");
 		WiFiManager wifiManager;
 
 		//Disable debug log connection
@@ -72,25 +72,23 @@ void AquaWiFi::Connection() {
 		 */
 		if (!wifiManager.autoConnect("AP: AquaController")) {
 			ESP.restart();
-
 		}
 		Udp.begin(localUdpPort);
 		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());
-		SendWifiIp(true);
+		SendWifiIp();
 		_isConnected = true;
-		_isError = false;
-		SendWiFiLog("HTTP:Service started...");
+		funcChangeLog("HTTP:Service started...");
 		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
 		StartCaching();
 		web.Init(responseCache, jsonBuffer);
 		if (isInterenetAvalible) {
 			ntp.SetNTPTimeToController(funcChangeLog);
 		} else {
-			SendWiFiLog("WAN:Not connection..");
+			funcChangeLog("WAN:Not connection..");
 		}
 
 	} else {
-		SendWiFiLog("WiFi:Disable...");
+		funcChangeLog("WiFi:Disable...");
 
 	}
 }
@@ -99,13 +97,17 @@ void AquaWiFi::Connection() {
  * callback for config mode
  */
 void configModeCallback(WiFiManager *myWiFiManager) {
-	if (_isWiFiEnable && !_isError) {
-		SendWiFiLog("WiFi:Failed connect");
-		SendWiFiLog("WiFi:Config mode...");
-		SendWiFiLog("WiFi:Server start...");
-		SendWiFiLog("WiFi:192.168.1.4...");
+	if (_isWiFiEnable) {
+		funcChangeLog("WiFi:Failed connect");
+		funcChangeLog("WiFi:Config mode...");
+		funcChangeLog("WiFi:Server start...");
+		funcChangeLog("WiFi:192.168.1.4...");
+		ChandeDebugLED(RXLED, PULSE);
+		ChandeDebugLED(TXLED, PULSE);
+		ChandeDebugLED(WIFILED, PULSE);
 	} else {
-		SendWiFiLog("WiFi:Disable...");
+		funcChangeLog("WiFi:Disable...");
+		ChandeDebugLED(WIFILED, NONE);
 	}
 }
 
@@ -113,14 +115,16 @@ void configModeCallback(WiFiManager *myWiFiManager) {
  * callback for save config
  */
 void saveConfigCallback() {
-
-	SendWiFiLog("WiFi:Save config");
-	SendWiFiLog("WiFi:Try reconnect..");
+	ChandeDebugLED(RXLED, NONE);
+	ChandeDebugLED(TXLED, NONE);
+	ChandeDebugLED(WIFILED, NONE);
+	funcChangeLog("WiFi:Save config");
+	funcChangeLog("WiFi:Try reconnect..");
 }
 
 void AquaWiFi::WaitRequest() {
 
-	if (_isWiFiEnable && !_isError) {
+	if (_isWiFiEnable) {
 		if (WiFi.status() == WL_CONNECTED) {
 			web.HandleClient();
 			int packetSize = Udp.parsePacket();
@@ -143,8 +147,8 @@ void AquaWiFi::WaitRequest() {
 	}
 
 	if (millis() > timeIP + DELAY_MESSAGE_UPDATE) {
-		if (_isWiFiEnable && !_isError) {
-			SendWifiIp(false);
+		if (_isWiFiEnable) {
+			SendWifiIp();
 		}
 		timeIP = millis();
 		return;
@@ -152,33 +156,37 @@ void AquaWiFi::WaitRequest() {
 	//send device info
 	if (millis() > lastDeviceInfoTime + DELAY_DEVICE_INFO_UPDATE) {
 		lastDeviceInfoTime = millis();
-		if (_isWiFiEnable && !_isError && _isConnected) {
+		if (_isWiFiEnable && _isConnected) {
 			UDPSendMessage(responseCache[DEVICE], true);
+			funcChangeLog("[TX][POST] : " + responseCache[DEVICE]);
 			return;
 		}
 	}
 	//update time from NTP
 	if (millis() > lastNTPtime + DELAY_NTP_UPDATE) {
 		lastNTPtime = millis();
-		if (_isWiFiEnable && !_isError && _isConnected) {
-			ntp.SetNTPTimeToController(SendWiFiLog);
+		if (_isWiFiEnable && _isConnected) {
+			ntp.SetNTPTimeToController(funcChangeLog);
 			return;
 		}
 	}
 }
 
 void SendFromUDPToController(String inString) {
+	inString.trim();
 	if (inString.length() == 0)
 		return;
 	jsonBuffer.clear();
 	JsonObject &root = jsonBuffer.parseObject(inString);
 	if (!root.success()) {
+		ChandeDebugLED(	RXLED, SHORT);
 		UDPSendError(RQUEST_JSON_CORUPTED);
 		return;
 	}
 
 	if (inString.indexOf(GET_COMMAND) != -1) {
-		Serial.println("[GET] : " + inString);
+		funcChangeLog("[RX][GET] : " + inString);
+		ChandeDebugLED(	RXLED, SHORT);
 		if (inString.indexOf(GET_DEVICE_INFO) != -1) {
 			responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 			UDPSendMessage(responseCache[DEVICE], false);
@@ -234,7 +242,8 @@ void SendFromUDPToController(String inString) {
 		}
 
 	} else if (inString.indexOf(POST_COMMAND) != -1) {
-		Serial.println("[POST] : " + inString);
+		funcChangeLog("[RX][POST] : " + inString);
+		ChandeDebugLED(	RXLED, SHORT);
 		if (inString.indexOf("data") == -1) {
 			UDPSendError(RQUEST_DATA_CORUPTED);
 			return;
@@ -289,13 +298,14 @@ void SendFromUDPToController(String inString) {
 		}
 
 	} else if (inString.indexOf(INFO_COMMAND) != -1) {
-		Serial.println("[INFO] : " + inString);
+		funcChangeLog("[RX][INFO] : " + inString);
+		ChandeDebugLED(	RXLED, SHORT);
 		return;
 	}
 }
 
 void AquaWiFi::StartCaching() {
-	SendWiFiLog("WiFi:Caching data...");
+	funcChangeLog("WiFi:Caching data...");
 	SendCacheResponse(DEVICE, false);
 	SendCacheResponse(CANAL, false);
 	SendCacheResponse(PH, false);
@@ -314,7 +324,6 @@ void AquaWiFi::StartCaching() {
 
 void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache) {
 	switch (type) {
-
 	case DEVICE:
 		responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 		break;
@@ -367,19 +376,15 @@ void AquaWiFi::CacheResponse(typeResponse type, String json) {
 	responseCache[type] = json;
 }
 
-/**
- *
- * @param isNeedPing
- */
-void SendWifiIp(bool isNeedPing) {
-	if (isNeedPing) {
-		isInterenetAvalible = ping_start(remote_ip, 4, 0, 0, 5);
+bool SendWifiIp() {
+	auto res = ping_start(remote_ip, 4, 0, 0, 5);
+	Helper.data.internet_avalible = res;
+	if(res){
+		ChandeDebugLED(WIFILED, LIGHT);
+	}else{
+		ChandeDebugLED(WIFILED, PULSE);
 	}
-	if (!isInterenetAvalible) {
-		SendWiFiLog("LAN:" + WiFi.localIP().toString());
-	} else {
-		SendWiFiLog("WAN:" + WiFi.localIP().toString());
-	}
+	return res;
 
 }
 
@@ -390,15 +395,13 @@ void SendWifiIp(bool isNeedPing) {
  */
 void UDPSendMessage(String message, bool isBroadcast) {
 	if (!_isWiFiEnable) {
-		SendWiFiLog("WiFi:Disable...");
-		return;
-	}
-	if (_isError) {
-		SendWiFiLog("WiFi:Error...");
+		funcChangeLog("WiFi:Disable...");
+		ChandeDebugLED(WIFILED, NONE);
 		return;
 	}
 	if (!_isConnected) {
-		SendWiFiLog("WiFi:Disconnected...");
+		funcChangeLog("WiFi:Disconnected...");
+		ChandeDebugLED(WIFILED, NONE);
 		return;
 	}
 	if (isBroadcast) {
@@ -406,33 +409,24 @@ void UDPSendMessage(String message, bool isBroadcast) {
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	} else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	Serial.println(message);
+	Serial.println("[TX]" + message);
 	Udp.println(message);
 	Udp.endPacket();
+	ChandeDebugLED(TXLED, SHORT);
 }
 
 void UDPSendError(String error) {
 	if (!_isWiFiEnable) {
-		SendWiFiLog("WiFi:Disable...");
-		return;
-	}
-	if (_isError) {
-		SendWiFiLog("WiFi:Error...");
+		funcChangeLog("WiFi:Disable...");
+		ChandeDebugLED(WIFILED, NONE);
 		return;
 	}
 	String response = "{\"status\":\"error\",\"message\":\"" + error + "\",\"data\":{}}";
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	Serial.println(response);
+	Serial.println("[TX]" + response);
 	Udp.println(response);
 	Udp.endPacket();
-
+	ChandeDebugLED(TXLED, SHORT);
+	ChandeDebugLED(ERRLED, LONG);
 }
 
-/**
- *
- * @param log
- */
-void SendWiFiLog(String log) {
-	funcChangeLog(log);
-
-}

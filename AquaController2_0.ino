@@ -49,7 +49,6 @@ unsigned int _timerForCheck = 0;
 unsigned int _hourTimerForCheck = 0;
 unsigned int _secondTimerForCheck = 0;
 unsigned int _pwmTimerForCheck = 0;
-String LastMessage = "";
 
 bool isNeedEnableZeroCanal = false;
 
@@ -60,7 +59,7 @@ void setup() {
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
 	aquaAnalog.Init();
-	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting);
+	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
 	Helper.ToneForce(2000, 500);
 }
 
@@ -83,6 +82,7 @@ void loop() {
 	}
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
 	aquaWiFi.WaitRequest();
+	aquaCanal.DisableLED();
 }
 
 void ChangeChanalState(typeResponse type) {
@@ -94,7 +94,7 @@ void ChangeChanalState(typeResponse type) {
 }
 
 void ChangeTempState(typeResponse type) {
-		aquaWiFi.SendCacheResponse(type, true);
+	aquaWiFi.SendCacheResponse(type, true);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
@@ -104,9 +104,24 @@ void ChangeWaterLevelStatus(bool warning, byte canal) {
 	}
 }
 
+void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
+	switch (led) {
+	case RXLED:
+		aquaCanal.SetLEDRx(type);
+		break;
+	case TXLED:
+		aquaCanal.SetLEDTx(type);
+		break;
+	case WIFILED:
+		aquaCanal.SetLEDConnect(type);
+		break;
+	case ERRLED:
+		aquaCanal.SetLEDError(type);
+		break;
+	}
+}
 void ChangeWiFiLog(String log) {
 	Serial.println(log);
-	LastMessage = log;
 }
 
 void GetUDPWiFiPOSTRequest(typeResponse type, String json) {

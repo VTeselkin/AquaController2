@@ -94,7 +94,7 @@
 //Buffer size for UDP
 #define MAX_BUFFER 4000
 
-#define DELAY_MESSAGE_UPDATE 10000
+#define DELAY_MESSAGE_UPDATE 60000
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
 #define DELAY_PH_UPDATE 60000
@@ -285,6 +285,21 @@ const float Ph6_86 = 6.86f;
 const float Ph4_01 = 4.01f;
 
 typedef enum {
+	RXLED,
+	TXLED,
+	WIFILED,
+	ERRLED
+} typeDebugLED;
+
+typedef enum {
+	NONE,
+	SHORT,
+	LONG,
+	LIGHT,
+	PULSE
+} typeLightLED;
+
+typedef enum {
 	DEVICE,
 	CANAL,
 	TIMERDAY,
@@ -385,7 +400,7 @@ typedef struct {
 	bool ntp_update = 0;
 	bool auto_connect = 1;
 	bool auto_update = 0;
-
+	bool internet_avalible = 0;
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM

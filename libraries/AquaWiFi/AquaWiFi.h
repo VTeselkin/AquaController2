@@ -18,7 +18,7 @@
 
 class AquaWiFi {
 public:
-	void Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t));
+	void Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t), void(*ChandeDebugLED)(typeDebugLED led, typeLightLED type));
 	void WaitRequest();
 	void CacheResponse(typeResponse type, String json);
 	void SendCacheResponse(typeResponse type, bool sendCache);
@@ -32,8 +32,7 @@ void UDPSendMessage(String message, bool isBroadcast);
 void UDPSendError(String error);
 void saveConfigCallback();
 void configModeCallback(WiFiManager *myWiFiManager);
-void SendWiFiLog(String log);
-void SendWifiIp(bool isNeedPing);
+bool SendWifiIp();
 bool Connection();
 void SendFromUDPToController(String inString);
 void SendPOSTSuccess(typeResponse type, String inString);
