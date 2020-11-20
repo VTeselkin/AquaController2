@@ -54,7 +54,10 @@ bool isNeedEnableZeroCanal = false;
 
 void setup() {
 	Serial.begin(115200);
-	Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
+	if (!Wire.begin(I2C_SDA, I2C_SCL))
+		Serial.printf("I2C Fail = %d/n", Wire.lastError());
+
+	Helper.ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
@@ -94,7 +97,7 @@ void ChangeChanalState(typeResponse type) {
 }
 
 void ChangeTempState(typeResponse type) {
-	aquaWiFi.SendCacheResponse(type, true);
+	//aquaWiFi.SendCacheResponse(type, true);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {

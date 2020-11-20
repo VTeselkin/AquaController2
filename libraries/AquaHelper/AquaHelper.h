@@ -502,6 +502,7 @@ public:
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
 	static void ESP_noTone(uint8_t pin, uint8_t channel);
 	static int GetLevelPWM(byte timer);
+	static void ScanI2C();
 private:
 };
 
