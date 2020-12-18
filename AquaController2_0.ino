@@ -53,7 +53,7 @@ unsigned int _pwmTimerForCheck = 0;
 bool isNeedEnableZeroCanal = false;
 
 void setup() {
-	Serial.begin(115200);
+	Serial.begin(76800);
 	if (!Wire.begin(I2C_SDA, I2C_SCL))
 		Serial.printf("I2C Fail = %d/n", Wire.lastError());
 
@@ -64,6 +64,7 @@ void setup() {
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
 	Helper.ToneForce(2000, 500);
+
 }
 
 void loop() {
@@ -97,7 +98,7 @@ void ChangeChanalState(typeResponse type) {
 }
 
 void ChangeTempState(typeResponse type) {
-	//aquaWiFi.SendCacheResponse(type, true);
+	aquaWiFi.SendCacheResponse(type, true);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
@@ -124,6 +125,9 @@ void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 	}
 }
 void ChangeWiFiLog(String log) {
+	Serial.print("[");
+	Serial.print(Helper.GetFormatTimeNow());
+	Serial.print("]");
 	Serial.println(log);
 }
 

@@ -22,13 +22,13 @@ bool _isWiFiEnable = false;
 bool _isConnected = false;
 bool isInterenetAvalible = false;
 
-unsigned long timeIP, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime;
+unsigned long timeIP, lastDeviceInfoUpdate, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime;
 unsigned int localUdpPort = 8888;
 
 char incomingPacket[MAX_BUFFER];
 void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
-void(*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
+void (*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
 uint16_t (*funcNTPUpdate)(uint16_t);
 
 word UTC3 = 3; //UTC+3
@@ -38,7 +38,8 @@ Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, 
 		responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, { PWMCANAL, responseNull }, { PWMTIMER,
 		responseNull }, { SETTINGS, responseNull }, { FAN, responseNull } };
 
-void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t), void(*chandeDebugLED)(typeDebugLED led, typeLightLED type)) {
+void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
+		uint16_t (*NTPUpdate)(uint16_t), void (*chandeDebugLED)(typeDebugLED led, typeLightLED type)) {
 	pinMode(2, OUTPUT);
 	funcChangeLog = ChangeLog;
 	funcGetUDPRequest = GetUDPRequest;
@@ -146,6 +147,11 @@ void AquaWiFi::WaitRequest() {
 		}
 	}
 
+	if (millis() > lastDeviceInfoUpdate + DELAY_UPDATE_DEVICE) {
+		SendCacheResponse(DEVICE, false);
+		lastDeviceInfoUpdate = millis();
+		return;
+	}
 	if (millis() > timeIP + DELAY_MESSAGE_UPDATE) {
 		if (_isWiFiEnable) {
 			SendWifiIp();
@@ -158,7 +164,7 @@ void AquaWiFi::WaitRequest() {
 		lastDeviceInfoTime = millis();
 		if (_isWiFiEnable && _isConnected) {
 			UDPSendMessage(responseCache[DEVICE], true);
-			funcChangeLog("[TX][POST] : " + responseCache[DEVICE]);
+			funcChangeLog("[TX]" + responseCache[DEVICE]);
 			return;
 		}
 	}
@@ -179,14 +185,14 @@ void SendFromUDPToController(String inString) {
 	jsonBuffer.clear();
 	JsonObject &root = jsonBuffer.parseObject(inString);
 	if (!root.success()) {
-		ChandeDebugLED(	RXLED, SHORT);
+		ChandeDebugLED(RXLED, SHORT);
 		UDPSendError(RQUEST_JSON_CORUPTED);
 		return;
 	}
 
 	if (inString.indexOf(GET_COMMAND) != -1) {
-		funcChangeLog("[RX][GET] : " + inString);
-		ChandeDebugLED(	RXLED, SHORT);
+		funcChangeLog("[RX]" + inString);
+		ChandeDebugLED(RXLED, SHORT);
 		if (inString.indexOf(GET_DEVICE_INFO) != -1) {
 			responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
 			UDPSendMessage(responseCache[DEVICE], false);
@@ -242,8 +248,8 @@ void SendFromUDPToController(String inString) {
 		}
 
 	} else if (inString.indexOf(POST_COMMAND) != -1) {
-		funcChangeLog("[RX][POST] : " + inString);
-		ChandeDebugLED(	RXLED, SHORT);
+		funcChangeLog("[RX]" + inString);
+		ChandeDebugLED(RXLED, SHORT);
 		if (inString.indexOf("data") == -1) {
 			UDPSendError(RQUEST_DATA_CORUPTED);
 			return;
@@ -298,8 +304,8 @@ void SendFromUDPToController(String inString) {
 		}
 
 	} else if (inString.indexOf(INFO_COMMAND) != -1) {
-		funcChangeLog("[RX][INFO] : " + inString);
-		ChandeDebugLED(	RXLED, SHORT);
+		funcChangeLog("[RX]" + inString);
+		ChandeDebugLED(RXLED, SHORT);
 		return;
 	}
 }
@@ -379,9 +385,9 @@ void AquaWiFi::CacheResponse(typeResponse type, String json) {
 bool SendWifiIp() {
 	auto res = ping_start(remote_ip, 4, 0, 0, 5);
 	Helper.data.internet_avalible = res;
-	if(res){
+	if (res) {
 		ChandeDebugLED(WIFILED, LIGHT);
-	}else{
+	} else {
 		ChandeDebugLED(WIFILED, PULSE);
 	}
 	return res;
@@ -409,7 +415,11 @@ void UDPSendMessage(String message, bool isBroadcast) {
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	} else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+	Serial.print("[");
+	Serial.print(Helper.GetFormatTimeNow());
+	Serial.print("]");
 	Serial.println("[TX]" + message);
+
 	Udp.println(message);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);
@@ -423,7 +433,11 @@ void UDPSendError(String error) {
 	}
 	String response = "{\"status\":\"error\",\"message\":\"" + error + "\",\"data\":{}}";
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+	Serial.print("[");
+	Serial.print(Helper.GetFormatTimeNow());
+	Serial.print("]");
 	Serial.println("[TX]" + response);
+
 	Udp.println(response);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);

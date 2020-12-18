@@ -617,6 +617,7 @@ byte AquaHelper::GetHourNow() {
 }
 
 void AquaHelper::ScanI2C() {
+	Serial.println("");
 	Serial.println(" Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	for (uint8_t i = 0; i < 128; i++) {

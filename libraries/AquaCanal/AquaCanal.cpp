@@ -8,15 +8,11 @@
 #include "AquaCanal.h"
 PCA9685 pwm;
 void AquaCanal::Init() {
+	pwm.setupSingleDevice(Wire, 0x40);
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 		pinMode(Helper.data.nRelayDrive[i], OUTPUT);
 		digitalWrite(Helper.data.nRelayDrive[i], LOW);
 	}
-	return;
-	pwm.setupSingleDevice(Wire, 0x60);
-	pwm.setupOutputEnablePin(2);
-	pwm.enableOutputs(2);
-	pwm.setToFrequency(200);
 
 }
 
@@ -26,22 +22,17 @@ byte AquaCanal::GetCanal(byte canal) {
 
 void AquaCanal::SetCanal(byte canal, byte state) {
 	digitalWrite(canal, state);
-
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	return;
 	pwm.setChannelPulseWidth(canal, level, 0);
 }
 
 void AquaCanal::SetPWMCanalOn(byte canal) {
-	return;
 	pwm.setChannelPulseWidth(canal, MAX_PWM_POWER_CALCULATE, 0);
-
 }
 
 void AquaCanal::SetPWMCanalOff(byte canal) {
-	return;
 	pwm.setChannelPulseWidth(canal, 0, 0);
 }
 
@@ -91,9 +82,7 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 
 		if (Helper.data.StatePWMChanals[Helper.data.TimerPWMChanal[i]] == AUTO_CHANAL
 				&& Helper.data.TimerPWMState[i] == ENABLE_TIMER) {
-
 			if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_PWM) {
-
 				if (Helper.data.PowerPWMChanals[canal] >= 0
 						&& Helper.data.PowerPWMChanals[canal] < Helper.GetLevelPWM(i)) {
 					SetPWMOnCanal(true, i);
@@ -101,9 +90,8 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 					Helper.data.TimetoCheckPWMstate[i] = millis();
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_OFF) {
-
-				if (Helper.data.PowerPWMChanals[canal] <= Helper.GetLevelPWM(i)
-						&& Helper.data.PowerPWMChanals[canal] > 0) {
+				if (Helper.data.PowerPWMChanals[canal] > 0) {
+					Serial.println("PWMOFF2");
 					SetPWMOnCanal(false, i);
 				} else {
 					Helper.data.TimetoCheckPWMstate[i] = millis();
@@ -170,10 +158,10 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 }
 
 void AquaCanal::SetLEDError(typeLightLED type) {
-	SetDebugLED(type, 10, 0);
+	SetDebugLED(type, 11, 0);
 }
 void AquaCanal::SetLEDConnect(typeLightLED type) {
-	SetDebugLED(type, 11, 1);
+	SetDebugLED(type, 10, 1);
 }
 void AquaCanal::SetLEDRx(typeLightLED type) {
 	SetDebugLED(type, 12, 2);
@@ -204,24 +192,24 @@ void AquaCanal::SetDebugLED(typeLightLED type, byte canal, byte index) {
 void AquaCanal::DisableLED() {
 	for (byte i = 0; i < 4; i++) {
 		if (_typeDebugLED[i] != NONE && _typeDebugLED[i] != LIGHT) {
-			if (_typeDebugLED[i] == SHORT && _timeDebugLED[i] + 500 < millis()) {
+			if (_typeDebugLED[i] == SHORT && _timeDebugLED[i] + 50 < millis()) {
 				SetPWMCanalOff(10 + i);
 				_typeDebugLED[i] = NONE;
 				_stateDebugLED[0] = 0;
 				_timeDebugLED[i] = millis();
 			}
-			if (_typeDebugLED[i] == LONG && _typeDebugLED[i] + 1000 < millis()) {
+			if (_typeDebugLED[i] == LONG && _typeDebugLED[i] + 300 < millis()) {
 				SetPWMCanalOff(10 + i);
 				_typeDebugLED[i] = NONE;
 				_stateDebugLED[0] = 0;
 				_timeDebugLED[i] = millis();
 			}
-			if (_typeDebugLED[i] == PULSE && _timeDebugLED[i] + 1000 < millis() && _stateDebugLED[0] == 1) {
+			if (_typeDebugLED[i] == PULSE && _timeDebugLED[i] + 300 < millis() && _stateDebugLED[0] == 1) {
 				SetPWMCanalOff(10 + i);
 				_stateDebugLED[0] = 0;
 				_timeDebugLED[i] = millis();
 			}
-			if (_typeDebugLED[i] == PULSE && _timeDebugLED[i] + 1000 < millis() && _stateDebugLED[0] == 0) {
+			if (_typeDebugLED[i] == PULSE && _timeDebugLED[i] + 300 < millis() && _stateDebugLED[0] == 0) {
 				SetPWMCanalOff(10 + i);
 				_stateDebugLED[0] = 1;
 				_timeDebugLED[i] = millis();

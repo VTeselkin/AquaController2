@@ -42,7 +42,7 @@ void AquaTimers::CheckStateTimerHelper(byte TimerState[], byte TimerCanal[], voi
 		for (byte i = 0; i < MAX_TIMERS; i++) {
 			if (TimerState[i] == ENABLE_TIMER) {
 				byte state = 0;
-				if (timerType != MAX_CHANALS_PWM) {
+				if (timerType != TIMER_PWM) {
 					state = Helper.data.StateChanals[TimerCanal[i]];
 				} else {
 					state = Helper.data.StatePWMChanals[TimerCanal[i]];
