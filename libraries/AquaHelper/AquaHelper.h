@@ -404,7 +404,7 @@ typedef struct {
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
-	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15 };
 
 	byte TimerPWMHourStart[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMHourEnd[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

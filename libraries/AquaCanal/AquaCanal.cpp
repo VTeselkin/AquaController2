@@ -17,23 +17,23 @@ void AquaCanal::Init() {
 }
 
 byte AquaCanal::GetCanal(byte canal) {
-	return digitalRead(canal);
+	return digitalRead(Helper.data.nRelayDrive[canal]);
 }
 
 void AquaCanal::SetCanal(byte canal, byte state) {
-	digitalWrite(canal, state);
+	digitalWrite(Helper.data.nRelayDrive[canal], state);
 }
 
 void AquaCanal::SetPWMCanal(byte canal, word level) {
-	pwm.setChannelPulseWidth(canal, level, 0);
+	pwm.setChannelPulseWidth(Helper.data.nPWMDrive[canal], level, 0);
 }
 
 void AquaCanal::SetPWMCanalOn(byte canal) {
-	pwm.setChannelPulseWidth(canal, MAX_PWM_POWER_CALCULATE, 0);
+	pwm.setChannelPulseWidth(Helper.data.nPWMDrive[canal], MAX_PWM_POWER_CALCULATE, 0);
 }
 
 void AquaCanal::SetPWMCanalOff(byte canal) {
-	pwm.setChannelPulseWidth(canal, 0, 0);
+	pwm.setChannelPulseWidth(Helper.data.nPWMDrive[canal], 0, 0);
 }
 
 uint32_t AquaCanal::GetPWMCanalLevel(byte canal) {
@@ -54,19 +54,19 @@ void AquaCanal::SetStateCanal(void (*GetChanalState)(typeResponse type)) {
 
 		if (Helper.data.StateChanals[i] == AUTO_CHANAL) {
 			if (Helper.data.CurrentStateChanalsByTypeTimer[i] != TIMER_OFF
-					&& GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
-				SetCanal(Helper.data.nRelayDrive[i], HIGH);
+					&& GetCanal(i) == LOW) {
+				SetCanal(i, HIGH);
 				GetChanalState(CANAL);
 			} else if (Helper.data.CurrentStateChanalsByTypeTimer[i] == TIMER_OFF
-					&& GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
-				SetCanal(Helper.data.nRelayDrive[i], LOW);
+					&& GetCanal(i) == HIGH) {
+				SetCanal(i, LOW);
 				GetChanalState(CANAL);
 			}
-		} else if (Helper.data.StateChanals[i] == ON_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == LOW) {
-			SetCanal(Helper.data.nRelayDrive[i], HIGH);
+		} else if (Helper.data.StateChanals[i] == ON_CHANAL && GetCanal(i) == LOW) {
+			SetCanal(i, HIGH);
 			GetChanalState(CANAL);
-		} else if (Helper.data.StateChanals[i] == OFF_CHANAL && GetCanal(Helper.data.nRelayDrive[i]) == HIGH) {
-			SetCanal(Helper.data.nRelayDrive[i], LOW);
+		} else if (Helper.data.StateChanals[i] == OFF_CHANAL && GetCanal(i) == HIGH) {
+			SetCanal(i, LOW);
 			GetChanalState(CANAL);
 
 		}
@@ -91,7 +91,6 @@ void AquaCanal::SetStatePWMCanal(void (*GetChanalState)(typeResponse type)) {
 				}
 			} else if (Helper.data.CurrentStatePWMChanalsByTypeTimer[canal] == TIMER_OFF) {
 				if (Helper.data.PowerPWMChanals[canal] > 0) {
-					Serial.println("PWMOFF2");
 					SetPWMOnCanal(false, i);
 				} else {
 					Helper.data.TimetoCheckPWMstate[i] = millis();

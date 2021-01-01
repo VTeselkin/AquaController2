@@ -217,7 +217,6 @@ void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 	byte newIndex = 0;
 	byte var = 0;
 //Search all temperatures device
-
 //If we found the address of the sensor
 	while (ds.getAddress(device, var)) {
 		bool isNew = true;

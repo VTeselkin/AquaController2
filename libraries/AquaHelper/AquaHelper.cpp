@@ -39,6 +39,7 @@ void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long dur
 	if (ledcRead(channel)) {
 		return;
 	}
+	Serial.println("Tone");
 	ledcAttachPin(pin, channel);
 	ledcWriteTone(channel, frequency);
 	if (duration) {
