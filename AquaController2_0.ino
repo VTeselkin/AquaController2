@@ -54,9 +54,10 @@ bool isNeedEnableZeroCanal = false;
 
 void setup() {
 	Serial.begin(76800);
-	if (!Wire.begin(I2C_SDA, I2C_SCL))
+	delay(500);
+	if (!Wire.begin())
 		Serial.printf("I2C Fail = %d/n", Wire.lastError());
-
+	delay(500);
 	Helper.ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);

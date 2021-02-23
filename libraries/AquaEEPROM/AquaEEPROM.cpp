@@ -41,7 +41,7 @@ void AquaEEPROM::SavePWMChanalState() {
 	EEPROM.commit();
 }
 void AquaEEPROM::LoadPWMChanelState() {
-	for (byte i = 0; i < MAX_CHANALS; i++) {
+	for (byte i = 0; i < MAX_CHANALS_PWM; i++) {
 		Helper.data.StatePWMChanals[i] = EEPROM.read(ChanalsPWMStateAddr - i);
 	}
 }

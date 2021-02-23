@@ -24,8 +24,8 @@
 
 #define MAX_EEPROM 1024
 
-#define I2C_SDA 4
-#define I2C_SCL 13
+#define I2C_SDA 21
+#define I2C_SCL 22
 #define I2C_CLOCK 400000
 
 //CHANAL HANDS CONTROLL
@@ -84,7 +84,7 @@
 // Maximum possible maximum temperature
 #define MAX_TEMP 3500
 //Maximum number of PWM canals
-#define MAX_CHANALS_PWM 12
+#define MAX_CHANALS_PWM 16
 //Maximum number of FAN canals
 #define MAX_CHANALS_FAN 2
 //Maximum number of Power PWM canals
@@ -363,7 +363,7 @@ typedef struct {
 	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = { };
 
 	// Enabled channels for relays
-	const byte nRelayDrive[MAX_CHANALS] = { 18, 19, 21, 22, 23, 25, 26, 33 };
+	const byte nRelayDrive[MAX_CHANALS] = { 18, 19, 4, 13, 23, 25, 26, 33 };
 
 	const byte nPinsESP32[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 8, 9, 10,
 			0, 0, 0, 0, 11, 12, 0, 0, 0, 0, 0, 0 };
@@ -404,7 +404,7 @@ typedef struct {
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
-	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15 };
+	const byte nPWMDrive[MAX_CHANALS_PWM] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 10, 11, 12, 13 };
 
 	byte TimerPWMHourStart[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	byte TimerPWMHourEnd[MAX_TIMERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

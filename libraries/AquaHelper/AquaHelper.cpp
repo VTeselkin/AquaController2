@@ -621,7 +621,7 @@ void AquaHelper::ScanI2C() {
 	Serial.println("");
 	Serial.println(" Scanning I2C Addresses");
 	uint8_t cnt = 0;
-	for (uint8_t i = 0; i < 128; i++) {
+	for (uint8_t i = 1; i < 127; i++) {
 		Wire.beginTransmission(i);
 		uint8_t ec = Wire.endTransmission(true);
 		if (ec == 0) {
@@ -629,8 +629,11 @@ void AquaHelper::ScanI2C() {
 				Serial.print('0');
 			Serial.print(i, HEX);
 			cnt++;
-		} else
+		} else if (ec == 4) {
+			Serial.print("Er");
+		} else {
 			Serial.print("..");
+		}
 		Serial.print(' ');
 		if ((i & 0x0f) == 0x0f)
 			Serial.println();
