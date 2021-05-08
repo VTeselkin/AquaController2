@@ -24,6 +24,7 @@ public:
 	void SendCacheResponse(typeResponse type, bool sendCache);
 	void Connection();
 	void StartCaching();
+
 private:
 
 

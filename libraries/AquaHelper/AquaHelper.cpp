@@ -39,7 +39,6 @@ void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long dur
 	if (ledcRead(channel)) {
 		return;
 	}
-	Serial.println("Tone");
 	ledcAttachPin(pin, channel);
 	ledcWriteTone(channel, frequency);
 	if (duration) {
@@ -79,7 +78,7 @@ String AquaHelper::GetDevice(String ip) {
 	result += ip;
 	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
 	result += ",\"time\":\"";
-	result += GetFormatTimeNow();
+	result += GetFormatTimeNow(false);
 	result += "\"";
 	result += SendEndMess();
 	return result;
@@ -88,14 +87,14 @@ String AquaHelper::GetDevice(String ip) {
 String AquaHelper::GetDataTime() {
 	String result = "{\"status\":\"success\",\"";
 	result += "time\":\"";
-	result += GetFormatTimeNow();
+	result += GetFormatTimeNow(false);
 	result += "\",\"date\":\"";
 	result += GetFormatDataNow();
 	result += "\"}";
 	return result;
 }
 
-String AquaHelper::GetFormatTimeNow() {
+String AquaHelper::GetFormatTimeNow(bool isShort) {
 	tmElements_t tm = GetTimeNow();
 	String time_fm = "";
 	if (tm.Hour < 10)
@@ -104,6 +103,9 @@ String AquaHelper::GetFormatTimeNow() {
 	if (tm.Minute < 10)
 		time_fm += "0";
 	time_fm += String(tm.Minute);
+	if (isShort) {
+		return time_fm;
+	}
 	time_fm += ":";
 	if (tm.Second < 10)
 		time_fm += "0";
@@ -618,29 +620,35 @@ byte AquaHelper::GetHourNow() {
 }
 
 void AquaHelper::ScanI2C() {
-	Serial.println("");
-	Serial.println(" Scanning I2C Addresses");
+	Display.SendLogLn("Scanning I2C Addresses");
 	uint8_t cnt = 0;
+	String log = "";
 	for (uint8_t i = 1; i < 127; i++) {
 		Wire.beginTransmission(i);
 		uint8_t ec = Wire.endTransmission(true);
 		if (ec == 0) {
-			if (i < 16)
-				Serial.print('0');
-			Serial.print(i, HEX);
-			cnt++;
+			if (i < 16) {
+				log += "0";
+			}
+
+			if(sizeof(String(i, HEX))> 0){
+				log += String(i, HEX);
+				cnt++;
+			}
 		} else if (ec == 4) {
-			Serial.print("Er");
+			log += "Er";
 		} else {
-			Serial.print("..");
+			log += "..";
 		}
-		Serial.print(' ');
-		if ((i & 0x0f) == 0x0f)
-			Serial.println();
+		log += "  ";
+		if ((i & 0x0f) == 0x0f) {
+			Display.SendLogLn(log);
+			log = "";
+			delay(200);
+		}
 	}
-	Serial.print("Scan Completed, ");
-	Serial.print(cnt);
-	Serial.println(" I2C Devices found.");
+	Display.SendLogLn("Scan Completed, ");
+	Display.SendLogLn(String(cnt) + " I2C Devices found.");
 }
 
 bool i2cReady(uint8_t adr) {

@@ -16,7 +16,7 @@
 #include <TimeLib.h>
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
-
+#include <AquaDisplay.h>
 //Maximum number of canals
 #define MAX_CHANALS 8
 //Maximum number of timers
@@ -98,6 +98,7 @@
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
 #define DELAY_PH_UPDATE 60000
+#define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
 #define DELAY_DEVICE_TIME_UPDATE 1000
@@ -495,7 +496,7 @@ public:
 	static String GetTempStats();
 	static byte GetHourNow();
 	static tmElements_t GetTimeNow();
-	static String GetFormatTimeNow();
+	static String GetFormatTimeNow(bool isShort);
 	static String GetFormatDataNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);

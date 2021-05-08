@@ -6,7 +6,7 @@
  */
 
 #include <AquaWiFi.h>
-#include <ping.h>
+#include <ESP32Ping.h>
 #include <ArduinoJson.h>
 
 WiFiUDP Udp; // @suppress("Abstract class cannot be instantiated")
@@ -20,7 +20,7 @@ DynamicJsonBuffer jsonBuffer(bufferSize);
 
 bool _isWiFiEnable = false;
 bool _isConnected = false;
-bool isInterenetAvalible = false;
+
 
 unsigned long timeIP, lastDeviceInfoUpdate, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime;
 unsigned int localUdpPort = 8888;
@@ -50,6 +50,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
 	update.Init();
+	WiFi.setAutoReconnect(true);
 	Connection();
 }
 
@@ -60,7 +61,7 @@ void AquaWiFi::Connection() {
 		WiFiManager wifiManager;
 
 		//Disable debug log connection
-		wifiManager.setDebugOutput(false);
+		wifiManager.setDebugOutput(true);
 		wifiManager.setAPCallback(configModeCallback);
 		wifiManager.setSaveConfigCallback(saveConfigCallback);
 		wifiManager.setTimeout(300);
@@ -74,6 +75,7 @@ void AquaWiFi::Connection() {
 		if (!wifiManager.autoConnect("AP: AquaController")) {
 			ESP.restart();
 		}
+		Display.SetLANConnection(WiFi.status() == WL_CONNECTED);
 		Udp.begin(localUdpPort);
 		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());
 		SendWifiIp();
@@ -82,7 +84,7 @@ void AquaWiFi::Connection() {
 		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
 		StartCaching();
 		web.Init(responseCache, jsonBuffer);
-		if (isInterenetAvalible) {
+		if (Helper.data.internet_avalible) {
 			ntp.SetNTPTimeToController(funcChangeLog);
 		} else {
 			funcChangeLog("WAN:Not connection..");
@@ -127,6 +129,7 @@ void AquaWiFi::WaitRequest() {
 
 	if (_isWiFiEnable) {
 		if (WiFi.status() == WL_CONNECTED) {
+			ChandeDebugLED(WIFILED, LIGHT);
 			web.HandleClient();
 			int packetSize = Udp.parsePacket();
 			if (packetSize > 0) {
@@ -137,19 +140,25 @@ void AquaWiFi::WaitRequest() {
 					}
 					incomingPacket[len] = 0;
 				}
-				digitalWrite(2, HIGH);
 				delay(50);
-				digitalWrite(2, LOW);
 				SendFromUDPToController(incomingPacket);
 				memset(incomingPacket, 0, sizeof(incomingPacket));
 
+			}
+		} else {
+			if (WiFi.status() != WL_CONNECTED) {
+				ChandeDebugLED(WIFILED, NONE);
+				ChandeDebugLED(ERRLED, NONE);
+				funcChangeLog("WiFi:Lost connection. Reconnect...");
+				WiFi.begin();
 			}
 		}
 	}
 
 	if (millis() > lastDeviceInfoUpdate + DELAY_UPDATE_DEVICE) {
-		SendCacheResponse(DEVICE, false);
 		lastDeviceInfoUpdate = millis();
+		SendCacheResponse(DEVICE, false);
+		Display.SetLANConnection(WiFi.status() == WL_CONNECTED);
 		return;
 	}
 	if (millis() > timeIP + DELAY_MESSAGE_UPDATE) {
@@ -164,7 +173,6 @@ void AquaWiFi::WaitRequest() {
 		lastDeviceInfoTime = millis();
 		if (_isWiFiEnable && _isConnected) {
 			UDPSendMessage(responseCache[DEVICE], true);
-			funcChangeLog("[TX]" + responseCache[DEVICE]);
 			return;
 		}
 	}
@@ -383,13 +391,14 @@ void AquaWiFi::CacheResponse(typeResponse type, String json) {
 }
 
 bool SendWifiIp() {
-	auto res = ping_start(remote_ip, 4, 0, 0, 5);
+	auto res = Ping.ping(remote_ip);
 	Helper.data.internet_avalible = res;
 	if (res) {
 		ChandeDebugLED(WIFILED, LIGHT);
 	} else {
 		ChandeDebugLED(WIFILED, PULSE);
 	}
+	Display.SetWANConnection(Helper.data.internet_avalible);
 	return res;
 
 }
@@ -415,11 +424,8 @@ void UDPSendMessage(String message, bool isBroadcast) {
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	} else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	Serial.print("[");
-	Serial.print(Helper.GetFormatTimeNow());
-	Serial.print("]");
-	Serial.println("[TX]" + message);
-
+	String log = "[TX]" + message;
+	funcChangeLog(log);
 	Udp.println(message);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);
@@ -433,11 +439,8 @@ void UDPSendError(String error) {
 	}
 	String response = "{\"status\":\"error\",\"message\":\"" + error + "\",\"data\":{}}";
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	Serial.print("[");
-	Serial.print(Helper.GetFormatTimeNow());
-	Serial.print("]");
-	Serial.println("[TX]" + response);
-
+	String log = "[TX]" + error;
+	funcChangeLog(log);
 	Udp.println(response);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);

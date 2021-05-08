@@ -35,6 +35,7 @@
 #include <AquaAnalog.h>
 #include <AquaWiFi.h>
 #include <AquaFAN.h>
+#include <AquaDisplay.h>
 
 AquaTimers aquaTimers;
 AquaTemp aquaTemp;
@@ -45,25 +46,25 @@ AquaAnalog aquaAnalog;
 AquaWiFi aquaWiFi;
 AquaFAN aquaFAN;
 
+
 unsigned int _timerForCheck = 0;
 unsigned int _hourTimerForCheck = 0;
 unsigned int _secondTimerForCheck = 0;
 unsigned int _pwmTimerForCheck = 0;
-
+unsigned long _lastTimeUpdate = 0;
 bool isNeedEnableZeroCanal = false;
 
 void setup() {
-	Serial.begin(76800);
-	delay(500);
+	Display.Init();
 	if (!Wire.begin())
-		Serial.printf("I2C Fail = %d/n", Wire.lastError());
-	delay(500);
+		Display.SendLog("I2C Fail = " + Wire.lastError());
 	Helper.ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
+
 	Helper.ToneForce(2000, 500);
 
 }
@@ -88,6 +89,12 @@ void loop() {
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
 	aquaWiFi.WaitRequest();
 	aquaCanal.DisableLED();
+	if (millis() > _lastTimeUpdate + DELAY_TIME_UPDATE) {
+		_lastTimeUpdate = millis();
+		Display.SendTime();
+
+	}
+
 }
 
 void ChangeChanalState(typeResponse type) {
@@ -126,10 +133,8 @@ void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 	}
 }
 void ChangeWiFiLog(String log) {
-	Serial.print("[");
-	Serial.print(Helper.GetFormatTimeNow());
-	Serial.print("]");
-	Serial.println(log);
+	auto log2 = "[" + Helper.GetFormatTimeNow(false) +"]" + log;
+	Display.SendLogLn(log2);
 }
 
 void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
