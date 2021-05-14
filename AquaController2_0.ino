@@ -64,9 +64,6 @@ void setup() {
 	aquaCanal.Init();
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
-
-	Helper.ToneForce(2000, 500);
-
 }
 
 void loop() {
@@ -134,7 +131,9 @@ void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 }
 void ChangeWiFiLog(String log) {
 	auto log2 = "[" + Helper.GetFormatTimeNow(false) +"]" + log;
-	Display.SendLogLn(log2);
+	//Display.SendLogLn(log2);
+	aquaWiFi.UDPSendMessage(log2, true);
+
 }
 
 void GetUDPWiFiPOSTRequest(typeResponse type, String json) {

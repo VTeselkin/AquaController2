@@ -29,18 +29,10 @@ void AquaCanal::SetPWMCanal(byte canal, word level) {
 }
 
 void AquaCanal::SetPWMCanalOn(byte canal) {
-	Serial.print("PWM CANAL = ");
-	Serial.print(canal);
-	Serial.print(" PWM LEVEL = ");
-	Serial.println(MAX_PWM_POWER_CALCULATE);
 	pwm.setChannelPulseWidth(Helper.data.nPWMDrive[canal], MAX_PWM_POWER_CALCULATE, 0);
 }
 
 void AquaCanal::SetPWMCanalOff(byte canal) {
-	Serial.print("PWM CANAL = ");
-	Serial.print(canal);
-	Serial.print(" PWM LEVEL = ");
-	Serial.println(0);
 	pwm.setChannelPulseWidth(Helper.data.nPWMDrive[canal], 0, 0);
 }
 

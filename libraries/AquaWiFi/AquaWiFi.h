@@ -24,6 +24,8 @@ public:
 	void SendCacheResponse(typeResponse type, bool sendCache);
 	void Connection();
 	void StartCaching();
+	void UDPSendMessage(String message, bool isBroadcast);
+	void SendFromUDPToController(String inString);
 
 private:
 
@@ -35,6 +37,5 @@ void saveConfigCallback();
 void configModeCallback(WiFiManager *myWiFiManager);
 bool SendWifiIp();
 bool Connection();
-void SendFromUDPToController(String inString);
 void SendPOSTSuccess(typeResponse type, String inString);
 

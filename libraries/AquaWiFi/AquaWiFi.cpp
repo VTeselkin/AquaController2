@@ -61,7 +61,7 @@ void AquaWiFi::Connection() {
 		WiFiManager wifiManager;
 
 		//Disable debug log connection
-		wifiManager.setDebugOutput(true);
+		wifiManager.setDebugOutput(false);
 		wifiManager.setAPCallback(configModeCallback);
 		wifiManager.setSaveConfigCallback(saveConfigCallback);
 		wifiManager.setTimeout(300);
@@ -81,7 +81,7 @@ void AquaWiFi::Connection() {
 		SendWifiIp();
 		_isConnected = true;
 		funcChangeLog("HTTP:Service started...");
-		update.CheckOTAUpdate(true, funcChangeLog, jsonBuffer);
+		update.CheckOTAUpdate(true, jsonBuffer, funcChangeLog);
 		StartCaching();
 		web.Init(responseCache, jsonBuffer);
 		if (Helper.data.internet_avalible) {
@@ -186,7 +186,7 @@ void AquaWiFi::WaitRequest() {
 	}
 }
 
-void SendFromUDPToController(String inString) {
+void AquaWiFi::SendFromUDPToController(String inString) {
 	inString.trim();
 	if (inString.length() == 0)
 		return;
@@ -408,24 +408,23 @@ bool SendWifiIp() {
  * @param message
  * @param isBroadcast
  */
-void UDPSendMessage(String message, bool isBroadcast) {
+void AquaWiFi::UDPSendMessage(String message, bool isBroadcast) {
 	if (!_isWiFiEnable) {
-		funcChangeLog("WiFi:Disable...");
+		//funcChangeLog("WiFi:Disable...");
 		ChandeDebugLED(WIFILED, NONE);
 		return;
 	}
 	if (!_isConnected) {
-		funcChangeLog("WiFi:Disconnected...");
+		//funcChangeLog("WiFi:Disconnected...");
 		ChandeDebugLED(WIFILED, NONE);
 		return;
 	}
 	if (isBroadcast) {
-		web.SocketUpdate(message);
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	} else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	String log = "[TX]" + message;
-	funcChangeLog(log);
+	//String log = "[TX]" + message;
+	//funcChangeLog(log);
 	Udp.println(message);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);

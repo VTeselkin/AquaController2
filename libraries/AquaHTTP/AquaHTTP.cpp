@@ -12,7 +12,6 @@
 HTTPClient httpClient;
 WebServer http(80);
 DynamicJsonBuffer _jsonBuffer;
-WebSocketsServer sockets = WebSocketsServer(81);
 File fsUploadFile;
 
 Dictionary response = { { DEVICE, responseNull }, { CANAL, responseNull }, {
@@ -22,8 +21,8 @@ Dictionary response = { { DEVICE, responseNull }, { CANAL, responseNull }, {
 				responseNull } };
 static const char serverIndex[] PROGMEM =
   R"(<html><body><form method='POST' action='' enctype='multipart/form-data'>
-                  <input type='file' name='update'>
-                  <input type='submit' value='Update'>
+                  <input type='file' name='upload'>
+                  <input type='submit' value='Upload'>
                </form>
          </body></html>)";
 
@@ -31,30 +30,6 @@ static const char serverIndex[] PROGMEM =
 void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 
 	response = responseCache;
-	http.on("/", HTTP_GET, []() {
-		if (!handleFileRead("/"))
-			http.send(404, "text/plain", "FileNotFound");
-	});
-
-	http.on("/list", HTTP_GET, handleFileList);
-
-	http.on("/edit", HTTP_GET, []() {
-		if (!handleFileRead("/edit.htm"))
-			http.send(404, "text/plain", "FileNotFound");
-	});
-
-	http.on("/edit", HTTP_PUT, handleFileCreate);
-
-	http.on("/edit", HTTP_DELETE, handleFileDelete);
-
-	http.on("/edit", HTTP_POST, []() {
-		http.send(200, "text/plain", "");
-	}, handleFileUpload);
-
-	http.onNotFound([]() {
-		if (!handleFileRead(http.uri()))
-			http.send(404, "text/plain", "FileNotFound");
-	});
 
 	http.on("/time", HTTP_GET, []() {
 		http.send(200, "application/json", Helper.GetDataTime());
@@ -139,67 +114,46 @@ void AquaHTTP::Init(Dictionary &responseCache, DynamicJsonBuffer &jsonBuffer) {
 		HttpSendJson(TEMPSTATS, data, param);
 	});
 
-	http.on("/serverIndex", HTTP_GET, []() {
+	http.on("/update", HTTP_GET, []() {
 		http.sendHeader("Connection", "close");
 		http.send(200, "text/html", serverIndex);
 	  });
 
 	 /*handling uploading firmware file */
-	http.on("/update", HTTP_POST, []() {
+	http.on("/upload", HTTP_POST, []() {
 		http.sendHeader("Connection", "close");
 		http.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
 	    ESP.restart();
 	  }, []() {
 	    HTTPUpload& upload = http.upload();
 	    if (upload.status == UPLOAD_FILE_START) {
-	      Serial.printf("Update: %s\n", upload.filename.c_str());
+	      Display.SendLogLn("Update: "+ upload.filename);
 	      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
 	        Update.printError(Serial);
+	        Display.SendLogLn("Update failure!");
 	      }
 	    } else if (upload.status == UPLOAD_FILE_WRITE) {
 	      /* flashing firmware to ESP*/
 	      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
 	        Update.printError(Serial);
+	        Display.SendLogLn("Update failure!");
 	      }
 	    } else if (upload.status == UPLOAD_FILE_END) {
 	      if (Update.end(true)) { //true to set the size to the current progress
-	        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+	    	  Display.SendLogLn("Update Success: " + upload.totalSize);
+	    	  Display.SendLogLn("Rebooting...");
 	      } else {
 	        Update.printError(Serial);
+	        Display.SendLogLn("Update failure!");
 	      }
 	    }
 	  });
 
 	http.begin();
-	sockets.begin();
-	sockets.onEvent(cbWebSocketsEvent);
+
 }
 
-void cbWebSocketsEvent(uint8_t num, WStype_t type, uint8_t *payload,
-		size_t length) {
-	switch (type) {
-	case WStype_ERROR:
-	case WStype_DISCONNECTED: {
-		Serial.println("Socket Disconnected!");
-	}
-		break;
-	case WStype_CONNECTED: {
-		Serial.println("Socket Connected!");
-		auto response = Helper.GetDataTime();
-		sockets.sendTXT(num, response);
-	}
-		break;
-	case WStype_TEXT:
-	case WStype_BIN:
-	case WStype_FRAGMENT_TEXT_START:
-	case WStype_FRAGMENT_BIN_START:
-	case WStype_FRAGMENT:
-	case WStype_FRAGMENT_FIN:
-	case WStype_PING:
-	case WStype_PONG:
-		break;
-	}
-}
+
 String getContentType(String filename) {
 	if (http.hasArg("download"))
 		return "application/octet-stream";
@@ -232,116 +186,14 @@ String getContentType(String filename) {
 	return "text/plain";
 }
 
-bool handleFileRead(String path) {
-	if (path.endsWith("/"))
-		path += "index.htm";
-	String contentType = getContentType(path);
-	String pathWithGz = path + ".gz";
-	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-		if (SPIFFS.exists(pathWithGz))
-			path += ".gz";
-		File file = SPIFFS.open(path, "r");
-		size_t sent = http.streamFile(file, contentType);
-		Serial.println(sent);
-		file.close();
-		return true;
-	}
-	return false;
-}
 
-void handleFileUpload() {
-	if (http.uri() != "/edit")
-		return;
-	HTTPUpload &upload = http.upload();
-	if (upload.status == UPLOAD_FILE_START) {
-		String filename = upload.filename;
-		if (!filename.startsWith("/"))
-			filename = "/" + filename;
-		fsUploadFile = SPIFFS.open(filename, "w");
-		filename = String();
-	} else if (upload.status == UPLOAD_FILE_WRITE) {
-		//DBG_OUTPUT_PORT.print("handleFileUpload Data: "); DBG_OUTPUT_PORT.println(upload.currentSize);
-		if (fsUploadFile)
-			fsUploadFile.write(upload.buf, upload.currentSize);
-	} else if (upload.status == UPLOAD_FILE_END) {
-		if (fsUploadFile)
-			fsUploadFile.close();
-	}
-}
 
-void handleFileDelete() {
-	if (http.args() == 0)
-		return http.send(500, "text/plain", "BAD ARGS");
-	String path = http.arg(0);
-	if (path == "/")
-		return http.send(500, "text/plain", "BAD PATH");
-	if (!SPIFFS.exists(path))
-		return http.send(404, "text/plain", "FileNotFound");
-	SPIFFS.remove(path);
-	http.send(200, "text/plain", "");
-	path = String();
-}
 
-void handleFileCreate() {
-	if (http.args() == 0)
-		return http.send(500, "text/plain", "BAD ARGS");
-	String path = http.arg(0);
-	if (path == "/")
-		return http.send(500, "text/plain", "BAD PATH");
-	if (SPIFFS.exists(path))
-		return http.send(500, "text/plain", "FILE EXISTS");
-	File file = SPIFFS.open(path, "w");
-	if (file)
-		file.close();
-	else
-		return http.send(500, "text/plain", "CREATE FAILED");
-	http.send(200, "text/plain", "");
-	path = String();
-
-}
-
-void handleFileList() {
-	if (!http.hasArg("dir")) {
-		http.send(500, "text/plain", "BAD ARGS");
-		return;
-	}
-	String path = http.arg("dir");
-	auto root = SPIFFS.open(path);
-
-	path = String();
-	String output = "[";
-	if (root.isDirectory()) {
-		File file = root.openNextFile();
-		while (file) {
-			if (output != "[")
-				output += ',';
-			output += "{\"type\":\"";
-			output += (file.isDirectory()) ? "dir" : "file";
-			output += "\",\"name\":\"";
-			output += String(file.name()).substring(1);
-			output += "\"}";
-			file = root.openNextFile();
-		}
-	}
-	output += "]";
-	http.send(200, "text/json", output);
-}
-
-long lastDeviceTime = 0;
 void AquaHTTP::HandleClient() {
 	http.handleClient();
-	sockets.loop();
-
-	//send time device to web sockets
-	if (millis() > lastDeviceTime + DELAY_DEVICE_TIME_UPDATE) {
-		lastDeviceTime = millis();
-		SocketUpdate(Helper.GetDataTime());
-	}
 }
 
-void AquaHTTP::SocketUpdate(String updateJson) {
-	sockets.broadcastTXT(updateJson);
-}
+
 
 void HttpSendJson(typeResponse type, String data, String param) {
 	if (data.length() > 0 || param.length() > 0) {

@@ -17,13 +17,23 @@ void AquaDisplay::Init() {
 void AquaDisplay::SendTime() {
 	myNex.writeStr("time.txt", Helper.GetFormatTimeNow(true));
 }
+
+String AquaDisplay::GetVersion(){
+	return myNex.readStr("ver.txt");
+}
 byte rowLog = 0;
+String oldLog ="";
 void AquaDisplay::SendLogLn(String log) {
+	if(log.length() > 80){
+		if(oldLog.length() == log.length()){
+			return;
+		}
+		oldLog = log;
+		log = log.substring(0, 80) +"...";
+	}
 	rowLog++;
-	if (log.length() > 40)
-		rowLog += log.length() / 40;
 	if (rowLog > 18) {
-		myNex.writeStr("log.txt", " ");
+		ClearLog();
 		rowLog = 0;
 		SendLogLn(log);
 	}
@@ -32,6 +42,9 @@ void AquaDisplay::SendLogLn(String log) {
 }
 
 void AquaDisplay::SendLog(String log) {
+	if(log.length() > 40){
+		log = log.substring(0, 40) +"...";
+	}
 	rowLog++;
 	log.replace("\"", "");
 	myNex.writeStr("log.txt+", log);
@@ -39,7 +52,7 @@ void AquaDisplay::SendLog(String log) {
 }
 
 void AquaDisplay::ClearLog() {
-	myNex.writeStr("log.txt", "Start Init freeware! \r\n");
+	myNex.writeStr("log.txt", "");
 }
 bool isLasConnectLAN = false;
 void AquaDisplay::SetLANConnection(bool isConnect) {

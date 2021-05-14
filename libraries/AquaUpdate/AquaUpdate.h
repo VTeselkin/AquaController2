@@ -20,9 +20,10 @@ class AquaUpdate {
 public:
 	AquaUpdate();
 	void Init();
-	void CheckOTAUpdate(bool isForce, void (*funcChangeLog)(String), DynamicJsonBuffer &jsonBuffer);
+	void CheckOTAUpdate(bool isForce, DynamicJsonBuffer &jsonBuffer, void (*ChangeLog)(String));
+	bool DownloadAndSaveFile(String fileName, String url);
 };
 String OTAUpdate(String host, DynamicJsonBuffer &jsonBuffer);
-void SendResultOTAUpdate(t_httpUpdate_return ret, void (*funcChangeLog)(String)) ;
+void SendResultOTAUpdate(t_httpUpdate_return ret);
 
 #endif /* LIBRARIES_AQUAUPDATE_AQUAUPDATE_H_ */

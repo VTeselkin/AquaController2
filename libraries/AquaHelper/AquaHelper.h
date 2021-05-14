@@ -269,7 +269,7 @@ const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
-const String VERTION_FIRMWARE = "200";
+const String VERTION_FIRMWARE = "201";
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -400,7 +400,7 @@ typedef struct {
 	byte isTone = 1;
 	bool ntp_update = 0;
 	bool auto_connect = 1;
-	bool auto_update = 0;
+	bool auto_update = 1;
 	bool internet_avalible = 0;
 	/** ----------------------------------------PWM---------------------------------- */
 
