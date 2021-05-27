@@ -18,8 +18,6 @@
 void CheckStateWarningTemp(byte sensorIndex, bool isWarming);
 bool CheckStateTemp(byte sensorIndex, byte canalIndex);
 bool CheckCollisionsTemp( byte chanal, bool isEnable, byte timerType, void (*GetChanalState)(typeResponse type), bool isNeedEnableZeroCanal);
-byte ConvertTempWordToByte(unsigned short temp);
-word ConvertTempByteToWord(unsigned short temp);
 bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2);
 
 class AquaTemp {
@@ -33,6 +31,8 @@ void SetDalasSensor(AquaEEPROM eeprom);
 void CheckStateWarningTemp( byte sensorIndex, bool isWarming);
 bool CheckStateTemp(byte sensorIndex, byte canalIndex);
 bool AddTempElementToStats();
+byte ConvertTempWordToByte(unsigned short temp);
+word ConvertTempByteToWord(unsigned short temp);
 private:
 
 };

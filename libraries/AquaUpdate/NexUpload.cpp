@@ -50,6 +50,7 @@ void NexUpload::upload(void)
         return;
     }
     Display.SendLogLn("[NEX]: Download ok");
+    ESP.restart();
 }
 
 uint16_t NexUpload::_getBaudrate(void)

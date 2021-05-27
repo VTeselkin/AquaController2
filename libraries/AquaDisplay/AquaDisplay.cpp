@@ -7,29 +7,49 @@
 #include "AquaDisplay.h"
 
 EasyNex myNex(Serial);
-
+byte Currentpage = 0;
 void AquaDisplay::Init() {
 	myNex.begin(9600);
 	delay(1000);
+	Serial.print("page Init");
+	Serial.print("\xFF\xFF\xFF");
 	ClearLog();
 }
 
-void AquaDisplay::SendTime() {
-	myNex.writeStr("time.txt", Helper.GetFormatTimeNow(true));
+void AquaDisplay::SetPage(byte page) {
+	Currentpage = page;
+	switch (page) {
+	case 0:
+		Serial.print("page Init");
+		break;
+	case 1:
+		Serial.print("page Main");
+		break;
+	default:
+		Serial.print("page Main");
+		break;
+	}
+	Serial.print("\xFF\xFF\xFF");
 }
 
-String AquaDisplay::GetVersion(){
+void AquaDisplay::Update() {
+	myNex.writeStr("time.txt", Helper.GetFormatTimeNow(true));
+	SetData();
+	SetTime();
+}
+
+String AquaDisplay::GetVersion() {
 	return myNex.readStr("ver.txt");
 }
 byte rowLog = 0;
-String oldLog ="";
+String oldLog = "";
 void AquaDisplay::SendLogLn(String log) {
-	if(log.length() > 80){
-		if(oldLog.length() == log.length()){
+	if (log.length() > 80) {
+		if (oldLog.length() == log.length()) {
 			return;
 		}
 		oldLog = log;
-		log = log.substring(0, 80) +"...";
+		log = log.substring(0, 80) + "...";
 	}
 	rowLog++;
 	if (rowLog > 18) {
@@ -42,8 +62,8 @@ void AquaDisplay::SendLogLn(String log) {
 }
 
 void AquaDisplay::SendLog(String log) {
-	if(log.length() > 40){
-		log = log.substring(0, 40) +"...";
+	if (log.length() > 40) {
+		log = log.substring(0, 40) + "...";
 	}
 	rowLog++;
 	log.replace("\"", "");
@@ -58,22 +78,54 @@ bool isLasConnectLAN = false;
 void AquaDisplay::SetLANConnection(bool isConnect) {
 	if (isConnect && !isLasConnectLAN) {
 		isLasConnectLAN = true;
-		myNex.writeNum("p1.pic", 3);
+		Serial.print("lan_ico.pic=3");
+		Serial.print("\xFF\xFF\xFF");
 	}
 	if (!isConnect && isLasConnectLAN) {
 		isLasConnectLAN = false;
-		myNex.writeNum("p1.pic", 2);
+		Serial.print("lan_ico.pic=2");
+		Serial.print("\xFF\xFF\xFF");
 	}
 }
 bool isLasConnectWAN = false;
 void AquaDisplay::SetWANConnection(bool isConnect) {
 	if (isConnect && !isLasConnectWAN) {
 		isLasConnectWAN = true;
-		myNex.writeNum("p0.pic", 0);
+		Serial.print("wan_ico.pic=0");
+		Serial.print("\xFF\xFF\xFF");
 	}
 	if (!isConnect && isLasConnectWAN) {
 		isLasConnectWAN = false;
-		myNex.writeNum("p0.pic", 1);
+		Serial.print("wan_ico.pic=1");
+		Serial.print("\xFF\xFF\xFF");
 	}
+}
+
+void AquaDisplay::SetDayOfWeek() {
 
 }
+
+void AquaDisplay::SetData() {
+	myNex.writeStr("data_main.txt", Helper.GetFormatDataNow());
+}
+
+void AquaDisplay::SetTime() {
+	myNex.writeStr("time_main.txt", Helper.GetFormatTimeNow(true));
+}
+
+void AquaDisplay::SetTemp(word temp) {
+	String s_temp = "";
+	byte k = temp / 100;
+	byte m = temp % 100;
+	if (k < 10)
+		s_temp += "0";
+	s_temp += k;
+	s_temp += ".";
+	if (m < 10) {
+		s_temp += m;
+	}else{
+		s_temp += m/10;
+	}
+	myNex.writeStr("temp_main.txt", s_temp);
+}
+

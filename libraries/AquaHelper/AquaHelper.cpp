@@ -613,7 +613,7 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setHour(hour(epoch));
 	ds3231.setMinute(minute(epoch));
 	ds3231.setSecond(second(epoch));
-	Display.SendTime();
+	Display.Update();
 }
 
 byte AquaHelper::GetHourNow() {

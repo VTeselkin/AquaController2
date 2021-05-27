@@ -20,9 +20,9 @@ DynamicJsonBuffer jsonBuffer(bufferSize);
 
 bool _isWiFiEnable = false;
 bool _isConnected = false;
+bool _isConfigMode = false;
 
-
-unsigned long timeIP, lastDeviceInfoUpdate, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime;
+unsigned long timeIP, lastDeviceInfoUpdate, lastDeviceInfoTime, lastNTPtime, lastTemptime, lastPHTime, lastConfigMode;
 unsigned int localUdpPort = 8888;
 
 char incomingPacket[MAX_BUFFER];
@@ -30,7 +30,7 @@ void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
 void (*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
 uint16_t (*funcNTPUpdate)(uint16_t);
-
+byte _minForReconect = 5;
 word UTC3 = 3; //UTC+3
 
 Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
@@ -40,7 +40,6 @@ Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, 
 
 void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
 		uint16_t (*NTPUpdate)(uint16_t), void (*chandeDebugLED)(typeDebugLED led, typeLightLED type)) {
-	pinMode(2, OUTPUT);
 	funcChangeLog = ChangeLog;
 	funcGetUDPRequest = GetUDPRequest;
 	funcNTPUpdate = NTPUpdate;
@@ -49,8 +48,10 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastNTPtime = millis();
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
+	if (wifiManager.getWiFiIsSaved()) {
+		_minForReconect = 1;
+	}
 	update.Init();
-	WiFi.setAutoReconnect(true);
 	Connection();
 }
 
@@ -58,13 +59,12 @@ void AquaWiFi::Connection() {
 
 	if (_isWiFiEnable) {
 		funcChangeLog("WiFi:Try connect...");
-		WiFiManager wifiManager;
 
 		//Disable debug log connection
-		wifiManager.setDebugOutput(false);
+		wifiManager.setDebugOutput(true);
+
 		wifiManager.setAPCallback(configModeCallback);
 		wifiManager.setSaveConfigCallback(saveConfigCallback);
-		wifiManager.setTimeout(300);
 		//set custom ip for portal
 		wifiManager.setAPStaticIPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1),
 				IPAddress(255, 255, 255, 0));
@@ -72,19 +72,28 @@ void AquaWiFi::Connection() {
 		 * if we couldn't connected to save WiFi access point
 		 * we will start our own access point with ip address 192.168.1.4
 		 */
-		if (!wifiManager.autoConnect("AP: AquaController")) {
-			ESP.restart();
+		wifiManager.setConfigPortalBlocking(false);
+		if (wifiManager.autoConnect("AP: AquaController")) {
+			_isConfigMode = false;
+			ChandeDebugLED(WIFILED, LIGHT);
+			ChandeDebugLED(ERRLED, NONE);
+
+		} else {
+			if (wifiManager.getWiFiIsSaved()) {
+				ChandeDebugLED(ERRLED, LIGHT);
+			}
 		}
+
 		Display.SetLANConnection(WiFi.status() == WL_CONNECTED);
 		Udp.begin(localUdpPort);
 		broadcastAddress = (uint32_t) WiFi.localIP() | ~((uint32_t) WiFi.subnetMask());
 		SendWifiIp();
 		_isConnected = true;
 		funcChangeLog("HTTP:Service started...");
-		update.CheckOTAUpdate(true, jsonBuffer, funcChangeLog);
 		StartCaching();
 		web.Init(responseCache, jsonBuffer);
 		if (Helper.data.internet_avalible) {
+			update.CheckOTAUpdate(true, jsonBuffer, funcChangeLog);
 			ntp.SetNTPTimeToController(funcChangeLog);
 		} else {
 			funcChangeLog("WAN:Not connection..");
@@ -101,12 +110,12 @@ void AquaWiFi::Connection() {
  */
 void configModeCallback(WiFiManager *myWiFiManager) {
 	if (_isWiFiEnable) {
+		_isConfigMode = true;
+		lastConfigMode = millis();
 		funcChangeLog("WiFi:Failed connect");
 		funcChangeLog("WiFi:Config mode...");
 		funcChangeLog("WiFi:Server start...");
-		funcChangeLog("WiFi:192.168.1.4...");
-		ChandeDebugLED(RXLED, PULSE);
-		ChandeDebugLED(TXLED, PULSE);
+		funcChangeLog("WiFi:192.168.4.1...");
 		ChandeDebugLED(WIFILED, PULSE);
 	} else {
 		funcChangeLog("WiFi:Disable...");
@@ -129,7 +138,6 @@ void AquaWiFi::WaitRequest() {
 
 	if (_isWiFiEnable) {
 		if (WiFi.status() == WL_CONNECTED) {
-			ChandeDebugLED(WIFILED, LIGHT);
 			web.HandleClient();
 			int packetSize = Udp.parsePacket();
 			if (packetSize > 0) {
@@ -146,11 +154,20 @@ void AquaWiFi::WaitRequest() {
 
 			}
 		} else {
-			if (WiFi.status() != WL_CONNECTED) {
+			if (WiFi.status() != WL_CONNECTED && !_isConfigMode) {
 				ChandeDebugLED(WIFILED, NONE);
 				ChandeDebugLED(ERRLED, NONE);
+				Display.SetLANConnection(false);
+				Display.SetWANConnection(false);
 				funcChangeLog("WiFi:Lost connection. Reconnect...");
-				WiFi.begin();
+				Connection();
+				return;
+
+			}
+			if (millis() > lastConfigMode + _minForReconect * 60 * 1000) {
+				lastConfigMode = millis();
+				_isConfigMode = false;
+				Connection();
 			}
 		}
 	}
@@ -391,15 +408,18 @@ void AquaWiFi::CacheResponse(typeResponse type, String json) {
 }
 
 bool SendWifiIp() {
-	auto res = Ping.ping(remote_ip);
-	Helper.data.internet_avalible = res;
-	if (res) {
-		ChandeDebugLED(WIFILED, LIGHT);
-	} else {
-		ChandeDebugLED(WIFILED, PULSE);
+	if (WiFi.status() == WL_CONNECTED) {
+		auto res = Ping.ping(remote_ip);
+		Helper.data.internet_avalible = res;
+		if (res) {
+			ChandeDebugLED(WIFILED, LIGHT);
+		} else {
+			ChandeDebugLED(WIFILED, PULSE);
+		}
+		Display.SetWANConnection(Helper.data.internet_avalible);
+		return res;
 	}
-	Display.SetWANConnection(Helper.data.internet_avalible);
-	return res;
+	return false;
 
 }
 

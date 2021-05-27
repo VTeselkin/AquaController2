@@ -48,6 +48,7 @@ void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 				isNeedSendTemp = true;
 			}
 		} else {
+
 			Helper.data.TempSensorState[var] = CONNECT_SENSOR;
 			if (Helper.data.TempSensor[var] != ConvertTempWordToByte(temp)) {
 				Helper.data.TempSensor[var] = ConvertTempWordToByte(temp);
@@ -61,11 +62,11 @@ void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 
 }
 
-byte ConvertTempWordToByte(unsigned short temp) {
+byte AquaTemp::ConvertTempWordToByte(unsigned short temp) {
 	return (temp - MIN_TEMP) / STEP;
 }
 
-word ConvertTempByteToWord(unsigned short temp) {
+word AquaTemp::ConvertTempByteToWord(unsigned short temp) {
 	return temp * STEP + MIN_TEMP;
 }
 
@@ -228,12 +229,13 @@ void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 		}
 //If the address is new, we add it to the list of new addresses
 		if (isNew) {
-			Serial.print("TEMP FIND SENSOR = ");
+			String log = "[TEMP] Find Sensor = ";
+			Serial.print("");
 			for (byte i = 0; i < 8; i++) {
-				Serial.print(device[i]);
+				log+= device[i];
 				Helper.data.addrNewThermometer[newIndex][i] = device[i];
 			}
-			Serial.println("");
+			Display.SendLog(log);
 			newIndex++;
 		}
 		var++;

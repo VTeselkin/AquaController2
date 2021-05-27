@@ -15,13 +15,18 @@ class AquaDisplay{
 
 public:
 	static void Init();
-	static void SendTime();
+	static void Update();
 	static void SendLog(String log);
 	static void SendLogLn(String log);
 	static void ClearLog();
 	static void SetLANConnection(bool isConnect);
 	static void SetWANConnection(bool isConnect);
 	static String GetVersion();
+	static void SetDayOfWeek();
+	static void SetData();
+	static void SetTime();
+	static void SetTemp(word temp);
+	static void SetPage(byte page);
 private:
 };
 #ifdef Display

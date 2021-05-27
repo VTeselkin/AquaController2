@@ -64,9 +64,11 @@ void setup() {
 	aquaCanal.Init();
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
+	Display.SetPage(1);
 }
 
 void loop() {
+	aquaWiFi.wifiManager.process();
 	isNeedEnableZeroCanal = aquaStop.GetTemporaryStopCanal(isNeedEnableZeroCanal, ChangeChanalState);
 	aquaTimers.CheckStateTimer(_timerForCheck, TIMER_MIN, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER, ChangeChanalState, isNeedEnableZeroCanal);
@@ -88,7 +90,8 @@ void loop() {
 	aquaCanal.DisableLED();
 	if (millis() > _lastTimeUpdate + DELAY_TIME_UPDATE) {
 		_lastTimeUpdate = millis();
-		Display.SendTime();
+		Display.Update();
+		Display.SetTemp(aquaTemp.ConvertTempByteToWord(Helper.data.TempSensor[0]));
 
 	}
 
@@ -109,7 +112,6 @@ void ChangeTempState(typeResponse type) {
 void ChangeWaterLevelStatus(bool warning, byte canal) {
 	if (warning) {
 		Helper.Tone();
-		//send to UDP
 	}
 }
 
@@ -131,8 +133,8 @@ void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 }
 void ChangeWiFiLog(String log) {
 	auto log2 = "[" + Helper.GetFormatTimeNow(false) +"]" + log;
-	//Display.SendLogLn(log2);
-	aquaWiFi.UDPSendMessage(log2, true);
+	Display.SendLogLn(log2);
+
 
 }
 
