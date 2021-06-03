@@ -5,6 +5,10 @@
  *      Author: doc
  */
 #include "AquaHelper.h"
+#include <iostream>       // std::cout, std::ios
+#include <sstream>        // std::istringstream
+#include <ctime>          // std::tm
+#include <locale>         // std::locale, std::time_get, std::use_facet
 
 dataController AquaHelper::data;
 AquaHelper Helper = AquaHelper();
@@ -613,11 +617,34 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setHour(hour(epoch));
 	ds3231.setMinute(minute(epoch));
 	ds3231.setSecond(second(epoch));
+	Serial.println(((epoch / 86400)) % 7);
+	ds3231.setDoW(((epoch / 86400)) % 7);
 	Display.Update();
 }
 
 byte AquaHelper::GetHourNow() {
 	return RTC.now().hour();
+}
+
+String AquaHelper::GetDayOfWeek() {
+	switch (ds3231.getDoW()) {
+	case 4:
+		return "Monday";
+	case 5:
+		return "Tuesday";
+	case 6:
+		return "Wednesday";
+	case 0:
+		return "Thursday";
+	case 1:
+		return "Friday";
+	case 2:
+		return "Saturday";
+	case 3:
+		return "Sunday";
+	}
+
+	return "";
 }
 
 void AquaHelper::ScanI2C() {
@@ -632,7 +659,7 @@ void AquaHelper::ScanI2C() {
 				log += "0";
 			}
 
-			if(sizeof(String(i, HEX))> 0){
+			if (sizeof(String(i, HEX)) > 0) {
 				log += String(i, HEX);
 				cnt++;
 			}

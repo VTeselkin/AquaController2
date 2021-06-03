@@ -7,17 +7,17 @@
 #include "AquaDisplay.h"
 
 EasyNex myNex(Serial);
-byte Currentpage = 0;
+
 void AquaDisplay::Init() {
 	myNex.begin(9600);
 	delay(1000);
 	Serial.print("page Init");
 	Serial.print("\xFF\xFF\xFF");
 	ClearLog();
+
 }
 
 void AquaDisplay::SetPage(byte page) {
-	Currentpage = page;
 	switch (page) {
 	case 0:
 		Serial.print("page Init");
@@ -33,9 +33,11 @@ void AquaDisplay::SetPage(byte page) {
 }
 
 void AquaDisplay::Update() {
+	myNex.NextionListen();
 	myNex.writeStr("time.txt", Helper.GetFormatTimeNow(true));
 	SetData();
 	SetTime();
+	SetDayOfWeek();
 }
 
 String AquaDisplay::GetVersion() {
@@ -102,7 +104,7 @@ void AquaDisplay::SetWANConnection(bool isConnect) {
 }
 
 void AquaDisplay::SetDayOfWeek() {
-
+	myNex.writeStr("day_main.txt", Helper.GetDayOfWeek());
 }
 
 void AquaDisplay::SetData() {
@@ -110,7 +112,7 @@ void AquaDisplay::SetData() {
 }
 
 void AquaDisplay::SetTime() {
-	myNex.writeStr("time_main.txt", Helper.GetFormatTimeNow(true));
+	myNex.writeStr("btn_time.txt", Helper.GetFormatTimeNow(true));
 }
 
 void AquaDisplay::SetTemp(word temp) {
@@ -126,6 +128,24 @@ void AquaDisplay::SetTemp(word temp) {
 	}else{
 		s_temp += m/10;
 	}
-	myNex.writeStr("temp_main.txt", s_temp);
+	myNex.writeStr("btn_temp.txt", s_temp);
 }
 
+void trigger1(){
+	Helper.Tone();
+}
+void trigger2(){
+	Helper.Tone();
+}
+void trigger3(){
+	Helper.Tone();
+}
+void trigger4(){
+	Helper.Tone();
+}
+void trigger5(){
+	Helper.Tone();
+}
+void trigger6(){
+	Helper.Tone();
+}

@@ -398,9 +398,9 @@ typedef struct {
 
 	// Speaker Setup
 	byte isTone = 1;
-	bool ntp_update = 0;
+	bool ntp_update = 1;
 	bool auto_connect = 1;
-	bool auto_update = 1;
+	bool auto_update = 0;
 	bool internet_avalible = 0;
 	/** ----------------------------------------PWM---------------------------------- */
 
@@ -495,6 +495,7 @@ public:
 	static String GetPhStats();
 	static String GetTempStats();
 	static byte GetHourNow();
+	static String GetDayOfWeek();
 	static tmElements_t GetTimeNow();
 	static String GetFormatTimeNow(bool isShort);
 	static String GetFormatDataNow();
