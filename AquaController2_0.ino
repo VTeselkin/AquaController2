@@ -95,6 +95,7 @@ void loop() {
 
 	}
 
+	Display.Loop();
 }
 
 void ChangeChanalState(typeResponse type) {
@@ -115,7 +116,7 @@ void ChangeWaterLevelStatus(bool warning, byte canal) {
 	}
 }
 
-void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
+static void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 	switch (led) {
 	case RXLED:
 		aquaCanal.SetLEDRx(type);

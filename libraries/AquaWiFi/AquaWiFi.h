@@ -17,6 +17,9 @@
 #include <FS.h>
 
 class AquaWiFi {
+	static unsigned long timeDebugLED[4];
+	static byte _stateDebugLED[4];
+	static typeLightLED _typeDebugLED[4];
 public:
 	WiFiManager wifiManager;
 	void Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t), void(*ChandeDebugLED)(typeDebugLED led, typeLightLED type));

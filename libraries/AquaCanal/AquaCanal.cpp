@@ -7,7 +7,13 @@
 
 #include "AquaCanal.h"
 PCA9685 pwm;
+
+ unsigned long AquaCanal::_timeDebugLED[4] = { 0, 0, 0, 0 };
+ byte AquaCanal::_stateDebugLED[4] = { 0, 0, 0, 0 };
+ typeLightLED AquaCanal::_typeDebugLED[4] = { NONE, NONE, NONE, NONE };
+
 void AquaCanal::Init() {
+
 	pwm.setupSingleDevice(Wire, 0x40);
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 		pinMode(Helper.data.nRelayDrive[i], OUTPUT);

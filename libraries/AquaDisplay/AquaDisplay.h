@@ -11,11 +11,12 @@
 #include "Arduino.h"
 #include "AquaHelper.h"
 #include "EasyNextionLibrary.h"
-class AquaDisplay{
 
+class AquaDisplay{
 public:
 	static void Init();
 	static void Update();
+	static void Loop();
 	static void SendLog(String log);
 	static void SendLogLn(String log);
 	static void ClearLog();

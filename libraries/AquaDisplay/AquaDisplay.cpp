@@ -5,8 +5,10 @@
  *      Author: DrJar
  */
 #include "AquaDisplay.h"
+#include <AquaCanal.h>
 
 EasyNex myNex(Serial);
+
 
 void AquaDisplay::Init() {
 	myNex.begin(9600);
@@ -33,13 +35,15 @@ void AquaDisplay::SetPage(byte page) {
 }
 
 void AquaDisplay::Update() {
-	myNex.NextionListen();
+
 	myNex.writeStr("time.txt", Helper.GetFormatTimeNow(true));
 	SetData();
 	SetTime();
 	SetDayOfWeek();
 }
-
+void AquaDisplay::Loop(){
+	myNex.NextionListen();
+}
 String AquaDisplay::GetVersion() {
 	return myNex.readStr("ver.txt");
 }
@@ -132,20 +136,32 @@ void AquaDisplay::SetTemp(word temp) {
 }
 
 void trigger1(){
-	Helper.Tone();
+	Serial.println("trigger1");
+	Canal.SetLEDRx(LONG);
+
 }
 void trigger2(){
-	Helper.Tone();
+	Serial.println("trigger2");
+	Canal.SetLEDRx(LONG);
+
 }
 void trigger3(){
-	Helper.Tone();
+	Serial.println("trigger3");
+	Canal.SetLEDRx(LONG);
+
 }
 void trigger4(){
-	Helper.Tone();
+	Serial.println("trigger4");
+	Canal.SetLEDRx(LONG);
+
 }
 void trigger5(){
-	Helper.Tone();
+	Serial.println("trigger5");
+	Canal.SetLEDRx(LONG);
+
 }
 void trigger6(){
-	Helper.Tone();
+	Serial.println("trigger6");
+	Canal.SetLEDRx(LONG);
+
 }
