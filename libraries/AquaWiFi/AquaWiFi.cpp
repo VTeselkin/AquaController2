@@ -172,9 +172,10 @@ void AquaWiFi::WaitRequest() {
 		}
 	}
 
+	//TODO CHECK
 	if (millis() > lastDeviceInfoUpdate + DELAY_UPDATE_DEVICE) {
 		lastDeviceInfoUpdate = millis();
-		SendCacheResponse(DEVICE, false);
+		SendCacheResponse(DEVICE, false, true);
 		Display.SetLANConnection(WiFi.status() == WL_CONNECTED);
 		return;
 	}
@@ -185,6 +186,7 @@ void AquaWiFi::WaitRequest() {
 		timeIP = millis();
 		return;
 	}
+	//TODO CHECK
 	//send device info
 	if (millis() > lastDeviceInfoTime + DELAY_DEVICE_INFO_UPDATE) {
 		lastDeviceInfoTime = millis();
@@ -337,23 +339,23 @@ void AquaWiFi::SendFromUDPToController(String inString) {
 
 void AquaWiFi::StartCaching() {
 	funcChangeLog("WiFi:Caching data...");
-	SendCacheResponse(DEVICE, false);
-	SendCacheResponse(CANAL, false);
-	SendCacheResponse(PH, false);
-	SendCacheResponse(TEMPSTATS, false);
-	SendCacheResponse(TEMPSENSOR, false);
-	SendCacheResponse(TIMERDAY, false);
-	SendCacheResponse(TIMERHOUR, false);
-	SendCacheResponse(TIMERSEC, false);
-	SendCacheResponse(TIMERTEMP, false);
-	SendCacheResponse(PHTIMER, false);
-	SendCacheResponse(PWMTIMER, false);
-	SendCacheResponse(PWMCANAL, false);
-	SendCacheResponse(FAN, false);
+	SendCacheResponse(DEVICE, false, false);
+	SendCacheResponse(CANAL, false, false);
+	SendCacheResponse(PH, false, false);
+	SendCacheResponse(TEMPSTATS, false, false);
+	SendCacheResponse(TEMPSENSOR, false, false);
+	SendCacheResponse(TIMERDAY, false, false);
+	SendCacheResponse(TIMERHOUR, false, false);
+	SendCacheResponse(TIMERSEC, false, false);
+	SendCacheResponse(TIMERTEMP, false, false);
+	SendCacheResponse(PHTIMER, false, false);
+	SendCacheResponse(PWMTIMER, false, false);
+	SendCacheResponse(PWMCANAL, false, false);
+	SendCacheResponse(FAN, false, false);
 
 }
 
-void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache) {
+void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache, bool isBroadcast) {
 	switch (type) {
 	case DEVICE:
 		responseCache[DEVICE] = Helper.GetDevice(WiFi.localIP().toString());
@@ -400,7 +402,7 @@ void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache) {
 
 	}
 	if (sendCache)
-		UDPSendMessage(responseCache[type], false);
+		UDPSendMessage(responseCache[type], isBroadcast);
 }
 
 void AquaWiFi::CacheResponse(typeResponse type, String json) {

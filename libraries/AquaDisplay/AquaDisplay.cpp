@@ -9,29 +9,44 @@
 
 EasyNex myNex(Serial);
 
-
 void AquaDisplay::Init() {
 	myNex.begin(9600);
 	delay(1000);
-	Serial.print("page Init");
-	Serial.print("\xFF\xFF\xFF");
+	SetPage(2);
 	ClearLog();
 
 }
 
 void AquaDisplay::SetPage(byte page) {
+	Serial.print("page " + String(page));
+	Serial.print("\xFF\xFF\xFF");
+	Serial.flush();
+
 	switch (page) {
 	case 0:
-		Serial.print("page Init");
+
 		break;
 	case 1:
-		Serial.print("page Main");
+		//page Main
+		Update();
+		SetTemp(NULL);
+		break;
+	case 2:
+		//page Init
+		break;
+	case 3:
+		UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
+		//page Canal
+		break;
+	case 4:
+		UpdateCanals(Helper.data.StatePWMChanals,MAX_CHANALS_PWM, "canal_pwm");
+		//page Canal
 		break;
 	default:
-		Serial.print("page Main");
+		//page Main
 		break;
 	}
-	Serial.print("\xFF\xFF\xFF");
+
 }
 
 void AquaDisplay::Update() {
@@ -41,7 +56,7 @@ void AquaDisplay::Update() {
 	SetTime();
 	SetDayOfWeek();
 }
-void AquaDisplay::Loop(){
+void AquaDisplay::Loop() {
 	myNex.NextionListen();
 }
 String AquaDisplay::GetVersion() {
@@ -119,49 +134,49 @@ void AquaDisplay::SetTime() {
 	myNex.writeStr("btn_time.txt", Helper.GetFormatTimeNow(true));
 }
 
+String s_temp = "";
 void AquaDisplay::SetTemp(word temp) {
-	String s_temp = "";
-	byte k = temp / 100;
-	byte m = temp % 100;
-	if (k < 10)
-		s_temp += "0";
-	s_temp += k;
-	s_temp += ".";
-	if (m < 10) {
-		s_temp += m;
-	}else{
-		s_temp += m/10;
+	if (temp != NULL) {
+		s_temp = "";
+		byte k = temp / 100;
+		byte m = temp % 100;
+		if (k < 10)
+			s_temp += "0";
+		s_temp += k;
+		s_temp += ".";
+		if (m < 10) {
+			s_temp += m;
+		} else {
+			s_temp += m / 10;
+		}
 	}
 	myNex.writeStr("btn_temp.txt", s_temp);
 }
 
-void trigger1(){
-	Serial.println("trigger1");
-	Canal.SetLEDRx(LONG);
-
+void AquaDisplay::UpdateCanals(byte canals[], byte max_canal, String canal_name) {
+	for (byte i = 1; i < max_canal + 1; i++) {
+		String value = "AUTO";
+		if (canals[i - 1] == 1) {
+			value = "OFF";
+		} else if (canals[i - 1] == 2) {
+			value = "ON";
+		}
+		myNex.writeStr(canal_name + String(i) + ".txt", value);
+	}
 }
-void trigger2(){
-	Serial.println("trigger2");
-	Canal.SetLEDRx(LONG);
 
+void AquaDisplay::SetCanalState(byte i) {
+	Helper.data.StateChanals[i]--;
+	if (Helper.data.StateChanals[i] == 0) {
+		Helper.data.StateChanals[i] = 3;
+	}
+	Display.UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
 }
-void trigger3(){
-	Serial.println("trigger3");
-	Canal.SetLEDRx(LONG);
 
-}
-void trigger4(){
-	Serial.println("trigger4");
-	Canal.SetLEDRx(LONG);
-
-}
-void trigger5(){
-	Serial.println("trigger5");
-	Canal.SetLEDRx(LONG);
-
-}
-void trigger6(){
-	Serial.println("trigger6");
-	Canal.SetLEDRx(LONG);
-
+void AquaDisplay::SetPWMCanalState(byte i) {
+	Helper.data.StatePWMChanals[i]--;
+	if (Helper.data.StatePWMChanals[i] == 0) {
+		Helper.data.StatePWMChanals[i] = 3;
+	}
+	Display.UpdateCanals(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "canal_pwm");
 }

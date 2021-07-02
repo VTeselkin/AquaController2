@@ -27,7 +27,10 @@ public:
 	static void SetData();
 	static void SetTime();
 	static void SetTemp(word temp);
+	static void UpdateCanals(byte canals[], byte max_canal, String canal_name);
 	static void SetPage(byte page);
+	static void SetCanalState(byte i);
+	static void SetPWMCanalState(byte i);
 private:
 };
 #ifdef Display

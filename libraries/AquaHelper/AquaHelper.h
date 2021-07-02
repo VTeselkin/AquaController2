@@ -19,8 +19,10 @@
 #include <AquaDisplay.h>
 //Maximum number of canals
 #define MAX_CHANALS 8
+#define MAX_CHANALS_PWM 10
 //Maximum number of timers
 #define MAX_TIMERS 10
+
 
 #define MAX_EEPROM 1024
 

@@ -46,7 +46,6 @@ AquaAnalog aquaAnalog;
 AquaWiFi aquaWiFi;
 AquaFAN aquaFAN;
 
-
 unsigned int _timerForCheck = 0;
 unsigned int _hourTimerForCheck = 0;
 unsigned int _secondTimerForCheck = 0;
@@ -80,10 +79,10 @@ void loop() {
 	aquaCanal.SetStatePWMCanal(ChangeChanalState);
 	aquaAnalog.Update();
 	if (aquaAnalog.AddPhElementToStats()) {
-		aquaWiFi.SendCacheResponse(PH, true);
+		aquaWiFi.SendCacheResponse(PH, true, true);
 	}
 	if (aquaTemp.AddTempElementToStats()) {
-		aquaWiFi.SendCacheResponse(TEMPSTATS, true);
+		aquaWiFi.SendCacheResponse(TEMPSTATS, true, true);
 	}
 	aquaAnalog.CheckWaterLevel(ChangeWaterLevelStatus);
 	aquaWiFi.WaitRequest();
@@ -100,14 +99,14 @@ void loop() {
 
 void ChangeChanalState(typeResponse type) {
 	if (PWMTIMER) {
-		aquaWiFi.SendCacheResponse(CANAL, true);
+		aquaWiFi.SendCacheResponse(CANAL, true, true);
 	} else {
-		aquaWiFi.SendCacheResponse(type, true);
+		aquaWiFi.SendCacheResponse(type, true, true);
 	}
 }
 
 void ChangeTempState(typeResponse type) {
-	aquaWiFi.SendCacheResponse(type, true);
+	aquaWiFi.SendCacheResponse(type, true, true);
 }
 
 void ChangeWaterLevelStatus(bool warning, byte canal) {
@@ -133,9 +132,8 @@ static void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 	}
 }
 void ChangeWiFiLog(String log) {
-	auto log2 = "[" + Helper.GetFormatTimeNow(false) +"]" + log;
+	auto log2 = "[" + Helper.GetFormatTimeNow(false) + "]" + log;
 	Display.SendLogLn(log2);
-
 
 }
 
@@ -146,6 +144,7 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		switch (type) {
 		case CANAL:
 			aquaEEPROM.SaveChanalState();
+			Display.UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
 			break;
 		case TIMERDAY:
 			aquaEEPROM.SaveDailyTimerToERROM();
@@ -175,6 +174,7 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 			break;
 		case PWMCANAL:
 			aquaEEPROM.SavePWMChanalState();
+			Display.UpdateCanals(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "canal_pwm");
 			break;
 		case SETTINGS:
 			aquaEEPROM.SaveWifiSettings();
@@ -184,7 +184,7 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 			aquaEEPROM.SaveFANSettings();
 			break;
 		}
-		aquaWiFi.SendCacheResponse(type, true);
+		aquaWiFi.SendCacheResponse(type, true, false);
 	} else {
 		Serial.println("ERROR POST UDP");
 	}
@@ -213,4 +213,131 @@ void SetPHSensorConfig() {
 
 uint16_t SaveUTCSetting(uint16_t utc) {
 	return aquaEEPROM.SaveUTCSetting(utc);
+}
+
+//Menu LED
+void trigger1() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(4);
+}
+
+//Menu CANAL
+void trigger2() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(3);
+}
+
+//Menu TIMERS
+void trigger3() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+}
+
+//Menu SETTINGS
+void trigger4() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+}
+
+//Menu TIME
+void trigger5() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+}
+
+//Menu DATA
+void trigger6() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+}
+
+//Menu CANAL_1
+void trigger7() {
+	ChangeStateCanalFromDisplay(0);
+}
+
+//Menu CANAL_2
+void trigger8() {
+	ChangeStateCanalFromDisplay(1);
+}
+
+//Menu CANAL_3
+void trigger9() {
+	ChangeStateCanalFromDisplay(2);
+}
+
+//Menu CANAL_4
+void trigger10() {
+	ChangeStateCanalFromDisplay(3);
+}
+
+//Menu CANAL_5
+void trigger11() {
+	ChangeStateCanalFromDisplay(4);
+}
+
+//Menu CANAL_6
+void trigger12() {
+	ChangeStateCanalFromDisplay(5);
+}
+
+//Menu CANAL_7
+void trigger13() {
+	ChangeStateCanalFromDisplay(6);
+}
+
+//Menu CANAL_8
+void trigger14() {
+	ChangeStateCanalFromDisplay(7);
+}
+
+void ChangeStateCanalFromDisplay(byte index) {
+	Display.SetCanalState(index);
+	aquaEEPROM.SaveChanalState();
+	aquaWiFi.SendCacheResponse(CANAL, true, true);
+}
+
+void ChangeStatePWMCanalFromDisplay(byte index) {
+	Display.SetPWMCanalState(index);
+	aquaEEPROM.SavePWMChanalState();
+	aquaWiFi.SendCacheResponse(PWMCANAL, true, true);
+}
+//Menu BACK
+void trigger15() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(1);
+}
+
+void trigger16() {
+	ChangeStatePWMCanalFromDisplay(0);
+}
+void trigger17() {
+	ChangeStatePWMCanalFromDisplay(1);
+}
+void trigger18() {
+	ChangeStatePWMCanalFromDisplay(2);
+}
+void trigger19() {
+	ChangeStatePWMCanalFromDisplay(3);
+}
+void trigger20() {
+	ChangeStatePWMCanalFromDisplay(4);
+}
+void trigger21() {
+	ChangeStatePWMCanalFromDisplay(5);
+}
+void trigger22() {
+	ChangeStatePWMCanalFromDisplay(6);
+}
+void trigger23() {
+	ChangeStatePWMCanalFromDisplay(7);
+}
+void trigger24() {
+	ChangeStatePWMCanalFromDisplay(8);
+}
+void trigger25() {
+	ChangeStatePWMCanalFromDisplay(9);
 }

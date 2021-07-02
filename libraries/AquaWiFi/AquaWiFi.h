@@ -25,7 +25,7 @@ public:
 	void Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String), uint16_t (*NTPUpdate)(uint16_t), void(*ChandeDebugLED)(typeDebugLED led, typeLightLED type));
 	void WaitRequest();
 	void CacheResponse(typeResponse type, String json);
-	void SendCacheResponse(typeResponse type, bool sendCache);
+	void SendCacheResponse(typeResponse type, bool sendCache,  bool isBroadcast);
 	void Connection();
 	void StartCaching();
 	void UDPSendMessage(String message, bool isBroadcast);
