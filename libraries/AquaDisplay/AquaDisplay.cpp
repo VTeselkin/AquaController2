@@ -17,33 +17,32 @@ void AquaDisplay::Init() {
 
 }
 
+byte _currentPage = 0;
 void AquaDisplay::SetPage(byte page) {
 	Serial.print("page " + String(page));
 	Serial.print("\xFF\xFF\xFF");
 	Serial.flush();
-
+	_currentPage = page;
 	switch (page) {
-	case 0:
-
-		break;
 	case 1:
-		//page Main
 		Update();
 		SetTemp(NULL);
 		break;
-	case 2:
-		//page Init
-		break;
 	case 3:
 		UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
-		//page Canal
 		break;
 	case 4:
-		UpdateCanals(Helper.data.StatePWMChanals,MAX_CHANALS_PWM, "canal_pwm");
-		//page Canal
+		UpdateCanals(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "canal_pwm");
+		break;
+	case 6:
+		break;
+	case 7:
+		break;
+	case 8:
+		break;
+	case 9:
 		break;
 	default:
-		//page Main
 		break;
 	}
 
@@ -179,4 +178,184 @@ void AquaDisplay::SetPWMCanalState(byte i) {
 		Helper.data.StatePWMChanals[i] = 3;
 	}
 	Display.UpdateCanals(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "canal_pwm");
+}
+
+
+byte TimerNumberLed, TimerNumberDaily, TimerNumberHour, TimerNumberSecond = 0;
+void AquaDisplay::SetTimerNumber(bool inc) {
+
+	switch (_currentPage) {
+	case 6:
+		CheckIndexTimer(TimerNumberLed, MAX_TIMERS, inc);
+		break;
+	case 7:
+		CheckIndexTimer(TimerNumberDaily, MAX_TIMERS, inc);
+		break;
+	case 8:
+		CheckIndexTimer(TimerNumberHour, MAX_TIMERS, inc);
+		break;
+	case 9:
+		CheckIndexTimer(TimerNumberSecond, MAX_TIMERS, inc);
+		break;
+	}
+
+
+
+}
+
+void AquaDisplay::SetTimerHourOn(bool inc) {
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMHourStart, HOUR, TimerNumberLed, inc);
+		break;
+	case 7:
+		ChangeData(Helper.data.DailyTimerMinStart, HOUR, TimerNumberDaily, inc);
+		break;
+	case 9:
+		ChangeData(Helper.data.SecondTimerHourStart, MINUTE, TimerNumberSecond, inc);
+		break;
+	}
+}
+
+void AquaDisplay::SetTimerMinutesOn(bool inc) {
+
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMMinStart, MINUTE, TimerNumberLed, inc);
+		break;
+	case 7:
+		ChangeData(Helper.data.DailyTimerMinStart, MINUTE, TimerNumberDaily, inc);
+		break;
+	case 8:
+		ChangeData(Helper.data.HoursTimerMinStart, MINUTE, TimerNumberHour, inc);
+		break;
+	case 9:
+		ChangeData(Helper.data.SecondTimerMinStart, MINUTE, TimerNumberSecond, inc);
+		break;
+	}
+
+}
+void AquaDisplay::SetTimerHourOff(bool inc) {
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMHourEnd, HOUR, TimerNumberHour, inc);
+		break;
+	case 7:
+		ChangeData(Helper.data.DailyTimerHourEnd, HOUR, TimerNumberDaily, inc);
+		break;
+	}
+}
+
+void AquaDisplay::SetTimerMinutesOff(bool inc) {
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMMinEnd, MINUTE, TimerNumberLed, inc);
+		break;
+	case 7:
+		ChangeData(Helper.data.DailyTimerMinEnd, MINUTE, TimerNumberDaily, inc);
+		break;
+	case 8:
+		ChangeData(Helper.data.HoursTimerMinStop, MINUTE, TimerNumberHour, inc);
+		break;
+	}
+
+}
+
+void AquaDisplay::SetTimerDelay(bool inc) {
+
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberLed, inc);
+		break;
+	case 9:
+		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberSecond, inc);
+		break;
+	}
+
+}
+
+void AquaDisplay::SetTimerState() {
+
+	switch (_currentPage) {
+	case 6:
+		ChangeDataState(Helper.data.TimerPWMState, ENABLE_TIMER, TimerNumberLed);
+		break;
+	case 7:
+		ChangeDataState(Helper.data.DailyTimerState, ENABLE_TIMER, TimerNumberDaily);
+		break;
+	case 8:
+		ChangeDataState(Helper.data.HoursTimerState, ENABLE_TIMER, TimerNumberHour);
+		break;
+	case 9:
+		ChangeDataState(Helper.data.SecondTimerState, ENABLE_TIMER, TimerNumberSecond);
+		break;
+	}
+}
+
+void AquaDisplay::SetTimerCanal(bool inc) {
+	switch (_currentPage) {
+	case 6:
+		ChangeData(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM, TimerNumberLed, inc);
+		break;
+	case 7:
+		ChangeData(Helper.data.DailyTimerChanal, MAX_CHANALS, TimerNumberDaily, inc);
+		break;
+	case 8:
+		ChangeData(Helper.data.HoursTimerCanal, MAX_CHANALS, TimerNumberHour, inc);
+		break;
+	case 9:
+		ChangeData(Helper.data.SecondTimerCanal, MAX_CHANALS, TimerNumberSecond, inc);
+		break;
+	}
+}
+
+void AquaDisplay::SetTimerLevel(bool inc) {
+	switch (_currentPage) {
+		case 6:
+			ChangeData(Helper.data.TimerPWMLevel, MAX_PWM_LEVEL, TimerNumberLed, inc);
+			break;
+		}
+}
+
+void AquaDisplay::ChangeData(byte data[], byte max, byte index, bool inc) {
+	if (data != NULL) {
+		if (inc) {
+			data[index]++;
+			if (data[index] > max) {
+				data[index] = 0;
+			}
+		} else {
+			if (data[index] == 0) {
+				data[index] = max;
+			} else {
+				data[index]--;
+			}
+		}
+	}
+}
+
+void AquaDisplay::ChangeDataState(byte data[], byte max, byte index) {
+	if (data != NULL) {
+			if (data[index] == 0) {
+				data[index] = max;
+			} else {
+				data[index] = 0;
+			}
+		}
+}
+
+void AquaDisplay::CheckIndexTimer(byte index, byte max, bool inc) {
+	if (inc) {
+		index++;
+			if (index > max) {
+				index = 0;
+			}
+		} else {
+
+			if (index == 0) {
+				index = max;
+			} else {
+				index--;
+			}
+		}
 }

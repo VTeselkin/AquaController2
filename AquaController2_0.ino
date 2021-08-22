@@ -233,6 +233,7 @@ void trigger2() {
 void trigger3() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
+	Display.SetPage(5);
 }
 
 //Menu SETTINGS
@@ -340,4 +341,142 @@ void trigger24() {
 }
 void trigger25() {
 	ChangeStatePWMCanalFromDisplay(9);
+}
+//Timers LED
+void trigger26() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(6);
+}
+//Timers DAILY
+void trigger27() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(7);
+}
+//Timers HOURLY
+void trigger28() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(8);
+}
+//Timer SECOND
+void trigger29() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetPage(9);
+}
+// Timers - Timer Number <
+void trigger30() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerNumber(false);
+}
+// Timers - Timer Number >
+void trigger31() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerNumber(true);
+}
+// Timers - Timer Hour ON <
+void trigger32() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerHourOn(false);
+}
+// Timers - Timer Hour ON >
+void trigger33() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerHourOn(true);
+}
+// Timers - Timer Minutes OFF <
+void trigger34() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOff(false);
+}
+// Timers - Timer Minutes OFF >
+void trigger35() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOff(true);
+}
+// Timers - Timer Delay <
+void trigger36() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerDelay(false);
+}
+// Timers - Timer Delay >
+void trigger37() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerDelay(true);
+}
+// Timers - Timer State
+void trigger38() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerState();
+}
+// Timers - Timer Minutes ON <
+void trigger39() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOn(false);
+}
+// Timers - Timer Minutes ON >
+void trigger40() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOn(true);
+}
+// Timers - Timer Minutes OFF <
+void trigger41() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOff(false);
+}
+// Timers - Timer Minutes OFF >
+void trigger42() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerMinutesOff(true);
+}
+// Timers - Timer Canal <
+void trigger43() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerCanal(false);
+}
+// Timers - Timer Canal >
+void trigger44() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerCanal(true);
+}
+// Timers - Timer Level <
+void trigger45() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerLevel(false);
+}
+// Timers - Timer Level >
+void trigger46() {
+	Helper.Tone();
+	Canal.SetLEDRx(LONG);
+	Display.SetTimerLevel(true);
+}
+
+void trigger47() {
+}
+
+void trigger48() {
+}
+
+void trigger49() {
+}
+
+void trigger50() {
 }
