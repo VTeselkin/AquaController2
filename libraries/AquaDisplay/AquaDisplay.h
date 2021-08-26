@@ -12,8 +12,12 @@
 #include "AquaHelper.h"
 #include "EasyNextionLibrary.h"
 
-class AquaDisplay{
+class AquaDisplay {
+
 public:
+	static bool IsNeedSave();
+	static void SetNeedSave(bool isNeedSave);
+	static byte CurrentPage();
 	static void Init();
 	static void Update();
 	static void Loop();
@@ -42,11 +46,15 @@ public:
 	static void SetTimerLevel(bool inc);
 	static void ChangeData(byte data[], byte max, byte index, bool inc);
 	static void ChangeDataState(byte data[], byte max, byte index);
-	static void CheckIndexTimer(byte index, byte max, bool inc);
-
-
+	static void CheckIndexTimer(byte &index, byte max, bool inc);
+	static void UpdateDisplayTimersPWM();
+	static void UpdateDisplayTimersDaily();
+	static void UpdateDisplayTimersHourly();
+	static void UpdateDisplayTimersSecond();
 
 private:
+	static String Format02D(byte data);
+	static String Format03D(byte data);
 };
 #ifdef Display
 #undef Display

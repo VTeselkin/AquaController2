@@ -8,6 +8,9 @@
 #include <AquaCanal.h>
 
 EasyNex myNex(Serial);
+byte TimerNumberLed, TimerNumberDaily, TimerNumberHour, TimerNumberSecond = 0;
+bool _isNeedSave = false;
+byte _currentPage = 0;
 
 void AquaDisplay::Init() {
 	myNex.begin(9600);
@@ -17,8 +20,8 @@ void AquaDisplay::Init() {
 
 }
 
-byte _currentPage = 0;
 void AquaDisplay::SetPage(byte page) {
+
 	Serial.print("page " + String(page));
 	Serial.print("\xFF\xFF\xFF");
 	Serial.flush();
@@ -164,6 +167,61 @@ void AquaDisplay::UpdateCanals(byte canals[], byte max_canal, String canal_name)
 	}
 }
 
+void AquaDisplay::UpdateDisplayTimersPWM() {
+	myNex.writeStr("t0.txt", Format02D(TimerNumberLed));	//timer index
+	if (Helper.data.TimerPWMState[TimerNumberLed] == ENABLE_TIMER) {	//state
+		myNex.writeStr("b2.txt", "ON");
+	} else {
+		myNex.writeStr("b2.txt", "OFF");
+	}
+	myNex.writeStr("t4.txt", Format02D(Helper.data.TimerPWMHourStart[TimerNumberLed]));	//time on hour
+	myNex.writeStr("t6.txt", Format02D(Helper.data.TimerPWMMinStart[TimerNumberLed]));	//timer on minute
+	myNex.writeStr("t8.txt", Format02D(Helper.data.TimerPWMHourEnd[TimerNumberLed]));	//timer off hour
+	myNex.writeStr("t10.txt", Format02D(Helper.data.TimerPWMMinEnd[TimerNumberLed]));	//timer off minute
+	myNex.writeStr("t12.txt", Format03D(Helper.data.TimerPWMDuration[TimerNumberLed]));	//delay
+	myNex.writeStr("t20.txt", Format02D(Helper.data.TimerPWMChanal[TimerNumberLed]));	//canal
+	myNex.writeStr("t14.txt", Format03D(Helper.data.TimerPWMLevel[TimerNumberLed]));	//level
+}
+
+void AquaDisplay::UpdateDisplayTimersDaily() {
+	myNex.writeStr("t0.txt", Format02D(TimerNumberDaily));	//timer index
+	if (Helper.data.DailyTimerState[TimerNumberDaily] == ENABLE_TIMER) {	//state
+		myNex.writeStr("b2.txt", "ON");
+	} else {
+		myNex.writeStr("b2.txt", "OFF");
+	}
+	myNex.writeStr("t4.txt", Format02D(Helper.data.DailyTimerHourStart[TimerNumberDaily]));	//time on hour
+	myNex.writeStr("t6.txt", Format02D(Helper.data.DailyTimerMinStart[TimerNumberDaily]));	//timer on minute
+	myNex.writeStr("t8.txt", Format02D(Helper.data.DailyTimerHourEnd[TimerNumberDaily]));	//timer off hour
+	myNex.writeStr("t10.txt", Format02D(Helper.data.DailyTimerMinEnd[TimerNumberDaily]));	//timer off minute
+	myNex.writeStr("t20.txt", Format02D(Helper.data.DailyTimerChanal[TimerNumberDaily]));	//canal
+}
+
+void AquaDisplay::UpdateDisplayTimersHourly() {
+	myNex.writeStr("t0.txt", Format02D(TimerNumberHour));	//timer index
+	if (Helper.data.HoursTimerState[TimerNumberHour] == ENABLE_TIMER) {	//state
+		myNex.writeStr("b2.txt", "ON");
+	} else {
+		myNex.writeStr("b2.txt", "OFF");
+	}
+	myNex.writeStr("t6.txt", Format02D(Helper.data.HoursTimerMinStart[TimerNumberHour]));	//timer on minute
+	myNex.writeStr("t10.txt", Format02D(Helper.data.HoursTimerMinStop[TimerNumberHour]));	//timer off minute
+	myNex.writeStr("t20.txt", Format02D(Helper.data.HoursTimerCanal[TimerNumberHour]));	//canal
+}
+
+void AquaDisplay::UpdateDisplayTimersSecond() {
+	myNex.writeStr("t0.txt", Format02D(TimerNumberSecond));	//timer index
+	if (Helper.data.SecondTimerState[TimerNumberSecond] == ENABLE_TIMER) {	//state
+		myNex.writeStr("b2.txt", "ON");
+	} else {
+		myNex.writeStr("b2.txt", "OFF");
+	}
+	myNex.writeStr("t4.txt", Format02D(Helper.data.SecondTimerHourStart[TimerNumberSecond]));	//time on hour
+	myNex.writeStr("t6.txt", Format02D(Helper.data.SecondTimerMinStart[TimerNumberSecond]));	//timer on minute
+	myNex.writeStr("t12.txt", Format03D(Helper.data.SecondTimerDuration[TimerNumberSecond]));	//timer off minute
+	myNex.writeStr("t20.txt", Format02D(Helper.data.SecondTimerCanal[TimerNumberSecond]));	//canal
+}
+
 void AquaDisplay::SetCanalState(byte i) {
 	Helper.data.StateChanals[i]--;
 	if (Helper.data.StateChanals[i] == 0) {
@@ -180,141 +238,185 @@ void AquaDisplay::SetPWMCanalState(byte i) {
 	Display.UpdateCanals(Helper.data.StatePWMChanals, MAX_CHANALS_PWM, "canal_pwm");
 }
 
-
-byte TimerNumberLed, TimerNumberDaily, TimerNumberHour, TimerNumberSecond = 0;
 void AquaDisplay::SetTimerNumber(bool inc) {
 
 	switch (_currentPage) {
 	case 6:
 		CheckIndexTimer(TimerNumberLed, MAX_TIMERS, inc);
+		UpdateDisplayTimersPWM();
 		break;
 	case 7:
 		CheckIndexTimer(TimerNumberDaily, MAX_TIMERS, inc);
+		UpdateDisplayTimersDaily();
 		break;
 	case 8:
 		CheckIndexTimer(TimerNumberHour, MAX_TIMERS, inc);
+		UpdateDisplayTimersHourly();
 		break;
 	case 9:
 		CheckIndexTimer(TimerNumberSecond, MAX_TIMERS, inc);
+		UpdateDisplayTimersSecond();
 		break;
 	}
-
-
 
 }
 
 void AquaDisplay::SetTimerHourOn(bool inc) {
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMHourStart, HOUR, TimerNumberLed, inc);
+		myNex.writeStr("t4.txt", Format02D(Helper.data.TimerPWMHourStart[TimerNumberLed]));
 		break;
 	case 7:
-		ChangeData(Helper.data.DailyTimerMinStart, HOUR, TimerNumberDaily, inc);
+		ChangeData(Helper.data.DailyTimerHourStart, HOUR, TimerNumberDaily, inc);
+		myNex.writeStr("t4.txt", Format02D(Helper.data.DailyTimerHourStart[TimerNumberDaily]));
 		break;
 	case 9:
-		ChangeData(Helper.data.SecondTimerHourStart, MINUTE, TimerNumberSecond, inc);
+		ChangeData(Helper.data.SecondTimerHourStart, HOUR, TimerNumberSecond, inc);
+		myNex.writeStr("t4.txt", Format02D(Helper.data.SecondTimerHourStart[TimerNumberSecond]));
 		break;
 	}
 }
 
 void AquaDisplay::SetTimerMinutesOn(bool inc) {
-
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMMinStart, MINUTE, TimerNumberLed, inc);
+		myNex.writeStr("t6.txt", Format02D(Helper.data.TimerPWMMinStart[TimerNumberLed]));
 		break;
 	case 7:
 		ChangeData(Helper.data.DailyTimerMinStart, MINUTE, TimerNumberDaily, inc);
+		myNex.writeStr("t6.txt", Format02D(Helper.data.DailyTimerMinStart[TimerNumberDaily]));
 		break;
 	case 8:
 		ChangeData(Helper.data.HoursTimerMinStart, MINUTE, TimerNumberHour, inc);
+		myNex.writeStr("t6.txt", Format02D(Helper.data.HoursTimerMinStart[TimerNumberHour]));
 		break;
 	case 9:
 		ChangeData(Helper.data.SecondTimerMinStart, MINUTE, TimerNumberSecond, inc);
+		myNex.writeStr("t6.txt", Format02D(Helper.data.SecondTimerMinStart[TimerNumberSecond]));
 		break;
 	}
 
 }
 void AquaDisplay::SetTimerHourOff(bool inc) {
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMHourEnd, HOUR, TimerNumberHour, inc);
+		myNex.writeStr("t8.txt", Format02D(Helper.data.TimerPWMHourEnd[TimerNumberHour]));
 		break;
 	case 7:
 		ChangeData(Helper.data.DailyTimerHourEnd, HOUR, TimerNumberDaily, inc);
+		myNex.writeStr("t8.txt", Format02D(Helper.data.DailyTimerHourEnd[TimerNumberDaily]));
 		break;
 	}
 }
 
 void AquaDisplay::SetTimerMinutesOff(bool inc) {
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMMinEnd, MINUTE, TimerNumberLed, inc);
+		myNex.writeStr("t10.txt", Format02D(Helper.data.TimerPWMMinEnd[TimerNumberLed]));
 		break;
 	case 7:
 		ChangeData(Helper.data.DailyTimerMinEnd, MINUTE, TimerNumberDaily, inc);
+		myNex.writeStr("t10.txt", Format02D(Helper.data.DailyTimerMinEnd[TimerNumberDaily]));
 		break;
 	case 8:
 		ChangeData(Helper.data.HoursTimerMinStop, MINUTE, TimerNumberHour, inc);
+		myNex.writeStr("t10.txt", Format02D(Helper.data.HoursTimerMinStop[TimerNumberHour]));
 		break;
 	}
 
 }
 
 void AquaDisplay::SetTimerDelay(bool inc) {
-
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberLed, inc);
+		myNex.writeStr("t12.txt", Format03D(Helper.data.TimerPWMDuration[TimerNumberLed]));
 		break;
 	case 9:
-		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberSecond, inc);
+		ChangeData(Helper.data.SecondTimerDuration, SECONDS, TimerNumberSecond, inc);
+		myNex.writeStr("t12.txt", Format03D(Helper.data.SecondTimerDuration[TimerNumberSecond]));
 		break;
 	}
 
 }
 
 void AquaDisplay::SetTimerState() {
-
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeDataState(Helper.data.TimerPWMState, ENABLE_TIMER, TimerNumberLed);
+		if (Helper.data.TimerPWMState[TimerNumberLed] == ENABLE_TIMER) {
+			myNex.writeStr("b2.txt", "ON");
+		} else {
+			myNex.writeStr("b2.txt", "OFF");
+		}
 		break;
 	case 7:
 		ChangeDataState(Helper.data.DailyTimerState, ENABLE_TIMER, TimerNumberDaily);
+		if (Helper.data.DailyTimerState[TimerNumberDaily] == ENABLE_TIMER) {
+			myNex.writeStr("b2.txt", "ON");
+		} else {
+			myNex.writeStr("b2.txt", "OFF");
+		}
 		break;
 	case 8:
 		ChangeDataState(Helper.data.HoursTimerState, ENABLE_TIMER, TimerNumberHour);
+		if (Helper.data.HoursTimerState[TimerNumberHour] == ENABLE_TIMER) {
+			myNex.writeStr("b2.txt", "ON");
+		} else {
+			myNex.writeStr("b2.txt", "OFF");
+		}
 		break;
 	case 9:
 		ChangeDataState(Helper.data.SecondTimerState, ENABLE_TIMER, TimerNumberSecond);
+		if (Helper.data.SecondTimerState[TimerNumberSecond] == ENABLE_TIMER) {
+			myNex.writeStr("b2.txt", "ON");
+		} else {
+			myNex.writeStr("b2.txt", "OFF");
+		}
 		break;
 	}
 }
 
 void AquaDisplay::SetTimerCanal(bool inc) {
+	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM, TimerNumberLed, inc);
+		myNex.writeStr("t20.txt", Format02D(Helper.data.TimerPWMChanal[TimerNumberLed]));
 		break;
 	case 7:
 		ChangeData(Helper.data.DailyTimerChanal, MAX_CHANALS, TimerNumberDaily, inc);
+		myNex.writeStr("t20.txt", Format02D(Helper.data.DailyTimerChanal[TimerNumberDaily]));
 		break;
 	case 8:
 		ChangeData(Helper.data.HoursTimerCanal, MAX_CHANALS, TimerNumberHour, inc);
+		myNex.writeStr("t20.txt", Format02D(Helper.data.HoursTimerCanal[TimerNumberHour]));
 		break;
 	case 9:
 		ChangeData(Helper.data.SecondTimerCanal, MAX_CHANALS, TimerNumberSecond, inc);
+		myNex.writeStr("t20.txt", Format02D(Helper.data.SecondTimerCanal[TimerNumberSecond]));
 		break;
 	}
 }
 
 void AquaDisplay::SetTimerLevel(bool inc) {
+	_isNeedSave = true;
 	switch (_currentPage) {
-		case 6:
-			ChangeData(Helper.data.TimerPWMLevel, MAX_PWM_LEVEL, TimerNumberLed, inc);
-			break;
-		}
+	case 6:
+		ChangeData(Helper.data.TimerPWMLevel, MAX_PWM_LEVEL, TimerNumberLed, inc);
+		myNex.writeStr("t14.txt", String(Helper.data.TimerPWMLevel[TimerNumberLed]));
+		break;
+	}
 }
 
 void AquaDisplay::ChangeData(byte data[], byte max, byte index, bool inc) {
@@ -336,26 +438,48 @@ void AquaDisplay::ChangeData(byte data[], byte max, byte index, bool inc) {
 
 void AquaDisplay::ChangeDataState(byte data[], byte max, byte index) {
 	if (data != NULL) {
-			if (data[index] == 0) {
-				data[index] = max;
-			} else {
-				data[index] = 0;
-			}
+		if (data[index] == 0) {
+			data[index] = max;
+		} else {
+			data[index] = 0;
 		}
+	}
 }
 
-void AquaDisplay::CheckIndexTimer(byte index, byte max, bool inc) {
+void AquaDisplay::CheckIndexTimer(byte &index, byte max, bool inc) {
 	if (inc) {
 		index++;
-			if (index > max) {
-				index = 0;
-			}
-		} else {
-
-			if (index == 0) {
-				index = max;
-			} else {
-				index--;
-			}
+		if (index > max) {
+			index = 0;
 		}
+	} else {
+
+		if (index == 0) {
+			index = max;
+		} else {
+			index--;
+		}
+	}
+
+}
+bool AquaDisplay::IsNeedSave(){
+	return _isNeedSave;
+}
+void AquaDisplay::SetNeedSave(bool isNeedSave){
+	_isNeedSave = isNeedSave;
+}
+byte AquaDisplay::CurrentPage(){
+	return _currentPage;
+}
+
+String AquaDisplay::Format03D(byte data){
+	char TextBuffer[4];
+	sprintf(TextBuffer, "%03d", data);
+	return String(TextBuffer);
+}
+
+String AquaDisplay::Format02D(byte data){
+	char TextBuffer[3];
+	sprintf(TextBuffer, "%02d", data);
+	return String(TextBuffer);
 }

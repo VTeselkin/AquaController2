@@ -238,6 +238,7 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 }
 
 
+
 void AquaEEPROM::OnFirstLunch() {
 	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 1) {
 		for(int i = 0; i < MAX_EEPROM; i++){

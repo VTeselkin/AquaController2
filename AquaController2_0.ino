@@ -309,6 +309,23 @@ void ChangeStatePWMCanalFromDisplay(byte index) {
 void trigger15() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
+	if (Display.IsNeedSave()) {
+		switch (Display.CurrentPage()) {
+		case 6:
+			aquaEEPROM.SavePWMTimerToERROM();
+			break;
+		case 7:
+			aquaEEPROM.SaveDailyTimerToERROM();
+			break;
+		case 8:
+			aquaEEPROM.SaveHoursTimerToERROM();
+			break;
+		case 9:
+			aquaEEPROM.SaveSecondsTimerToERROM();
+			break;
+		}
+	}
+	Display.SetNeedSave(false);
 	Display.SetPage(1);
 }
 
@@ -347,24 +364,28 @@ void trigger26() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
 	Display.SetPage(6);
+	Display.UpdateDisplayTimersPWM();
 }
 //Timers DAILY
 void trigger27() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
 	Display.SetPage(7);
+	Display.UpdateDisplayTimersDaily();
 }
 //Timers HOURLY
 void trigger28() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
 	Display.SetPage(8);
+	Display.UpdateDisplayTimersHourly();
 }
 //Timer SECOND
 void trigger29() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
 	Display.SetPage(9);
+	Display.UpdateDisplayTimersSecond();
 }
 // Timers - Timer Number <
 void trigger30() {
@@ -390,17 +411,17 @@ void trigger33() {
 	Canal.SetLEDRx(LONG);
 	Display.SetTimerHourOn(true);
 }
-// Timers - Timer Minutes OFF <
+// Timers - Timer Hour OFF <
 void trigger34() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOff(false);
+	Display.SetTimerHourOff(false);
 }
-// Timers - Timer Minutes OFF >
+// Timers - Timer Hour OFF >
 void trigger35() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOff(true);
+	Display.SetTimerHourOff(true);
 }
 // Timers - Timer Delay <
 void trigger36() {

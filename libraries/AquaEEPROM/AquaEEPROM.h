@@ -38,6 +38,7 @@ public:
 	void SaveWifiSettings();
 	void SavePHTimerToERROM();
 	void LoadPHTimerToERROM();
+
 	uint16_t SaveUTCSetting(uint16_t utc);
 	uint16_t LoadUTCSetting();
 private:
