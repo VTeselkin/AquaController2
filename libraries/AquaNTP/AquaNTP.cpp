@@ -38,6 +38,7 @@ bool AquaNTP::SetNTPTimeToController(void (*ChangeLog)(String)) {
 	timeClient.begin();
 	timeClient.update();
 	Helper.SetTimeNow(timeClient.getEpochTime());
+	Display.Update();
 	indexNTPServer = 0;
 	ChangeLog("NTP:Time update");
 	timeClient.end();

@@ -14,6 +14,7 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <WiFi.h>
+#include <AquaDisplay.h>
 
 const byte NTPServerCount = 3;
 

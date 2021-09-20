@@ -12,6 +12,7 @@
 #include <AquaNTP.h>
 #include <AquaHTTP.h>
 #include <AquaHelper.h>
+#include <AquaDisplay.h>
 #include <AquaUpdate.h>
 #include <SPIFFS.h>
 #include <FS.h>

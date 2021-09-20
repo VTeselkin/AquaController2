@@ -8,9 +8,10 @@
 #pragma once
 #ifndef AquaDisplay_h
 #define AquaDisplay_h
+#include <AquaHelper.h>
 #include "Arduino.h"
-#include "AquaHelper.h"
 #include "EasyNextionLibrary.h"
+
 
 class AquaDisplay {
 
@@ -36,14 +37,14 @@ public:
 	static void SetCanalState(byte i);
 	static void SetPWMCanalState(byte i);
 	static void SetTimerNumber(bool inc);
-	static void SetTimerHourOn(bool inc);
-	static void SetTimerMinutesOn(bool inc);
-	static void SetTimerHourOff(bool inc);
-	static void SetTimerMinutesOff(bool inc);
-	static void SetTimerDelay(bool inc);
-	static void SetTimerState();
-	static void SetTimerCanal(bool inc);
-	static void SetTimerLevel(bool inc);
+	static typeResponse SetTimerHourOn(bool inc);
+	static typeResponse SetTimerMinutesOn(bool inc);
+	static typeResponse SetTimerHourOff(bool inc);
+	static typeResponse SetTimerMinutesOff(bool inc);
+	static typeResponse SetTimerDelay(bool inc);
+	static typeResponse SetTimerState();
+	static typeResponse SetTimerCanal(bool inc);
+	static typeResponse SetTimerLevel(bool inc);
 	static void ChangeData(byte data[], byte max, byte index, bool inc);
 	static void ChangeDataState(byte data[], byte max, byte index);
 	static void CheckIndexTimer(byte &index, byte max, bool inc);

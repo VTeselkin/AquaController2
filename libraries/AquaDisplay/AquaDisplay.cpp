@@ -4,8 +4,10 @@
  *  Created on: 7 мая 2021 г.
  *      Author: DrJar
  */
+#include <AquaHelper.h>
 #include "AquaDisplay.h"
 #include <AquaCanal.h>
+
 
 EasyNex myNex(Serial);
 byte TimerNumberLed, TimerNumberDaily, TimerNumberHour, TimerNumberSecond = 0;
@@ -261,95 +263,97 @@ void AquaDisplay::SetTimerNumber(bool inc) {
 
 }
 
-void AquaDisplay::SetTimerHourOn(bool inc) {
+typeResponse AquaDisplay::SetTimerHourOn(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMHourStart, HOUR, TimerNumberLed, inc);
 		myNex.writeStr("t4.txt", Format02D(Helper.data.TimerPWMHourStart[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeData(Helper.data.DailyTimerHourStart, HOUR, TimerNumberDaily, inc);
 		myNex.writeStr("t4.txt", Format02D(Helper.data.DailyTimerHourStart[TimerNumberDaily]));
-		break;
+		return TIMERDAY;
 	case 9:
 		ChangeData(Helper.data.SecondTimerHourStart, HOUR, TimerNumberSecond, inc);
 		myNex.writeStr("t4.txt", Format02D(Helper.data.SecondTimerHourStart[TimerNumberSecond]));
-		break;
+		return TIMERHOUR;
 	}
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerMinutesOn(bool inc) {
+typeResponse AquaDisplay::SetTimerMinutesOn(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMMinStart, MINUTE, TimerNumberLed, inc);
 		myNex.writeStr("t6.txt", Format02D(Helper.data.TimerPWMMinStart[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeData(Helper.data.DailyTimerMinStart, MINUTE, TimerNumberDaily, inc);
 		myNex.writeStr("t6.txt", Format02D(Helper.data.DailyTimerMinStart[TimerNumberDaily]));
-		break;
+		return TIMERDAY;
 	case 8:
 		ChangeData(Helper.data.HoursTimerMinStart, MINUTE, TimerNumberHour, inc);
 		myNex.writeStr("t6.txt", Format02D(Helper.data.HoursTimerMinStart[TimerNumberHour]));
-		break;
+		return TIMERHOUR;
 	case 9:
 		ChangeData(Helper.data.SecondTimerMinStart, MINUTE, TimerNumberSecond, inc);
 		myNex.writeStr("t6.txt", Format02D(Helper.data.SecondTimerMinStart[TimerNumberSecond]));
-		break;
+		return TIMERSEC;
 	}
-
+	return DEVICE;
 }
-void AquaDisplay::SetTimerHourOff(bool inc) {
+typeResponse AquaDisplay::SetTimerHourOff(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMHourEnd, HOUR, TimerNumberHour, inc);
 		myNex.writeStr("t8.txt", Format02D(Helper.data.TimerPWMHourEnd[TimerNumberHour]));
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeData(Helper.data.DailyTimerHourEnd, HOUR, TimerNumberDaily, inc);
 		myNex.writeStr("t8.txt", Format02D(Helper.data.DailyTimerHourEnd[TimerNumberDaily]));
-		break;
+		return TIMERDAY;
 	}
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerMinutesOff(bool inc) {
+typeResponse AquaDisplay::SetTimerMinutesOff(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMMinEnd, MINUTE, TimerNumberLed, inc);
 		myNex.writeStr("t10.txt", Format02D(Helper.data.TimerPWMMinEnd[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeData(Helper.data.DailyTimerMinEnd, MINUTE, TimerNumberDaily, inc);
 		myNex.writeStr("t10.txt", Format02D(Helper.data.DailyTimerMinEnd[TimerNumberDaily]));
-		break;
+		return TIMERDAY;
 	case 8:
 		ChangeData(Helper.data.HoursTimerMinStop, MINUTE, TimerNumberHour, inc);
 		myNex.writeStr("t10.txt", Format02D(Helper.data.HoursTimerMinStop[TimerNumberHour]));
-		break;
+		return TIMERHOUR;
 	}
-
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerDelay(bool inc) {
+typeResponse AquaDisplay::SetTimerDelay(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberLed, inc);
 		myNex.writeStr("t12.txt", Format03D(Helper.data.TimerPWMDuration[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	case 9:
 		ChangeData(Helper.data.SecondTimerDuration, SECONDS, TimerNumberSecond, inc);
 		myNex.writeStr("t12.txt", Format03D(Helper.data.SecondTimerDuration[TimerNumberSecond]));
-		break;
+		return TIMERSEC;
 	}
-
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerState() {
+typeResponse AquaDisplay::SetTimerState() {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
@@ -359,7 +363,7 @@ void AquaDisplay::SetTimerState() {
 		} else {
 			myNex.writeStr("b2.txt", "OFF");
 		}
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeDataState(Helper.data.DailyTimerState, ENABLE_TIMER, TimerNumberDaily);
 		if (Helper.data.DailyTimerState[TimerNumberDaily] == ENABLE_TIMER) {
@@ -367,7 +371,7 @@ void AquaDisplay::SetTimerState() {
 		} else {
 			myNex.writeStr("b2.txt", "OFF");
 		}
-		break;
+		return TIMERDAY;
 	case 8:
 		ChangeDataState(Helper.data.HoursTimerState, ENABLE_TIMER, TimerNumberHour);
 		if (Helper.data.HoursTimerState[TimerNumberHour] == ENABLE_TIMER) {
@@ -375,7 +379,7 @@ void AquaDisplay::SetTimerState() {
 		} else {
 			myNex.writeStr("b2.txt", "OFF");
 		}
-		break;
+		return TIMERHOUR;
 	case 9:
 		ChangeDataState(Helper.data.SecondTimerState, ENABLE_TIMER, TimerNumberSecond);
 		if (Helper.data.SecondTimerState[TimerNumberSecond] == ENABLE_TIMER) {
@@ -383,40 +387,43 @@ void AquaDisplay::SetTimerState() {
 		} else {
 			myNex.writeStr("b2.txt", "OFF");
 		}
-		break;
+		return TIMERSEC;
 	}
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerCanal(bool inc) {
+typeResponse AquaDisplay::SetTimerCanal(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM, TimerNumberLed, inc);
 		myNex.writeStr("t20.txt", Format02D(Helper.data.TimerPWMChanal[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	case 7:
 		ChangeData(Helper.data.DailyTimerChanal, MAX_CHANALS, TimerNumberDaily, inc);
 		myNex.writeStr("t20.txt", Format02D(Helper.data.DailyTimerChanal[TimerNumberDaily]));
-		break;
+		return TIMERDAY;
 	case 8:
 		ChangeData(Helper.data.HoursTimerCanal, MAX_CHANALS, TimerNumberHour, inc);
 		myNex.writeStr("t20.txt", Format02D(Helper.data.HoursTimerCanal[TimerNumberHour]));
-		break;
+		return TIMERHOUR;
 	case 9:
 		ChangeData(Helper.data.SecondTimerCanal, MAX_CHANALS, TimerNumberSecond, inc);
 		myNex.writeStr("t20.txt", Format02D(Helper.data.SecondTimerCanal[TimerNumberSecond]));
-		break;
+		return TIMERSEC;
 	}
+	return DEVICE;
 }
 
-void AquaDisplay::SetTimerLevel(bool inc) {
+typeResponse AquaDisplay::SetTimerLevel(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
 		ChangeData(Helper.data.TimerPWMLevel, MAX_PWM_LEVEL, TimerNumberLed, inc);
 		myNex.writeStr("t14.txt", String(Helper.data.TimerPWMLevel[TimerNumberLed]));
-		break;
+		return PWMTIMER;
 	}
+	return DEVICE;
 }
 
 void AquaDisplay::ChangeData(byte data[], byte max, byte index, bool inc) {

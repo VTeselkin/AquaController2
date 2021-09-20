@@ -619,7 +619,7 @@ void AquaHelper::SetTimeNow(unsigned long epoch) {
 	ds3231.setSecond(second(epoch));
 	Serial.println(((epoch / 86400)) % 7);
 	ds3231.setDoW(((epoch / 86400)) % 7);
-	Display.Update();
+
 }
 
 byte AquaHelper::GetHourNow() {
@@ -645,38 +645,6 @@ String AquaHelper::GetDayOfWeek() {
 	}
 
 	return "";
-}
-
-void AquaHelper::ScanI2C() {
-	Display.SendLogLn("Scanning I2C Addresses");
-	uint8_t cnt = 0;
-	String log = "";
-	for (uint8_t i = 1; i < 127; i++) {
-		Wire.beginTransmission(i);
-		uint8_t ec = Wire.endTransmission(true);
-		if (ec == 0) {
-			if (i < 16) {
-				log += "0";
-			}
-
-			if (sizeof(String(i, HEX)) > 0) {
-				log += String(i, HEX);
-				cnt++;
-			}
-		} else if (ec == 4) {
-			log += "Er";
-		} else {
-			log += "..";
-		}
-		log += "  ";
-		if ((i & 0x0f) == 0x0f) {
-			Display.SendLogLn(log);
-			log = "";
-			delay(200);
-		}
-	}
-	Display.SendLogLn("Scan Completed, ");
-	Display.SendLogLn(String(cnt) + " I2C Devices found.");
 }
 
 bool i2cReady(uint8_t adr) {

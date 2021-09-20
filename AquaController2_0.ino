@@ -26,9 +26,9 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <AquaHelper.h>
 #include <AquaTimers.h>
 #include <AquaTemp.h>
-#include <AquaHelper.h>
 #include <AquaStop.h>
 #include <AquaCanal.h>
 #include <AquaEEPROM.h>
@@ -53,11 +53,43 @@ unsigned int _pwmTimerForCheck = 0;
 unsigned long _lastTimeUpdate = 0;
 bool isNeedEnableZeroCanal = false;
 
+void ScanI2C() {
+	Display.SendLogLn("Scanning I2C Addresses");
+	uint8_t cnt = 0;
+	String log = "";
+	for (uint8_t i = 1; i < 127; i++) {
+		Wire.beginTransmission(i);
+		uint8_t ec = Wire.endTransmission(true);
+		if (ec == 0) {
+			if (i < 16) {
+				log += "0";
+			}
+
+			if (sizeof(String(i, HEX)) > 0) {
+				log += String(i, HEX);
+				cnt++;
+			}
+		} else if (ec == 4) {
+			log += "Er";
+		} else {
+			log += "..";
+		}
+		log += "  ";
+		if ((i & 0x0f) == 0x0f) {
+			Display.SendLogLn(log);
+			log = "";
+			delay(200);
+		}
+	}
+	Display.SendLogLn("Scan Completed, ");
+	Display.SendLogLn(String(cnt) + " I2C Devices found.");
+}
+
 void setup() {
 	Display.Init();
 	if (!Wire.begin())
 		Display.SendLog("I2C Fail = " + Wire.lastError());
-	Helper.ScanI2C();
+	ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
@@ -403,91 +435,92 @@ void trigger31() {
 void trigger32() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerHourOn(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerHourOn(false), true, true);
 }
 // Timers - Timer Hour ON >
 void trigger33() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerHourOn(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerHourOn(true), true, true);
+
 }
 // Timers - Timer Hour OFF <
 void trigger34() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerHourOff(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerHourOff(false), true, true);
 }
 // Timers - Timer Hour OFF >
 void trigger35() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerHourOff(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerHourOff(true), true, true);
 }
 // Timers - Timer Delay <
 void trigger36() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerDelay(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerDelay(false), true, true);
 }
 // Timers - Timer Delay >
 void trigger37() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerDelay(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerDelay(true), true, true);
 }
 // Timers - Timer State
 void trigger38() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerState();
+	aquaWiFi.SendCacheResponse(Display.SetTimerState(), true, true);
 }
 // Timers - Timer Minutes ON <
 void trigger39() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOn(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerMinutesOn(false), true, true);
 }
 // Timers - Timer Minutes ON >
 void trigger40() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOn(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerMinutesOn(true), true, true);
 }
 // Timers - Timer Minutes OFF <
 void trigger41() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOff(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerMinutesOff(false), true, true);
 }
 // Timers - Timer Minutes OFF >
 void trigger42() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerMinutesOff(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerMinutesOff(true), true, true);
 }
 // Timers - Timer Canal <
 void trigger43() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerCanal(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerCanal(false), true, true);
 }
 // Timers - Timer Canal >
 void trigger44() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerCanal(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerCanal(true), true, true);
 }
 // Timers - Timer Level <
 void trigger45() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerLevel(false);
+	aquaWiFi.SendCacheResponse(Display.SetTimerLevel(false), true, true);
 }
 // Timers - Timer Level >
 void trigger46() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	Display.SetTimerLevel(true);
+	aquaWiFi.SendCacheResponse(Display.SetTimerLevel(true), true, true);
 }
 
 void trigger47() {
@@ -501,3 +534,5 @@ void trigger49() {
 
 void trigger50() {
 }
+
+

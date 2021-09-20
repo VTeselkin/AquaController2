@@ -14,6 +14,7 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include <AquaEEPROM.h>
+#include <AquaDisplay.h>
 
 void CheckStateWarningTemp(byte sensorIndex, bool isWarming);
 bool CheckStateTemp(byte sensorIndex, byte canalIndex);

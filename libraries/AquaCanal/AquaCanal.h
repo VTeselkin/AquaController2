@@ -9,7 +9,7 @@
 #ifndef AquaCanal_h
 #define AquaCanal_h
 #include "Arduino.h"
-#include <AquaHelper.h>
+#include "AquaHelper.h"
 #include <PCA9685.h>
 
 class AquaCanal{

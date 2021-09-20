@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include <AquaHTTP.h>
 #include <AquaHelper.h>
+#include <AquaDisplay.h>
 #include <HTTPUpdate.h>
 #include <HTTPClient.h>
 #include <WebServer.h>
