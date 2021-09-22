@@ -54,6 +54,8 @@ unsigned long _lastTimeUpdate = 0;
 bool isNeedEnableZeroCanal = false;
 
 void ScanI2C() {
+	Display.SendLogLn("FirmWare : ");
+	Display.SendLog(VERTION_FIRMWARE);
 	Display.SendLogLn("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
@@ -435,7 +437,9 @@ void trigger31() {
 void trigger32() {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
-	aquaWiFi.SendCacheResponse(Display.SetTimerHourOn(false), true, true);
+	auto type = Display.SetTimerHourOn(false);
+	Serial.println(type);
+	aquaWiFi.SendCacheResponse(type, true, true);
 }
 // Timers - Timer Hour ON >
 void trigger33() {
