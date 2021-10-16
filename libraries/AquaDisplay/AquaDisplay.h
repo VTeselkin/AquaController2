@@ -46,16 +46,20 @@ public:
 	static typeResponse SetTimerCanal(bool inc);
 	static typeResponse SetTimerLevel(bool inc);
 	static void ChangeData(byte data[], byte max, byte index, bool inc);
+	static void ChangeDataCanal(byte data[], byte max, byte index, bool inc);
 	static void ChangeDataState(byte data[], byte max, byte index);
 	static void CheckIndexTimer(byte &index, byte max, bool inc);
 	static void UpdateDisplayTimersPWM();
 	static void UpdateDisplayTimersDaily();
 	static void UpdateDisplayTimersHourly();
 	static void UpdateDisplayTimersSecond();
+	static void UpdateDisplayTimersTemp();
 
 private:
 	static String Format02D(byte data);
 	static String Format03D(byte data);
+	static String Format02DCanal(byte data);
+	static String Format04DTemp(unsigned short temp, bool needConvert);
 };
 #ifdef Display
 #undef Display
