@@ -31,7 +31,7 @@ void AquaDisplay::SetPage(byte page) {
 	switch (page) {
 	case 1:
 		Update();
-		SetTemp(NULL);
+		SetTemp(Helper.data.TempSensor[0]);
 		break;
 	case 3:
 		UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
@@ -147,9 +147,7 @@ void AquaDisplay::SetTime() {
 
 String s_temp = "";
 void AquaDisplay::SetTemp(word temp) {
-	if (temp != NULL) {
-		s_temp = Format04DTemp(temp, false);
-	}
+	s_temp = Format04DTemp(temp, false);
 	myNex.writeStr("btn_temp.txt", s_temp);
 }
 
@@ -456,8 +454,8 @@ typeResponse AquaDisplay::SetTimerCanal(bool inc) {
 		myNex.writeStr("t20.txt", Format02DCanal(Helper.data.SecondTimerCanal[TimerNumberSecond]));
 		return TIMERSEC;
 	case 10:
-		ChangeData(Helper.data.TempTimerChanal, MAX_CHANALS, TimerNumberTemp, inc);
-		myNex.writeStr("20.txt", Format02DCanal(Helper.data.TempTimerChanal[TimerNumberTemp]));
+		ChangeDataCanal(Helper.data.TempTimerChanal, MAX_CHANALS, TimerNumberTemp, inc);
+		myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TempTimerChanal[TimerNumberTemp]));
 		return TIMERTEMP;
 	}
 	return DEVICE;
