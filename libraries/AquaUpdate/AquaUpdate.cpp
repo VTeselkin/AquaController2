@@ -34,13 +34,15 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, DynamicJsonBuffer &jsonBuffer, voi
 		return;
 	}
 
+	String ver = String(VERTION_FIRMWARE + 1);
 	String url = UPDATE_URL + PATH_SPIFFS + "index.php";
 	Display.SendLogLn("[OTA]: Web update = " + url);
 	if (url.length() > 0) {
 		if (isForce) {
 			httpUpdate.rebootOnUpdate(false);
-			auto res = httpUpdate.updateSpiffs(client, url, VERTION_FIRMWARE);
+			auto res = httpUpdate.updateSpiffs(client, url, ver);
 			SendResultOTAUpdate(res);
+			delay(1000);
 		}
 	}
 
@@ -49,12 +51,12 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, DynamicJsonBuffer &jsonBuffer, voi
 	if (url.length() > 0) {
 		if (isForce) {
 			httpUpdate.rebootOnUpdate(true);
-			auto res = httpUpdate.update(client, url, VERTION_FIRMWARE);
+			auto res = httpUpdate.update(client, url, ver);
 			SendResultOTAUpdate(res);
 		}
 	}
-	if (!Display.GetVersion().equals(VERTION_FIRMWARE)) {
-		String fileName = "/" + VERTION_FIRMWARE + ".tft";
+	if (!Display.GetVersion().equals(ver)) {
+		String fileName = "/" + ver + ".tft";
 		url = "http://update.aquacontroller.ru/v2/tft" + fileName;
 		if (DownloadAndSaveFile(fileName, url)) {
 			Display.SendLogLn("[OTA]: Start update firmware screen!");

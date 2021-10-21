@@ -271,8 +271,8 @@ const String UPDATE_URL = "http://update.aquacontroller.ru/v2";
 const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
-//VERTION_FIRMWARE должно указывать на след версию прошивки.
-const String VERTION_FIRMWARE = "202";
+
+const word VERTION_FIRMWARE = 203;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;

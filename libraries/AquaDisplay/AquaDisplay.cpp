@@ -54,6 +54,9 @@ void AquaDisplay::SetPage(byte page) {
 	case 10:
 		UpdateDisplayTimersTemp();
 		break;
+	case 11:
+		UpdateDisplaySettings();
+		break;
 	default:
 		break;
 	}
@@ -247,6 +250,29 @@ void AquaDisplay::UpdateDisplayTimersTemp() {
 	myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TempTimerChanal[TimerNumberTemp]));	//canal
 }
 
+void AquaDisplay::UpdateDisplaySettings() {
+	if (Helper.data.auto_update == 1) {
+		myNex.writeStr("b2.txt", "ON");
+	} else {
+		myNex.writeStr("b2.txt", "OFF");
+	}
+	if (Helper.data.ntp_update == 1) {
+		myNex.writeStr("b0.txt", "ON");
+	} else {
+		myNex.writeStr("b0.txt", "OFF");
+	}
+	if (Helper.data.auto_connect == 1) {
+		myNex.writeStr("b1.txt", "ON");
+	} else {
+		myNex.writeStr("b1.txt", "OFF");
+	}
+	if (Helper.data.isTone == 1) {
+		myNex.writeStr("b3.txt", "ON");
+	} else {
+		myNex.writeStr("b3.txt", "OFF");
+	}
+}
+
 void AquaDisplay::SetTimerNumber(bool inc) {
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
@@ -270,6 +296,22 @@ void AquaDisplay::SetTimerNumber(bool inc) {
 	case 10:
 		CheckIndexTimer(TimerNumberTemp, MAX_TEMP_SENSOR, inc);
 		UpdateDisplayTimersTemp();
+		break;
+	case 11:
+		if (inc) {
+			if (Helper.data.ntp_update == 1) {
+				Helper.data.ntp_update = 0;
+			} else {
+				Helper.data.ntp_update = 1;
+			}
+		} else {
+			if (Helper.data.auto_update == 1) {
+				Helper.data.auto_update = 0;
+			} else {
+				Helper.data.auto_update = 1;
+			}
+		}
+		UpdateDisplaySettings();
 		break;
 	}
 
@@ -296,6 +338,14 @@ typeResponse AquaDisplay::SetTimerHourOn(bool inc) {
 		ChangeData(Helper.data.TempTimerMinStart, MAX_INDEX_TEMP, TimerNumberTemp, inc);
 		myNex.writeStr("t4.txt", Format04DTemp(Helper.data.TempTimerMinStart[TimerNumberTemp], true));
 		return TIMERTEMP;
+	case 11:
+		if (Helper.data.isTone == 1) {
+			Helper.data.isTone = 0;
+		} else {
+			Helper.data.isTone = 1;
+		}
+		UpdateDisplaySettings();
+		return SETTINGS;
 	}
 	return DEVICE;
 }
@@ -428,6 +478,15 @@ typeResponse AquaDisplay::SetTimerState() {
 			myNex.writeStr("b2.txt", "OFF");
 		}
 		return TIMERTEMP;
+	case 11:
+		if (Helper.data.auto_connect == 1) {
+			Helper.data.auto_connect = 0;
+		} else {
+			Helper.data.auto_connect = 1;
+		}
+		UpdateDisplaySettings();
+		return SETTINGS;
+
 	}
 	return DEVICE;
 }
@@ -563,9 +622,8 @@ String AquaDisplay::Format02DCanal(byte data) {
 	return String(TextBuffer);
 }
 
-String AquaDisplay::Format04DTemp(unsigned short temp, bool needConvert) {
-	if (needConvert)
-		temp = temp * STEP + MIN_TEMP;
+String AquaDisplay::Format04DTemp(unsigned short temp, bool longRecord) {
+	temp = temp * STEP + MIN_TEMP;
 	s_temp = "";
 	byte k = temp / 100;
 	byte m = temp % 100;
@@ -573,14 +631,14 @@ String AquaDisplay::Format04DTemp(unsigned short temp, bool needConvert) {
 		s_temp += "0";
 	s_temp += k;
 	s_temp += ".";
-	if (!needConvert) {
+	if (!longRecord) {
 		if (m < 10) {
 			s_temp += m;
 		} else {
 			s_temp += m / 10;
 		}
-	}else{
-		if(m == 0){
+	} else {
+		if (m == 0) {
 			s_temp += "0";
 		}
 		s_temp += m;

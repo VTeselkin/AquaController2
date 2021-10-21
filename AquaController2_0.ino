@@ -55,7 +55,7 @@ bool isNeedEnableZeroCanal = false;
 
 void ScanI2C() {
 	Display.SendLog("FirmWare : ");
-	Display.SendLogLn(VERTION_FIRMWARE);
+	Display.SendLogLn(String(VERTION_FIRMWARE));
 	Display.SendLogLn("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
@@ -97,6 +97,7 @@ void setup() {
 	aquaCanal.Init();
 	aquaAnalog.Init();
 	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
+	delay(5000);
 	Display.SetPage(1);
 }
 
@@ -124,7 +125,7 @@ void loop() {
 	if (millis() > _lastTimeUpdate + DELAY_TIME_UPDATE) {
 		_lastTimeUpdate = millis();
 		Display.Update();
-		Display.SetTemp(aquaTemp.ConvertTempByteToWord(Helper.data.TempSensor[0]));
+		Display.SetTemp(Helper.data.TempSensor[0]);
 
 	}
 
@@ -217,6 +218,7 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 			break;
 		case SETTINGS:
 			aquaEEPROM.SaveWifiSettings();
+			aquaEEPROM.SaveLcdSetings();
 			type = DEVICE;
 			break;
 		case FAN:
@@ -256,35 +258,26 @@ uint16_t SaveUTCSetting(uint16_t utc) {
 
 //Menu LED
 void trigger1() {
-	Helper.Tone();
-	Canal.SetLEDRx(LONG);
 	Display.SetPage(4);
 }
 
 //Menu CANAL
 void trigger2() {
-	Helper.Tone();
-	Canal.SetLEDRx(LONG);
 	Display.SetPage(3);
 }
 
 //Menu TIMERS
 void trigger3() {
-	Helper.Tone();
-	Canal.SetLEDRx(LONG);
 	Display.SetPage(5);
 }
 
 //Menu SETTINGS
 void trigger4() {
-	Helper.Tone();
-	Canal.SetLEDRx(LONG);
+	Display.SetPage(11);
 }
 
 //Menu TIME
 void trigger5() {
-	Helper.Tone();
-	Canal.SetLEDRx(LONG);
 	Display.SetPage(10);
 }
 
@@ -365,6 +358,10 @@ void trigger15() {
 			break;
 		case 10:
 			aquaEEPROM.SaveTempTimerToERROM();
+			break;
+		case 11:
+			aquaEEPROM.SaveWifiSettings();
+			aquaEEPROM.SaveLcdSetings();
 			break;
 		}
 	}
@@ -498,5 +495,4 @@ void trigger49() {
 
 void trigger50() {
 }
-
 

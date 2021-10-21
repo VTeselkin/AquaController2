@@ -54,6 +54,7 @@ public:
 	static void UpdateDisplayTimersHourly();
 	static void UpdateDisplayTimersSecond();
 	static void UpdateDisplayTimersTemp();
+	static void UpdateDisplaySettings();
 
 private:
 	static String Format02D(byte data);
