@@ -479,7 +479,6 @@ public:
 	static void Tone();
 	static void Tone(const word frequency, const word duration);
 	static void ToneForce(const word frequency, const word duration);
-	static void SetToneEnable(bool enable);
 	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)());
 	static String GetDevice(String ip);
 	static String GetDataTime();

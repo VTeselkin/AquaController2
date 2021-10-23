@@ -15,22 +15,19 @@ AquaHelper Helper = AquaHelper();
 RTClib RTC;
 DS3231 ds3231;
 
-// Speaker Setup
-bool isTone = true;
-//Pin for speaker
 const byte tonePin = 4;
 
 /**
  * Method of signaling through the system speaker
  */
 void AquaHelper::Tone(const word frequency, const word duration) {
-	if (isTone) {
+	if (data.isTone == 1) {
 		ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
 	}
 }
 
 void AquaHelper::Tone() {
-	if (isTone) {
+	if (data.isTone == 1) {
 		ESP_tone(TONE_PIN, 500, 10, BUZZER_CHANNEL);
 	}
 }
@@ -56,9 +53,6 @@ void AquaHelper::ESP_noTone(uint8_t pin, uint8_t channel) {
 	ledcWrite(channel, 0);
 }
 
-void AquaHelper::SetToneEnable(bool enable) {
-	isTone = enable;
-}
 
 String SendStartMess() {
 	return "{\"status\":\"success\",\"message\":\"";
