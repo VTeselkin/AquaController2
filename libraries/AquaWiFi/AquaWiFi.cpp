@@ -30,7 +30,7 @@ void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
 void (*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
 uint16_t (*funcNTPUpdate)(uint16_t);
-byte _minForReconect = 5;
+byte _minForReconect = 10;
 word UTC3 = 3; //UTC+3
 
 Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
@@ -49,7 +49,7 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
 	if (wifiManager.getWiFiIsSaved()) {
-		_minForReconect = 1;
+		_minForReconect = 10;
 	}
 	update.Init();
 	Connection();

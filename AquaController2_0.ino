@@ -114,7 +114,7 @@ void loop() {
 	aquaCanal.SetStatePWMCanal(ChangeChanalState);
 	aquaAnalog.Update();
 	if (aquaAnalog.AddPhElementToStats()) {
-		aquaWiFi.SendCacheResponse(PH, true, true);
+		aquaWiFi.SendCacheResponse(PH, true, true); //send current PH value
 	}
 	if (aquaTemp.AddTempElementToStats()) {
 		aquaWiFi.SendCacheResponse(TEMPSTATS, true, true);
