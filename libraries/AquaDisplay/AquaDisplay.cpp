@@ -32,6 +32,7 @@ void AquaDisplay::SetPage(byte page) {
 	case 1:
 		Update();
 		SetTemp(Helper.data.TempSensor[0]);
+		SetPH(Helper.data.PHCurrent[0]);
 		break;
 	case 3:
 		UpdateCanals(Helper.data.StateChanals, MAX_CHANALS, "canal");
@@ -152,6 +153,12 @@ String s_temp = "";
 void AquaDisplay::SetTemp(word temp) {
 	s_temp = Format04DTemp(temp, false);
 	myNex.writeStr("btn_temp.txt", s_temp);
+}
+
+String s_ph = "";
+void AquaDisplay::SetPH(word ph) {
+	s_ph = Format04DTemp(ph, false);
+	myNex.writeStr("btn_ph.txt", s_ph);
 }
 
 void AquaDisplay::UpdateCanals(byte canals[], byte max_canal, String canal_name) {

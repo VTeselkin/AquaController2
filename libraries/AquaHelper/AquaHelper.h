@@ -317,7 +317,8 @@ typedef enum {
 	PWMCANAL,
 	PWMTIMER,
 	SETTINGS,
-	FAN
+	FAN,
+	NTP
 } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 

@@ -126,6 +126,7 @@ void loop() {
 		_lastTimeUpdate = millis();
 		Display.Update();
 		Display.SetTemp(Helper.data.TempSensor[0]);
+		Display.SetPH(Helper.data.PHCurrent[0]);
 
 	}
 
@@ -219,14 +220,20 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		case SETTINGS:
 			aquaEEPROM.SaveWifiSettings();
 			aquaEEPROM.SaveLcdSetings();
+			Display.UpdateDisplaySettings();
 			type = DEVICE;
 			break;
 		case FAN:
 			aquaEEPROM.SaveFANSettings();
 			break;
+		case NTP:
+			break;
 		}
 		aquaWiFi.SendCacheResponse(type, true, false);
 	} else {
+		if(type == NTP){
+			Display.Update();
+		}
 		Serial.println("ERROR POST UDP");
 	}
 }
