@@ -26,30 +26,35 @@ NexUpload::NexUpload(String file_name,uint32_t download_baudrate, void (*ChangeL
 void NexUpload::upload(void)
 {
 
+//	Display.SendLog("[NEX]: Check File: ");
     if(!_checkFile())
     {
-    	Display.SendLogLn("[NEX]: The file is error");
+    	Display.SendLogLn("Error");
         return;
     }
-    delay(500);
+//    Display.SendLogLn("OK");
+
+//    Display.SendLog("[NEX]: Set baudrate: ");
     if(_getBaudrate() == 0)
     {
-    	Display.SendLogLn("[NEX]: Get baudrate error");
+    	Display.SendLogLn("Error");
         return;
     }
-    delay(500);
+//    Display.SendLogLn("OK");
+//    Display.SendLog("[NEX]:  Modify baudrate: ");
     if(!_setDownloadBaudrate(_download_baudrate))
     {
-    	Display.SendLogLn("[NEX]: Modify baudrate error");
+    	Display.SendLogLn("Error");
         return;
     }
-    delay(500);
+//    Display.SendLogLn("OK");
+//    Display.SendLogLn("[NEX]: Download file: ");
     if(!_downloadTftFile())
     {
-    	Display.SendLogLn("[NEX]: Download file error");
+    	Display.SendLogLn("Error");
         return;
     }
-    Display.SendLogLn("[NEX]: Download ok");
+//    Display.SendLogLn("OK");
     ESP.restart();
 }
 
@@ -61,37 +66,28 @@ uint16_t NexUpload::_getBaudrate(void)
         if(_searchBaudrate(baudrate_array[i]))
         {
             _baudrate = baudrate_array[i];
-            Display.SendLogLn("[NEX]: Get baudrate");
+
             break;
         }
     }
+
     return _baudrate;
 }
 
 bool NexUpload::_checkFile(void)
 {
-	Display.SendLogLn("[NEX]: Start Check file");
-
-    if(!SPIFFS.exists(_file_name))
+	    if(!SPIFFS.exists(_file_name))
     {
     	Display.SendLogLn("[NEX]: File is not exit");
     	return false;
     }
-    _myFile = SPIFFS.open(_file_name, FILE_READ);
-
-    _undownloadByte = _myFile.size();
-
-    Display.SendLog("[NEX]: TFT file size is:");
-    Display.SendLog(String(_undownloadByte));
-    Display.SendLogLn("Kb");
-    Display.SendLogLn("[NEX]: Check file OK!");
-
     return true;
 }
 
 bool NexUpload::_searchBaudrate(uint32_t baudrate)
 {
     String string = String("");
+    Serial.end();
     Serial.begin(baudrate);
     this->sendCommand("");
     this->sendCommand("connect");

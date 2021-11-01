@@ -54,8 +54,12 @@ unsigned long _lastTimeUpdate = 0;
 bool isNeedEnableZeroCanal = false;
 
 void ScanI2C() {
+
 	Display.SendLog("FirmWare : ");
 	Display.SendLogLn(String(VERTION_FIRMWARE));
+	Display.SendLog("Auto-detected Flash size : ");
+	Display.SendLog(String(Helper.ChipSize()));
+	Display.SendLogLn("M");
 	Display.SendLogLn("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";

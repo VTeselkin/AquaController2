@@ -18,7 +18,7 @@ AquaUpdate::AquaUpdate() {
 
 }
 void AquaUpdate::Init() {
-	if (!SPIFFS.begin(true)) {
+	if (!SPIFFS.begin(true, "/spiffs", 10)) {
 		Display.SendLogLn("An Error has occurred while mounting SPIFFS");
 		return;
 	}
@@ -59,11 +59,16 @@ void AquaUpdate::CheckOTAUpdate(bool isForce, DynamicJsonBuffer &jsonBuffer, voi
 		String fileName = "/" + ver + ".tft";
 		url = "http://update.aquacontroller.ru/v2/tft" + fileName;
 		if (DownloadAndSaveFile(fileName, url)) {
-			Display.SendLogLn("[OTA]: Start update firmware screen!");
+//			Display.SendLogLn("[OTA]: Start update firmware screen!");
+//			File _myFile = SPIFFS.open(fileName, FILE_READ);
+//			Display.SendLog("[NEX]: TFT file size is:");
+//			Display.SendLog(String(_myFile.size()));
+//			Display.SendLogLn(" byte");
+//			_myFile.close();
 			NexUpload nexUpload(fileName, 115200, ChangeLog);
 			nexUpload.upload();
 		}
-	}else{
+	} else {
 		Display.SendLogLn("[OTA]: Display no need update!");
 	}
 	auto root = SPIFFS.open("/");
@@ -101,38 +106,40 @@ void SendResultOTAUpdate(t_httpUpdate_return ret) {
 bool AquaUpdate::DownloadAndSaveFile(String fileName, String url) {
 
 	HTTPClient http;
-	Display.SendLogLn("[OTA]: Begin download file...");
+	Display.SendLog("[NEX]: Begin download file = ");
 	Display.SendLogLn(fileName);
-	Display.SendLogLn(url);
+	Display.SendLogLn("[NEX]: " + url);
 	http.begin(url);
-
-	Display.SendLogLn("[OTA]: GET... " + url);
 	// start connection and send HTTP header
 	int httpCode = http.GET();
 	if (httpCode > 0) {
 		// HTTP header has been send and Server response header has been handled
-		Display.SendLogLn("[OTA]: GET... code: " + httpCode);
+		//Display.SendLogLn("[NEX]: GET... code: " + httpCode);
 		auto root = SPIFFS.open("/");
 		File file = root.openNextFile();
 		while (file) {
-			if (String(file.name()).indexOf("tft") != -1) {
-				SPIFFS.remove(file.name());
-				Display.SendLogLn("[OTA]: File exists! Delete file: " + String(file.name()));
+			if (String(file.name()).indexOf(fileName) != -1) {
+				file.close();
+				http.end();
+				return true;
+//				SPIFFS.remove(file.name());
+//				Display.SendLogLn("[NEX]: File exists! Delete file: " + String(file.name()));
 			}
 			file = root.openNextFile();
 		}
-		Display.SendLogLn("[OTA]: Open file for writing " + fileName);
-
-		file = SPIFFS.open(fileName, FILE_WRITE);
-
+		Display.ClearLog();
+		Display.SendLogLn("[NEX]: Download file from stream...");
+		file.close();
+		file = SPIFFS.open(fileName, FILE_APPEND);
+		byte lastPercent = 100;
 		// file found at server
 		if (httpCode == HTTP_CODE_OK) {
 
 			// get lenght of document (is -1 when Server sends no Content-Length header)
 			int len = http.getSize();
-
+			double total = len;
 			// create buffer for read
-			uint8_t buff[128] = { 0 };
+			uint8_t buff[2048] = { 0 };
 
 			// get tcp stream
 			WiFiClient *stream = http.getStreamPtr();
@@ -147,21 +154,40 @@ bool AquaUpdate::DownloadAndSaveFile(String fileName, String url) {
 					// write it to Serial
 					//Serial.write(buff, c);
 					file.write(buff, c);
+
 					if (len > 0) {
 						len -= c;
 					}
-				}
-				delay(1);
-			}
 
-			Display.SendLogLn("[OTA]: Connection closed or file end.");
-			Display.SendLogLn("[OTA]: Closing file.");
+					byte percent = static_cast<byte>((len / total) * 100);
+					if ((percent != lastPercent)) {
+						lastPercent = percent;
+						Display.SendLog(String(100 - percent) +"%");
+					} else {
+						Display.SendLog(".");
+					}
+				}
+
+			}
+			file.close();
+			file = SPIFFS.open(fileName, FILE_APPEND);
+			if (file.size() != http.getSize()) {
+				Display.SendLogLn(
+						"[NEX]: Bag size file. Local = " + String(file.size()) + " Remote = " + String(http.getSize()));
+				file.close();
+				http.end();
+				return false;
+			} else {
+				Display.SendLogLn("[NEX]: Connection closed or file end.");
+				Display.SendLogLn("[NEX]: Closing file.");
+			}
 			file.close();
 			http.end();
 			return true;
 		}
 
 	}
+	Display.SendLogLn("[NEX]: HTTP Client error.");
 	http.end();
 	return false;
 }

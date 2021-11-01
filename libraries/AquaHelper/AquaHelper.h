@@ -16,7 +16,7 @@
 #include <TimeLib.h>
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
-
+#include <esp_spi_flash.h>
 //Maximum number of canals
 #define MAX_CHANALS 8
 #define MAX_CHANALS_TIMER_PWM 10
@@ -507,6 +507,7 @@ public:
 	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
 	static void ESP_noTone(uint8_t pin, uint8_t channel);
 	static int GetLevelPWM(byte timer);
+	static int ChipSize();
 
 private:
 };

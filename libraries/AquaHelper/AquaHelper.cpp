@@ -650,3 +650,7 @@ bool i2cReady(uint8_t adr) {
 	}
 	return ready;
 }
+
+int AquaHelper::ChipSize(){
+	return static_cast<int>(spi_flash_get_chip_size())/1024/1024;
+}
