@@ -30,7 +30,7 @@ void (*funcChangeLog)(String);
 void (*funcGetUDPRequest)(typeResponse, String);
 void (*ChandeDebugLED)(typeDebugLED led, typeLightLED type);
 uint16_t (*funcNTPUpdate)(uint16_t);
-byte _minForReconect = 10;
+byte _minForReconect = 5;
 word UTC3 = 3; //UTC+3
 
 Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
@@ -49,20 +49,19 @@ void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeRespons
 	lastTemptime = millis();
 	_isWiFiEnable = Helper.data.auto_connect;
 	if (wifiManager.getWiFiIsSaved()) {
-		_minForReconect = 10;
+		_minForReconect = 1;
 	}
 	update.Init();
+
 	Connection();
 }
 
 void AquaWiFi::Connection() {
 
 	if (_isWiFiEnable) {
-		funcChangeLog("WiFi:Try connect...");
-
 		//Disable debug log connection
-		wifiManager.setDebugOutput(true);
-
+		wifiManager.setDebugOutput(false);
+		funcChangeLog("WiFi:Try connect...");
 		wifiManager.setAPCallback(configModeCallback);
 		wifiManager.setSaveConfigCallback(saveConfigCallback);
 		//set custom ip for portal
@@ -93,10 +92,14 @@ void AquaWiFi::Connection() {
 		StartCaching();
 		web.Init(responseCache, jsonBuffer);
 		if (Helper.data.internet_avalible) {
-			update.CheckOTAUpdate(true, jsonBuffer, funcChangeLog);
+			if (Helper.ChipSize() < 16) {
+				funcChangeLog("OTA: Not possible to update. Chip size is not supported!!!");
+			} else {
+				update.CheckOTAUpdate(true, jsonBuffer, funcChangeLog);
+			}
 			ntp.SetNTPTimeToController(funcChangeLog);
 		} else {
-			funcChangeLog("WAN:Not connection..");
+			funcChangeLog("WiFi:Not Internet connection..");
 		}
 
 	} else {
@@ -164,7 +167,7 @@ void AquaWiFi::WaitRequest() {
 				return;
 
 			}
-			if (millis() > lastConfigMode + _minForReconect * 60 * 1000) {
+			if (millis() > lastConfigMode + _minForReconect * 60 * 1000 && _isConfigMode) {
 				lastConfigMode = millis();
 				_isConfigMode = false;
 				Connection();

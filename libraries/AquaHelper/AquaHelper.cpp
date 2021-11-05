@@ -9,6 +9,8 @@
 #include <sstream>        // std::istringstream
 #include <ctime>          // std::tm
 #include <locale>         // std::locale, std::time_get, std::use_facet
+#include <SPIFFS.h>
+#include <FS.h>
 
 dataController AquaHelper::data;
 AquaHelper Helper = AquaHelper();
@@ -653,4 +655,8 @@ bool i2cReady(uint8_t adr) {
 
 int AquaHelper::ChipSize(){
 	return static_cast<int>(spi_flash_get_chip_size())/1024/1024;
+}
+
+int AquaHelper::SPIFFSSize(){
+	return  SPIFFS.totalBytes()/1024;
 }

@@ -55,12 +55,12 @@ bool isNeedEnableZeroCanal = false;
 
 void ScanI2C() {
 
-	Display.SendLog("FirmWare : ");
-	Display.SendLogLn(String(VERTION_FIRMWARE));
-	Display.SendLog("Auto-detected Flash size : ");
+	Display.SendLogLnTime("FirmWare : ");
+	Display.SendLog(String(VERTION_FIRMWARE));
+	Display.SendLogLnTime("Auto-detected Flash size : ");
 	Display.SendLog(String(Helper.ChipSize()));
-	Display.SendLogLn("M");
-	Display.SendLogLn("Scanning I2C Addresses");
+	Display.SendLog("M");
+	Display.SendLogLnTime("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
 	for (uint8_t i = 1; i < 127; i++) {
@@ -87,20 +87,20 @@ void ScanI2C() {
 			delay(200);
 		}
 	}
-	Display.SendLogLn("Scan Completed, ");
-	Display.SendLogLn(String(cnt) + " I2C Devices found.");
+	Display.SendLogLnTime("Scan Completed, ");
+	Display.SendLogLnTime(String(cnt) + " I2C Devices found.");
 }
 
 void setup() {
 	Display.Init();
 	if (!Wire.begin())
-		Display.SendLog("I2C Fail = " + Wire.lastError());
+		Display.SendLogLnTime("I2C Fail = " + Wire.lastError());
 	ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
 	aquaAnalog.Init();
-	aquaWiFi.Init(ChangeWiFiLog, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
+	aquaWiFi.Init(Display.SendLogLnTime, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
 	delay(5000);
 	Display.SetPage(1);
 }
@@ -131,7 +131,6 @@ void loop() {
 		Display.Update();
 		Display.SetTemp(Helper.data.TempSensor[0]);
 		Display.SetPH(Helper.data.PHCurrent[0]);
-
 	}
 
 	Display.Loop();
@@ -170,11 +169,6 @@ static void ChandeDebugLED(typeDebugLED led, typeLightLED type) {
 		aquaCanal.SetLEDError(type);
 		break;
 	}
-}
-void ChangeWiFiLog(String log) {
-	auto log2 = "[" + Helper.GetFormatTimeNow(false) + "]" + log;
-	Display.SendLogLn(log2);
-
 }
 
 void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
@@ -245,20 +239,20 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 void SetPHSensorConfig() {
 	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 		if (Helper.data.PHTimer686[i] == 0) {
-			Serial.print("CheckPhLevel PHTimer686 canal = ");
-			Serial.println(i);
-			auto level = aquaAnalog.CheckPhLevel(i);
-			if (level == 0)
-				level = 1;
-			Helper.data.PHTimer686[i] = level;
+//			Serial.print("CheckPhLevel PHTimer686 canal = ");
+//			Serial.println(i);
+//			auto level = aquaAnalog.CheckPhLevel(i);
+//			if (level == 0)
+//				level = 1;
+//			Helper.data.PHTimer686[i] = level;
 		}
 		if (Helper.data.PHTimer401[i] == 0) {
-			Serial.print("CheckPhLevel PHTimer401 canal = ");
-			Serial.println(i);
-			auto level = aquaAnalog.CheckPhLevel(i);
-			if (level == 0)
-				level = 1;
-			Helper.data.PHTimer401[i] = level;
+//			Serial.print("CheckPhLevel PHTimer401 canal = ");
+//			Serial.println(i);
+//			auto level = aquaAnalog.CheckPhLevel(i);
+//			if (level == 0)
+//				level = 1;
+//			Helper.data.PHTimer401[i] = level;
 		}
 	}
 }

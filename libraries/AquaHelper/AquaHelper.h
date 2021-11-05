@@ -99,7 +99,7 @@
 #define DELAY_MESSAGE_UPDATE 60000
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
-#define DELAY_PH_UPDATE 60000
+#define DELAY_PH_UPDATE 2000
 #define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
@@ -272,7 +272,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const word VERTION_FIRMWARE = 203;
+const int VERTION_FIRMWARE = 205;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -508,6 +508,7 @@ public:
 	static void ESP_noTone(uint8_t pin, uint8_t channel);
 	static int GetLevelPWM(byte timer);
 	static int ChipSize();
+	static int SPIFFSSize();
 
 private:
 };

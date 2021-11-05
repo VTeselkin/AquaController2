@@ -15,7 +15,7 @@ public:
 	uint16_t GetADCLevel(byte canal);
 	float GetADCVoltage(byte canal);
 	void CheckWaterLevel(void (*GetChanalState)(bool, byte));
-	uint16_t CheckPhLevel(byte canal);
+	float CheckPhVoltage(byte canal);
 	bool AddPhElementToStats();
 private:
 };

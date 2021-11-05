@@ -24,10 +24,11 @@ public:
 	static void Loop();
 	static void SendLog(String log);
 	static void SendLogLn(String log);
+	static void SendLogLnTime(String log);
 	static void ClearLog();
 	static void SetLANConnection(bool isConnect);
 	static void SetWANConnection(bool isConnect);
-	static String GetVersion();
+	static int GetVersion();
 	static void SetDayOfWeek();
 	static void SetData();
 	static void SetTime();
@@ -61,7 +62,9 @@ private:
 	static String Format02D(byte data);
 	static String Format03D(byte data);
 	static String Format02DCanal(byte data);
+	static String Format04D(unsigned short temp, bool needConvert);
 	static String Format04DTemp(unsigned short temp, bool needConvert);
+	static String Format04DPh(unsigned short temp, bool needConvert);
 };
 #ifdef Display
 #undef Display

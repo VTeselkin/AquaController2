@@ -74,27 +74,33 @@ void AquaDisplay::Update() {
 void AquaDisplay::Loop() {
 	myNex.NextionListen();
 }
-String AquaDisplay::GetVersion() {
-	return myNex.readStr("ver.txt");
+int AquaDisplay::GetVersion() {
+	return myNex.readStr("ver.txt").toInt();
 }
 byte rowLog = 0;
 String oldLog = "";
+
+void AquaDisplay::SendLogLnTime(String log){
+	log = "[" + Helper.GetFormatTimeNow(false) + "]" + log;
+	SendLogLn(log);
+}
+
 void AquaDisplay::SendLogLn(String log) {
-	if (log.length() > 80) {
+	if (log.length() > 72) {
 		if (oldLog.length() == log.length()) {
 			return;
 		}
 		oldLog = log;
-		log = log.substring(0, 80) + "...";
+		log = log.substring(0, 72) + "...";
 	}
 	rowLog++;
-	if (rowLog > 18) {
+	if (rowLog > 22) {
 		ClearLog();
 		rowLog = 0;
 		SendLogLn(log);
 	}
 	log.replace("\"", "");
-	myNex.writeStr("log.txt+", log + "\r\n");
+	myNex.writeStr("log.txt+", "\r\n" + log);
 }
 
 void AquaDisplay::SendLog(String log) {
@@ -157,7 +163,7 @@ void AquaDisplay::SetTemp(word temp) {
 
 String s_ph = "";
 void AquaDisplay::SetPH(word ph) {
-	s_ph = Format04DTemp(ph, false);
+	s_ph = Format04DPh(ph, false);
 	myNex.writeStr("btn_ph.txt", s_ph);
 }
 
@@ -504,7 +510,7 @@ typeResponse AquaDisplay::SetTimerCanal(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
-		ChangeDataCanal(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM, TimerNumberLed, inc);
+		ChangeDataCanal(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM + MAX_CHANALS_FAN, TimerNumberLed, inc);
 		myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TimerPWMChanal[TimerNumberLed]));
 		return PWMTIMER;
 	case 7:
@@ -628,9 +634,16 @@ String AquaDisplay::Format02DCanal(byte data) {
 	sprintf(TextBuffer, "%02d", data);
 	return String(TextBuffer);
 }
-
 String AquaDisplay::Format04DTemp(unsigned short temp, bool longRecord) {
 	temp = temp * STEP + MIN_TEMP;
+	return Format04D(temp, longRecord);
+}
+String AquaDisplay::Format04DPh(unsigned short ph, bool longRecord) {
+	ph = ph * STEP_PH + MIN_PH;
+	return Format04D(ph, longRecord);
+}
+String AquaDisplay::Format04D(unsigned short temp, bool longRecord) {
+
 	s_temp = "";
 	byte k = temp / 100;
 	byte m = temp % 100;
