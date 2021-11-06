@@ -28,7 +28,7 @@ NexUpload::NexUpload(String file_name, uint32_t download_baudrate, void (*Change
 
 bool NexUpload::upload(void) {
 	if (!_checkFile()) {
-		Display.SendLogLn("[NEX]: File is not exist!");
+		Display.SendLogLnTime("[NEX]: File is not exit");
 		return false;
 	}
 
@@ -70,7 +70,6 @@ uint16_t NexUpload::_getBaudrate(void) {
 
 bool NexUpload::_checkFile(void) {
 	if (!SPIFFS.exists(_file_name)) {
-		Display.SendLogLnTime("[NEX]: File is not exit");
 		return false;
 	}
 

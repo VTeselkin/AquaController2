@@ -80,7 +80,7 @@ int AquaDisplay::GetVersion() {
 byte rowLog = 0;
 String oldLog = "";
 
-void AquaDisplay::SendLogLnTime(String log){
+void AquaDisplay::SendLogLnTime(String log) {
 	log = "[" + Helper.GetFormatTimeNow(false) + "]" + log;
 	SendLogLn(log);
 }
@@ -191,7 +191,11 @@ void AquaDisplay::UpdateDisplayTimersPWM() {
 	myNex.writeStr("t8.txt", Format02D(Helper.data.TimerPWMHourEnd[TimerNumberLed]));	//timer off hour
 	myNex.writeStr("t10.txt", Format02D(Helper.data.TimerPWMMinEnd[TimerNumberLed]));	//timer off minute
 	myNex.writeStr("t12.txt", Format03D(Helper.data.TimerPWMDuration[TimerNumberLed]));	//delay
-	myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TimerPWMChanal[TimerNumberLed]));	//canal
+	if (Helper.data.TimerPWMChanal[TimerNumberLed] >= MAX_CHANALS_TIMER_PWM) {
+		myNex.writeStr("t20.txt", "F" + String(Helper.data.TimerPWMChanal[TimerNumberLed] - MAX_CHANALS_TIMER_PWM + 1));
+	} else {
+		myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TimerPWMChanal[TimerNumberLed]));
+	}
 	myNex.writeStr("t14.txt", Format03D(Helper.data.TimerPWMLevel[TimerNumberLed]));	//level
 }
 
@@ -511,7 +515,12 @@ typeResponse AquaDisplay::SetTimerCanal(bool inc) {
 	switch (_currentPage) {
 	case 6:
 		ChangeDataCanal(Helper.data.TimerPWMChanal, MAX_CHANALS_TIMER_PWM + MAX_CHANALS_FAN, TimerNumberLed, inc);
-		myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TimerPWMChanal[TimerNumberLed]));
+		if (Helper.data.TimerPWMChanal[TimerNumberLed] >= MAX_CHANALS_TIMER_PWM) {
+			myNex.writeStr("t20.txt",
+					"F" + String(Helper.data.TimerPWMChanal[TimerNumberLed] - MAX_CHANALS_TIMER_PWM + 1));
+		} else {
+			myNex.writeStr("t20.txt", Format02DCanal(Helper.data.TimerPWMChanal[TimerNumberLed]));
+		}
 		return PWMTIMER;
 	case 7:
 		ChangeDataCanal(Helper.data.DailyTimerChanal, MAX_CHANALS, TimerNumberDaily, inc);

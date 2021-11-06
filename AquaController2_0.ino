@@ -63,7 +63,7 @@ void ScanI2C() {
 	Display.SendLogLnTime("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
-	for (uint8_t i = 1; i < 127; i++) {
+	for (uint8_t i = 9; i < 127; i++) {
 		Wire.beginTransmission(i);
 		uint8_t ec = Wire.endTransmission(true);
 		if (ec == 0) {
@@ -81,7 +81,7 @@ void ScanI2C() {
 			log += "..";
 		}
 		log += "  ";
-		if ((i & 0x0f) == 0x0f) {
+		if (i > 8 && (i % 8== 0)) {
 			Display.SendLogLn(log);
 			log = "";
 			delay(200);

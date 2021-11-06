@@ -79,7 +79,6 @@ float AquaAnalog::CheckPhVoltage(byte canal) {
 	}
 
 	float volt = (float) ph_sum * 3.3f / 4096.0 / 6;
-	Serial.println(volt);
 	return volt;
 }
 
