@@ -15,43 +15,44 @@
 
 #include "NexUpload.h"
 void (*funcChangeLogUpload)(String);
+const char _nextion_FF_FF[3] = { 0xFF, 0xFF, 0x00 };
 
-NexUpload::NexUpload(String file_name, uint32_t download_baudrate, void (*ChangeLog)(String)) {
-	_file_name = file_name;
+NexUpload::NexUpload(uint32_t download_baudrate, void (*ChangeLog)(String)) {
 	_download_baudrate = download_baudrate;
 	funcChangeLogUpload = ChangeLog;
-	if (_checkFile()) {
-		_myFile = SPIFFS.open(_file_name, "r");
-		_undownloadByte = _myFile.size();
-	}
 }
 
 bool NexUpload::upload(void) {
-	if (!_checkFile()) {
-		Display.SendLogLnTime("[NEX]: File is not exit");
-		return false;
-	}
 
 	if (_getBaudrate() == 0) {
 		Display.SendLogLn("[NEX]: Error");
 		return false;
 	}
+
+	if (!_checkFile()) {
+		Display.SendLogLnTime("[NEX]: File is not exit: " + FileForUpdate);
+		return false;
+	} else {
+		_myFile = SPIFFS.open(FileForUpdate, "r");
+		_undownloadByte = _myFile.size();
+	}
+
 	if (!_echoTest("mystop_yesABC")) {
-		Display.SendLogLn("[NEX]: Echo test failed");
+		Display.SendLogLn(F("[NEX]: Echo test failed"));
 		return false;
 	}
 	if (!_handlingSleepAndDim()) {
-		Display.SendLogLn("[NEX]: Handling sleep and dim settings failed");
+		Display.SendLogLn(F("[NEX]: Handling sleep and dim settings failed"));
 		return false;
 	}
 
 	if (!_setDownloadBaudrate(_download_baudrate)) {
-		Display.SendLogLn("[NEX]: Error");
+		Display.SendLogLn(F("[NEX]: Error"));
 		return false;
 	}
 
 	if (!upload(_myFile)) {
-		Display.SendLogLn("[NEX]: Error update screen firmware");
+		Display.SendLogLn(F("[NEX]: Error update screen firmware"));
 		return false;
 	}
 	return true;
@@ -69,7 +70,7 @@ uint16_t NexUpload::_getBaudrate(void) {
 }
 
 bool NexUpload::_checkFile(void) {
-	if (!SPIFFS.exists(_file_name)) {
+	if (!SPIFFS.exists(FileForUpdate)) {
 		return false;
 	}
 
@@ -80,12 +81,12 @@ bool NexUpload::_searchBaudrate(uint32_t baudrate) {
 
 	String response = String("");
 	Serial.begin(baudrate);
-	const char _nextion_FF_FF[3] = { 0xFF, 0xFF, 0x00 };
+
 	this->sendCommand("DRAKJHSUYDGBNCJHGJKSHBDN");
 	this->sendCommand("", true, true); // 0x00 0xFF 0xFF 0xFF
 	this->recvRetString(response);
 	if (response[0] != 0x1A) {
-		Display.SendLogLnTime("[NEX]: First indication that baudrate is wrong");
+		Display.SendLogLnTime(F("[NEX]: First indication that baudrate is wrong"));
 		return 0;
 	}
 
@@ -93,19 +94,19 @@ bool NexUpload::_searchBaudrate(uint32_t baudrate) {
 
 	this->recvRetString(response);
 	if (response.indexOf(F("comok")) == -1) {
-		Display.SendLogLnTime("[NEX]: display doesn't accept the first connect request");
+		Display.SendLogLnTime(F("[NEX]: Display doesn't accept the first connect request"));
 		return 0;
 	}
 
 	response = String("");
 	delay(110); // based on serial analyser from Nextion editor V0.58 to Nextion display NX4024T032_011R
 	this->sendCommand(_nextion_FF_FF, false, false);
-
 	this->sendCommand("connect"); // second attempt
 	this->recvRetString(response);
+
 	if (response.indexOf(F("comok")) == -1 && response[0] != 0x1A) {
-		Display.SendLogLnTime(F("display doesn't accept the second connect request"));
-		Display.SendLogLnTime(F("conclusion, wrong baudrate"));
+		Display.SendLogLnTime(F("[NEX]: display doesn't accept the second connect request"));
+		Display.SendLogLnTime(F("[NEX]: conclusion, wrong baudrate"));
 
 		return 0;
 	}
@@ -147,48 +148,6 @@ bool NexUpload::_setDownloadBaudrate(uint32_t upload_baudrate) {
 	}
 }
 
-//bool NexUpload::_downloadTftFile(void) {
-//	uint8_t c;
-//	uint16_t send_timer = 0;
-//	uint16_t last_send_num = 0;
-//	String string = String("");
-//	send_timer = _undownloadByte / 4096 + 1;
-//	last_send_num = _undownloadByte % 4096;
-//
-//	while (send_timer) {
-//
-//		if (send_timer == 1) {
-//			for (uint16_t j = 1; j <= 4096; j++) {
-//				if (j <= last_send_num) {
-//					c = _myFile.read();
-//					Serial.write(c);
-//				} else {
-//					break;
-//				}
-//			}
-//		}
-//
-//		else {
-//			for (uint16_t i = 1; i <= 4096; i++) {
-//				c = _myFile.read();
-//				Serial.write(c);
-//			}
-//		}
-//		this->recvRetString(string, 600, true);
-//		funcChangeLogUpload(string);
-//		if (string.indexOf(0x05) != -1) {
-//			string = "";
-//		} else {
-//			Helper.ToneForce(2000, 500);
-//			return 0;
-//		}
-//		--send_timer;
-//	}
-//	Helper.ToneForce(1000, 100);
-//	delay(100);
-//	Helper.ToneForce(1000, 100);
-//	return 1;
-//}
 bool NexUpload::upload(Stream &myFile) {
 
 	// create buffer for read
@@ -218,6 +177,7 @@ bool NexUpload::upload(Stream &myFile) {
 			}
 		}
 		delay(1);
+		esp_task_wdt_reset();
 	}
 
 	return true;
@@ -419,3 +379,5 @@ uint16_t NexUpload::recvRetString(String &string, uint32_t timeout, bool recv_fl
 void NexUpload::setUpdateProgressCallback(THandlerFunction value) {
 	_updateProgressCallback = value;
 }
+
+

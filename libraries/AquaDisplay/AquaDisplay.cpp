@@ -75,7 +75,14 @@ void AquaDisplay::Loop() {
 	myNex.NextionListen();
 }
 int AquaDisplay::GetVersion() {
-	return myNex.readStr("ver.txt").toInt();
+	auto ver = myNex.readStr("ver.txt");
+	if(ver == "ERROR"){
+		return 0;
+	}
+	return ver.toInt();
+}
+String AquaDisplay::GetType() {
+	return myNex.readStr("type.txt");
 }
 byte rowLog = 0;
 String oldLog = "";

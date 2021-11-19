@@ -29,6 +29,7 @@ public:
 	static void SetLANConnection(bool isConnect);
 	static void SetWANConnection(bool isConnect);
 	static int GetVersion();
+	static String GetType();
 	static void SetDayOfWeek();
 	static void SetData();
 	static void SetTime();

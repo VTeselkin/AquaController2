@@ -1,5 +1,7 @@
 #ifndef __NEXUPLOAD_H__
 #define __NEXUPLOAD_H__
+
+#include <esp_task_wdt.h>
 #include <Arduino.h>
 #include <AquaDisplay.h>
 #include <SPI.h>
@@ -8,12 +10,14 @@ typedef std::function<void(void)> THandlerFunction;
 class NexUpload {
 public:
 	typedef std::function<void(void)> THandlerFunction;
-	NexUpload(const String file_Name, uint32_t download_baudrate, void (*ChangeLog)(String));
+	NexUpload(uint32_t download_baudrate, void (*ChangeLog)(String));
 	~NexUpload() {
 	}
 	void setUpdateProgressCallback(THandlerFunction value);
 	bool upload();
 	bool _checkFile(void);
+	String FileForUpdate;
+	String PathForUpdate;
 private:
 	uint16_t _getBaudrate(void);
 	bool _searchBaudrate(uint32_t baudrate);
@@ -27,9 +31,9 @@ private:
 	bool _handlingSleepAndDim();
 	bool upload(const uint8_t *file_buf, size_t buf_size);
 	bool upload(Stream &myFile);
+	void softReset();
 private:
 	uint32_t _baudrate;
-	String _file_name;
 	File _myFile;
 	uint32_t _undownloadByte;
 	uint32_t _download_baudrate;

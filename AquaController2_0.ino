@@ -25,6 +25,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#include <esp_task_wdt.h>
 
 #include <AquaHelper.h>
 #include <AquaTimers.h>
@@ -36,6 +37,8 @@
 #include <AquaWiFi.h>
 #include <AquaFAN.h>
 #include <AquaDisplay.h>
+
+
 
 AquaTimers aquaTimers;
 AquaTemp aquaTemp;
@@ -63,7 +66,7 @@ void ScanI2C() {
 	Display.SendLogLnTime("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
-	for (uint8_t i = 9; i < 127; i++) {
+	for (uint8_t i = 1; i < 127; i++) {
 		Wire.beginTransmission(i);
 		uint8_t ec = Wire.endTransmission(true);
 		if (ec == 0) {
@@ -81,7 +84,7 @@ void ScanI2C() {
 			log += "..";
 		}
 		log += "  ";
-		if (i > 8 && (i % 8== 0)) {
+		if (i > 8 && (i % 16 == 0)) {
 			Display.SendLogLn(log);
 			log = "";
 			delay(200);
@@ -92,20 +95,26 @@ void ScanI2C() {
 }
 
 void setup() {
+	esp_task_wdt_init(WDT_TIMEOUT, true);
+	esp_task_wdt_add(NULL);
 	Display.Init();
+	Display.SetPage(2);
 	if (!Wire.begin())
 		Display.SendLogLnTime("I2C Fail = " + Wire.lastError());
 	ScanI2C();
 	aquaEEPROM.Init();
 	aquaTemp.Init(aquaEEPROM);
 	aquaCanal.Init();
+	aquaCanal.SetLEDError(SHORT);
 	aquaAnalog.Init();
 	aquaWiFi.Init(Display.SendLogLnTime, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
-	delay(5000);
+	delay(15000);
+	Display.ClearLog();
 	Display.SetPage(1);
 }
 
 void loop() {
+	esp_task_wdt_reset();
 	aquaWiFi.wifiManager.process();
 	isNeedEnableZeroCanal = aquaStop.GetTemporaryStopCanal(isNeedEnableZeroCanal, ChangeChanalState);
 	aquaTimers.CheckStateTimer(_timerForCheck, TIMER_MIN, ChangeChanalState, isNeedEnableZeroCanal);
@@ -229,7 +238,7 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 		}
 		aquaWiFi.SendCacheResponse(type, true, false);
 	} else {
-		if(type == NTP){
+		if (type == NTP) {
 			Display.Update();
 		}
 		Serial.println("ERROR POST UDP");

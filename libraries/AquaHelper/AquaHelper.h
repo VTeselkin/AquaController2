@@ -17,6 +17,9 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 #include <esp_spi_flash.h>
+
+#define WDT_TIMEOUT 60
+
 //Maximum number of canals
 #define MAX_CHANALS 8
 #define MAX_CHANALS_TIMER_PWM 10
@@ -272,7 +275,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 205;
+const int VERTION_FIRMWARE = 206;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -509,6 +512,7 @@ public:
 	static int GetLevelPWM(byte timer);
 	static int ChipSize();
 	static int SPIFFSSize();
+	static String Split(String data, char separator, int index);
 
 private:
 };

@@ -22,6 +22,7 @@ public:
 	void Init();
 	void CheckOTAUpdate(bool isForce, DynamicJsonBuffer &jsonBuffer, void (*ChangeLog)(String));
 	bool DownloadAndSaveFile(String fileName, String url);
+
 };
 String OTAUpdate(String host, DynamicJsonBuffer &jsonBuffer);
 void SendResultOTAUpdate(t_httpUpdate_return ret);
