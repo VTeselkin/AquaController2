@@ -108,8 +108,7 @@ void setup() {
 	aquaCanal.SetLEDError(SHORT);
 	aquaAnalog.Init();
 	aquaWiFi.Init(Display.SendLogLnTime, GetUDPWiFiPOSTRequest, SaveUTCSetting, ChandeDebugLED);
-	delay(15000);
-	Display.ClearLog();
+	delay(2000);
 	Display.SetPage(1);
 }
 
