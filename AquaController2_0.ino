@@ -66,7 +66,7 @@ void ScanI2C() {
 	Display.SendLogLnTime("Scanning I2C Addresses");
 	uint8_t cnt = 0;
 	String log = "";
-	for (uint8_t i = 1; i < 127; i++) {
+	for (byte i = 1; i < 127; i++) {
 		Wire.beginTransmission(i);
 		uint8_t ec = Wire.endTransmission(true);
 		if (ec == 0) {
@@ -75,6 +75,7 @@ void ScanI2C() {
 			}
 
 			if (sizeof(String(i, HEX)) > 0) {
+				Helper.data.I2C_ADRESS[cnt] = i;
 				log += String(i, HEX);
 				cnt++;
 			}

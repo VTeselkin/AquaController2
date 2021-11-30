@@ -19,7 +19,7 @@
 #include <esp_spi_flash.h>
 
 #define WDT_TIMEOUT 60
-
+#define MAX_ADRESS 10
 //Maximum number of canals
 #define MAX_CHANALS 8
 #define MAX_CHANALS_TIMER_PWM 10
@@ -124,6 +124,7 @@ const byte ADDR_FIRST_LAUNCH = 1;
 
 const byte ChanalsStateAddr = 20;
 
+const word AUTO_DEBUG_ADDR = 1002;
 const word AUTO_CONNECT_ADDR = 1000;
 const word NTP_UPDATE_ADDR = 998;
 const word LCD_LED_ON_ADDR = 996;
@@ -262,9 +263,11 @@ const String GET_DEVICE_FAN = "t_fan";
 
 const String SETTINGS_SSID = "SSID";
 const String SETTINGS_PASS = "PASS";
-const String SETTINGS_NTP = "NTP";
+const String SETTINGS_NTP = "ntp";
 const String SETTINGS_AUTO = "AUTO";
 const String SETTINGS_UPDATE = "update";
+const String SETTINGS_SOUND = "sound";
+const String SETTINGS_DEBUG = "debug";
 const String SETTINGS_MAX_CHANALS = "TIMERS";
 const String SETTINGS_MAX_TEMP_SENSOR = "SENSOR";
 const String SETTINGS_UTC = "utc";
@@ -275,7 +278,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 206;
+const int VERTION_FIRMWARE = 211;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -332,6 +335,7 @@ bool SetJsonValue(byte arrayData[], const byte count, const String key, const Js
 bool SetJsonValue(word arrayData[], const byte count, const String key, const JsonObject &root);
 
 typedef struct {
+	byte I2C_ADRESS[MAX_ADRESS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	/**
 	 * Daily timer program settings
 	 */
@@ -406,9 +410,10 @@ typedef struct {
 	// Speaker Setup
 	byte isTone = 1;
 	bool ntp_update = 1;
-	bool auto_connect = 1;
+	bool auto_connect = 1; //Enable connect to lan
 	bool auto_update = 1;
-	bool internet_avalible = 0;
+	bool internet_avalible = 0; //Flag for connection to internet
+	bool debug = 1;
 	/** ----------------------------------------PWM---------------------------------- */
 
 	//Enabled canals for PWM
@@ -513,7 +518,6 @@ public:
 	static int ChipSize();
 	static int SPIFFSSize();
 	static String Split(String data, char separator, int index);
-
 private:
 };
 

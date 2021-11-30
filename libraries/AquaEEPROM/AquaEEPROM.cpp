@@ -218,12 +218,15 @@ void AquaEEPROM::LoadWiFiSettings() {
 	Helper.data.ntp_update = (bool) EEPROM.read(NTP_UPDATE_ADDR);
 	Helper.data.auto_connect = (bool) EEPROM.read(AUTO_CONNECT_ADDR);
 	Helper.data.auto_update = (bool) EEPROM.read(AUTO_UPDATE_ADDR);
+	Helper.data.debug = (bool) EEPROM.read(AUTO_DEBUG_ADDR);
+
 }
 
 void AquaEEPROM::SaveWifiSettings() {
 	EEPROM.write(NTP_UPDATE_ADDR, (byte) Helper.data.ntp_update);
 	EEPROM.write(AUTO_CONNECT_ADDR, (byte) Helper.data.auto_connect);
 	EEPROM.write(AUTO_UPDATE_ADDR, (byte) Helper.data.auto_update);
+	EEPROM.write(AUTO_DEBUG_ADDR, (byte) Helper.data.debug);
 	EEPROM.commit();
 }
 

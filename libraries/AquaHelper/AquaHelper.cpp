@@ -56,7 +56,6 @@ void AquaHelper::ESP_noTone(uint8_t pin, uint8_t channel) {
 	ledcWrite(channel, 0);
 }
 
-
 String SendStartMess() {
 	return "{\"status\":\"success\",\"message\":\"";
 }
@@ -75,6 +74,12 @@ String AquaHelper::GetDevice(String ip) {
 	result += VERTION_FIRMWARE;
 	result += "\",\"update\":";
 	result += data.auto_update;
+	result += ",\"ntp\":";
+	result += data.ntp_update;
+	result += ",\"sound\":";
+	result += data.isTone;
+	result += ",\"debug\":";
+	result += data.debug;
 	result += ",\"ip\":\"";
 	result += ip;
 	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
@@ -297,7 +302,7 @@ String AquaHelper::GetSecondsTimerState() {
  */
 String AquaHelper::GetWiFiSettings() {
 	String result = SendStartMess();
-	result += "settings\",\"NTP\":";
+	result += "settings\",\"ntp\":";
 	result += data.ntp_update;
 	result += ",\"update\":";
 	result += data.auto_connect;
@@ -523,10 +528,12 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
 				SetJsonValue(Helper.data.PHTimer686, MAX_TIMERS_PH, "ph_686v2", request);
 			GetPHLevelConfig();
 			return true;
-			//{"status":"post","message":"settings","data": {"NTP":0,"update":0}}
+			//{"status":"post","message":"settings","data": {"ntp":0,"update":0,"sound":0,"debug":0}}
 		} else if (inString.indexOf(SETTINGS_DEV) != -1) {
 			Helper.data.ntp_update = request[SETTINGS_NTP].as<bool>();
 			Helper.data.auto_update = request[SETTINGS_UPDATE].as<bool>();
+			Helper.data.isTone = request[SETTINGS_SOUND].as<bool>();
+			Helper.data.debug = request[SETTINGS_DEBUG].as<bool>();
 			return true;
 		} else if (inString.indexOf(GET_DEVICE_FAN) != -1) {
 			if (inString.indexOf("t_fan_s") != -1)
@@ -654,26 +661,25 @@ bool i2cReady(uint8_t adr) {
 	return ready;
 }
 
-int AquaHelper::ChipSize(){
-	return static_cast<int>(spi_flash_get_chip_size())/1024/1024;
+int AquaHelper::ChipSize() {
+	return static_cast<int>(spi_flash_get_chip_size()) / 1024 / 1024;
 }
 
-int AquaHelper::SPIFFSSize(){
-	return  SPIFFS.totalBytes()/1024;
+int AquaHelper::SPIFFSSize() {
+	return SPIFFS.totalBytes() / 1024;
 }
 
-String AquaHelper::Split(String data, char separator, int index)
-{
-    int found = 0;
-    int strIndex[] = { 0, -1 };
-    int maxIndex = data.length() - 1;
+String AquaHelper::Split(String data, char separator, int index) {
+	int found = 0;
+	int strIndex[] = { 0, -1 };
+	int maxIndex = data.length() - 1;
 
-    for (int i = 0; i <= maxIndex && found <= index; i++) {
-        if (data.charAt(i) == separator || i == maxIndex) {
-            found++;
-            strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i+1 : i;
-        }
-    }
-    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+	for (int i = 0; i <= maxIndex && found <= index; i++) {
+		if (data.charAt(i) == separator || i == maxIndex) {
+			found++;
+			strIndex[0] = strIndex[1] + 1;
+			strIndex[1] = (i == maxIndex) ? i + 1 : i;
+		}
+	}
+	return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
