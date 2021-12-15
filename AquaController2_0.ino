@@ -37,7 +37,7 @@
 #include <AquaWiFi.h>
 #include <AquaFAN.h>
 #include <AquaDisplay.h>
-
+//#include <EasyBuzzer.h>
 
 
 AquaTimers aquaTimers;
@@ -98,6 +98,7 @@ void ScanI2C() {
 void setup() {
 	esp_task_wdt_init(WDT_TIMEOUT, true);
 	esp_task_wdt_add(NULL);
+	EasyBuzzer.setPin(TONE_PIN);
 	Display.Init();
 	Display.SetPage(2);
 	if (!Wire.begin())
@@ -141,7 +142,7 @@ void loop() {
 		Display.SetTemp(Helper.data.TempSensor[0]);
 		Display.SetPH(Helper.data.PHCurrent[0]);
 	}
-
+	EasyBuzzer.update();
 	Display.Loop();
 }
 

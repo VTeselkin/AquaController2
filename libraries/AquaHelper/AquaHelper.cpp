@@ -25,35 +25,28 @@ const byte tonePin = 4;
  */
 void AquaHelper::Tone(const word frequency, const word duration) {
 	if (data.isTone == 1) {
-		ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
+		ESP_tone(frequency, duration);
 	}
 }
 
 void AquaHelper::Tone() {
 	if (data.isTone == 1) {
-		ESP_tone(TONE_PIN, 500, 10, BUZZER_CHANNEL);
+		ESP_tone(1000, 100);
 	}
 }
 
 void AquaHelper::ToneForce(const word frequency, const word duration) {
-	ESP_tone(TONE_PIN, frequency, duration, BUZZER_CHANNEL);
+	ESP_tone(frequency, duration);
 }
 
-void AquaHelper::ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel) {
-	if (ledcRead(channel)) {
-		return;
-	}
-	ledcAttachPin(pin, channel);
-	ledcWriteTone(channel, frequency);
-	if (duration) {
-		delay(duration);
-		ESP_noTone(pin, channel);
-	}
+void AquaHelper::ESP_tone( unsigned int frequency, unsigned long duration) {
+	EasyBuzzer.beep(
+	  frequency, duration	// Frequency in Hertz(HZ).
+	);
 }
 
-void AquaHelper::ESP_noTone(uint8_t pin, uint8_t channel) {
-	ledcDetachPin(pin);
-	ledcWrite(channel, 0);
+void AquaHelper::ESP_noTone() {
+	EasyBuzzer.stopBeep();
 }
 
 String SendStartMess() {

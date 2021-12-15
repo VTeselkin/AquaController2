@@ -17,6 +17,7 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 #include <esp_spi_flash.h>
+#include <EasyBuzzer.h>
 
 #define WDT_TIMEOUT 60
 #define MAX_ADRESS 10
@@ -102,7 +103,7 @@
 #define DELAY_MESSAGE_UPDATE 60000
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
-#define DELAY_PH_UPDATE 2000
+#define DELAY_PH_UPDATE 60000
 #define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
@@ -117,6 +118,7 @@
 #define TONE_PIN 15
 
 #define BUZZER_CHANNEL 0
+
 /**
  * Addressing memory to store device states
  */
@@ -278,7 +280,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 211;
+const int VERTION_FIRMWARE = 213;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -512,8 +514,8 @@ public:
 	static String GetFormatDataNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
-	static void ESP_tone(uint8_t pin, unsigned int frequency, unsigned long duration, uint8_t channel);
-	static void ESP_noTone(uint8_t pin, uint8_t channel);
+	static void ESP_tone(unsigned int frequency, unsigned long durationl);
+	static void ESP_noTone();
 	static int GetLevelPWM(byte timer);
 	static int ChipSize();
 	static int SPIFFSSize();

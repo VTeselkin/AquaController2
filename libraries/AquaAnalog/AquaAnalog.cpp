@@ -22,17 +22,15 @@ void AquaAnalog::Init() {
 }
 
 void AquaAnalog::Update() {
-	if (Helper.GetTimeNow().Second % 2 == 0) {
+
 		adc[0] = analogRead(Helper.data.nADCPins[0]);
 		adc[1] = analogRead(Helper.data.nADCPins[1]);
 		adc[2] = analogRead(Helper.data.nADCPins[2]);
 		adc[3] = analogRead(Helper.data.nADCPins[3]);
-	}
-
 }
 
 uint16_t AquaAnalog::GetADCLevel(byte canal) {
-	return adc[canal];
+	return analogRead(Helper.data.nADCPins[canal]);
 }
 
 float AquaAnalog::GetADCVoltage(byte canal) {
@@ -49,7 +47,7 @@ void AquaAnalog::CheckWaterLevel(void (*GetChanalState)(bool, byte)) {
 	}
 }
 
-int buffer_adc[10] = {0};
+int buffer_adc[20] = {0};
 int adc_temp = 0;
 unsigned long int ph_sum;
 /**
@@ -59,13 +57,13 @@ unsigned long int ph_sum;
  */
 float AquaAnalog::CheckPhVoltage(byte canal) {
 	ph_sum = 0;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 20; i++) {
 		buffer_adc[i] = GetADCLevel(canal);
 		delay(30);
 
 	}
-	for (int i = 0; i < 9; i++) {
-		for (int j = i + 1; j < 10; j++) {
+	for (int i = 0; i < 19; i++) {
+		for (int j = i + 1; j < 20; j++) {
 			if (buffer_adc[i] > buffer_adc[j]) {
 				adc_temp = buffer_adc[i];
 				buffer_adc[i] = buffer_adc[j];
@@ -74,11 +72,11 @@ float AquaAnalog::CheckPhVoltage(byte canal) {
 		}
 	}
 
-	for (int i = 2; i < 8; i++) {
+	for (int i = 5; i < 15; i++) {
 		ph_sum += buffer_adc[i];
 	}
 
-	float volt = (float) ph_sum * 3.3f / 4096.0 / 6;
+	float volt = (float) ph_sum * 3.3f / 4096.0 / 10;
 	return volt;
 }
 
@@ -86,7 +84,15 @@ bool AquaAnalog::AddPhElementToStats() {
 	if (millis() > lastPHUpdate) {
 		for (byte i = 0; i < 1; i++) {
 			float voltage = CheckPhVoltage(i);
-			float PH_probe = -5.70 * voltage + 28.34;
+			Serial.println("voltage = " + String(voltage));
+			Serial.println("GetADCLevel 0 = " + String(GetADCLevel(0)));
+			Serial.println("GetADCLevel 1 = " + String(GetADCLevel(1)));
+			float x1 = 4.11f;
+			float x2 = 6.86f;
+			float y1 = 3.15f;
+			float y2 = 2.85f;
+			float PH_probe = (-(x2 -x1) * voltage - (x1*y2 - x2*y1)) / (y1 -y2);
+			Serial.println("PH_probe = " + String(PH_probe));
 //			float V6_86 = 3.3 / 4096.0 * Helper.data.PHTimer686[i];
 //			float V4_01 =3.3 / 4096.0 * Helper.data.PHTimer401[i];
 //			float PH_step = (V6_86 - V4_01) / (Ph6_86 - Ph4_01);

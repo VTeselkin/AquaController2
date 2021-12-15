@@ -171,7 +171,7 @@ void AquaCanal::SetLEDTx(typeLightLED type) {
 }
 
 void AquaCanal::SetDebugLED(typeLightLED type, byte canal, byte index) {
-	if(_typeDebugLED[index] == type) return;
+	if(_typeDebugLED[index] == type || !Helper.data.debug) return;
 	_typeDebugLED[index] = type;
 	switch (type) {
 	case SHORT:
@@ -192,28 +192,28 @@ void AquaCanal::SetDebugLED(typeLightLED type, byte canal, byte index) {
 
 void AquaCanal::DisableLED() {
 	for (byte i = 0; i < 4; i++) {
-		if (_typeDebugLED[i] != NONE && _typeDebugLED[i] != LIGHT) {
-			if (_typeDebugLED[i] == SHORT && _timeDebugLED[i] + 50 < millis()) {
+		if ((_typeDebugLED[i] != NONE && _typeDebugLED[i] != LIGHT) || !Helper.data.debug) {
+			if ((_typeDebugLED[i] == SHORT && _timeDebugLED[i] + 50 < millis()) || !Helper.data.debug) {
 				SetPWMCanalOff(12 + i);
 				_typeDebugLED[i] = NONE;
 				_stateDebugLED[i] = 0;
 				_timeDebugLED[i] = millis();
 			}
-			if (_typeDebugLED[i] == LONG && _typeDebugLED[i] + 300 < millis()) {
+			if ((_typeDebugLED[i] == LONG && _typeDebugLED[i] + 300 < millis())|| !Helper.data.debug) {
 				SetPWMCanalOff(12 + i);
 				_typeDebugLED[i] = NONE;
 				_stateDebugLED[i] = 0;
 				_timeDebugLED[i] = millis();
 			}
 
-			if (_typeDebugLED[i] == PULSE) {
+			if (_typeDebugLED[i] == PULSE || !Helper.data.debug) {
 				if (_timeDebugLED[i] + 300 < millis() && _stateDebugLED[i] == 1) {
 					SetPWMCanal(12 + i, 0);
 					_stateDebugLED[i] = 0;
 					_timeDebugLED[i] = millis();
 				}
 			}
-			if (_typeDebugLED[i] == PULSE) {
+			if (_typeDebugLED[i] == PULSE && Helper.data.debug) {
 				if (_timeDebugLED[i] + 300 < millis() && _stateDebugLED[i] == 0) {
 					SetPWMCanal(12 + i, MAX_PWM_POWER_CALCULATE / 2);
 					_stateDebugLED[i] = 1;
