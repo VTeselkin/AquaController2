@@ -333,6 +333,10 @@ void AquaWiFi::SendFromUDPToController(String inString) {
 			funcGetUDPRequest(FAN, inString);
 			return;
 		}
+		if (inString.indexOf(GET_DEVICE_PH_SET) != -1) {
+			funcGetUDPRequest(PH_SETTINGS, inString);
+			return;
+		}
 
 	} else if (inString.indexOf(INFO_COMMAND) != -1) {
 		funcChangeLog("[RX]" + inString);
@@ -404,6 +408,8 @@ void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache, bool isBroad
 		responseCache[FAN] = Helper.GetFANTemp();
 		break;
 	case NTP:
+		break;
+	case PH_SETTINGS:
 		break;
 
 	}

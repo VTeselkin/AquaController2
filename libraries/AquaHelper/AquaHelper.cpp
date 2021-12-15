@@ -39,10 +39,9 @@ void AquaHelper::ToneForce(const word frequency, const word duration) {
 	ESP_tone(frequency, duration);
 }
 
-void AquaHelper::ESP_tone( unsigned int frequency, unsigned long duration) {
-	EasyBuzzer.beep(
-	  frequency, duration	// Frequency in Hertz(HZ).
-	);
+void AquaHelper::ESP_tone(unsigned int frequency, unsigned long duration) {
+	EasyBuzzer.beep(frequency, duration	// Frequency in Hertz(HZ).
+			);
 }
 
 void AquaHelper::ESP_noTone() {
@@ -391,9 +390,9 @@ String AquaHelper::GetPhTimerState() {
 	result += ",\"ph_c\"";
 	result += GetJsonValue(data.PHTimerCanal, MAX_TIMERS_PH);
 	result += ",\"ph_401v2\"";
-	result += GetJsonValue(data.PHTimer401, MAX_TIMERS_PH);
+	result += GetJsonValue(data.PHCalibrationValue, MAX_TIMERS_PH);
 	result += ",\"ph_686v2\"";
-	result += GetJsonValue(data.PHTimer686, MAX_TIMERS_PH);
+	result += GetJsonValue(data.PHCalibrationVoltage, MAX_TIMERS_PH);
 	result += "}}";
 	return result;
 }
@@ -454,7 +453,7 @@ String AquaHelper::GetTempStats() {
 }
 
 //============================================POST==============================================
-bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
+bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)(byte, byte, int)) {
 	if (inString.indexOf("post") != -1) {
 		DynamicJsonBuffer jsonBuffer(200);
 		JsonObject &root = jsonBuffer.parseObject(inString);
@@ -515,11 +514,7 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
 				SetJsonValue(Helper.data.PHTimerState, MAX_TIMERS_PH, "ph_st", request);
 			if (inString.indexOf("ph_c") != -1)
 				SetJsonValue(Helper.data.PHTimerCanal, MAX_TIMERS_PH, "ph_c", request);
-			if (inString.indexOf("ph_401v2") != -1)
-				SetJsonValue(Helper.data.PHTimer401, MAX_TIMERS_PH, "ph_401v2", request);
-			if (inString.indexOf("ph_686v2") != -1)
-				SetJsonValue(Helper.data.PHTimer686, MAX_TIMERS_PH, "ph_686v2", request);
-			GetPHLevelConfig();
+
 			return true;
 			//{"status":"post","message":"settings","data": {"ntp":0,"update":0,"sound":0,"debug":0}}
 		} else if (inString.indexOf(SETTINGS_DEV) != -1) {
@@ -536,6 +531,22 @@ bool AquaHelper::SetPostRequest(String inString, void (*GetPHLevelConfig)()) {
 			if (inString.indexOf("t_fan_se") != -1)
 				SetJsonValue(Helper.data.FANSensor, MAX_CHANALS_FAN, "t_fan_se", request);
 			return true;
+		} else if (inString.indexOf(GET_DEVICE_PH_SET) != -1) {
+			byte index = 0;
+			byte point = 0;
+			int value = 0.0f;
+			if (inString.indexOf("ph_index") != -1) {
+				index = request["ph_index"].as<byte>();
+				if (inString.indexOf("ph_point") != -1) {
+					point = request["ph_point"].as<byte>();
+					if (inString.indexOf("ph_value") != -1) {
+						value = request["ph_value"].as<int>();
+						GetPHLevelConfig(index, point, value);
+						return true;
+					}
+				}
+			}
+
 		}
 		return false;
 	}

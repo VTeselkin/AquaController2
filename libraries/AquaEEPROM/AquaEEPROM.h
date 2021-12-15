@@ -41,6 +41,10 @@ public:
 
 	uint16_t SaveUTCSetting(uint16_t utc);
 	uint16_t LoadUTCSetting();
+	unsigned int EEPROM_readint(int address);
+	void EEPROM_writelong(int address, unsigned long value);
+	void EEPROM_writeint(int address, int value);
+	unsigned long EEPROM_readlong(int address);
 private:
 	void OnFirstLunch();
 

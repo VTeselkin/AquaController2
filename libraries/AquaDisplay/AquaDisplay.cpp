@@ -76,7 +76,7 @@ void AquaDisplay::Loop() {
 }
 int AquaDisplay::GetVersion() {
 	auto ver = myNex.readStr("ver.txt");
-	if(ver == "ERROR"){
+	if (ver == "ERROR") {
 		return 0;
 	}
 	return ver.toInt();
@@ -652,22 +652,27 @@ String AquaDisplay::Format02DCanal(byte data) {
 }
 String AquaDisplay::Format04DTemp(unsigned short temp, bool longRecord) {
 	temp = temp * STEP + MIN_TEMP;
-	return Format04D(temp, longRecord);
+	return Format04D(temp, longRecord, true);
 }
 String AquaDisplay::Format04DPh(unsigned short ph, bool longRecord) {
 	ph = ph * STEP_PH + MIN_PH;
-	return Format04D(ph, longRecord);
+	if (ph < 10) {
+		return Format04D(ph, true, false);
+	} else {
+		return Format04D(ph, false, false);
+	}
 }
-String AquaDisplay::Format04D(unsigned short temp, bool longRecord) {
+String AquaDisplay::Format04D(unsigned short temp, bool longRecordFloat, bool longRecord) {
 
 	s_temp = "";
 	byte k = temp / 100;
 	byte m = temp % 100;
-	if (k < 10)
+	if (k < 10 && longRecord) {
 		s_temp += "0";
+	}
 	s_temp += k;
 	s_temp += ".";
-	if (!longRecord) {
+	if (!longRecordFloat) {
 		if (m < 10) {
 			s_temp += m;
 		} else {

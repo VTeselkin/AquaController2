@@ -17,6 +17,7 @@ void AquaEEPROM::Init() {
 	LoadSecondsTimersReadFromERROM();
 	LoadTempTimerFromERROM();
 	LoadLcdSetings();
+	LoadPHTimerToERROM();
 	LoadWiFiSettings();
 	LoadFANSettings();
 }
@@ -165,14 +166,18 @@ void AquaEEPROM::SaveTempTimerToERROM() {
 }
 
 void AquaEEPROM::SavePHTimerToERROM() {
+	Serial.println("SavePHTimerToERROM");
 	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 		EEPROM.write(PHTimerStartAddr - i, Helper.data.PHTimerStart[i]);
 		EEPROM.write(PHTimerEndAddr - i, Helper.data.PHTimerEnd[i]);
 		EEPROM.write(PHTimerStateAddr - i, Helper.data.PHTimerState[i]);
 		EEPROM.write(PHTimerCanalAddr - i, Helper.data.PHTimerCanal[i]);
-		EEPROM.write(PHTimer401Addr - i * 2, Helper.data.PHTimer401[i]);
-		EEPROM.write(PHTimer686Addr - i * 2, Helper.data.PHTimer686[i]);
 	}
+	for (byte i = 0; i < MAX_TIMERS_PH * 2; i++) {
+		EEPROM_writeint(PHTimer401Addr - i * 2, Helper.data.PHCalibrationValue[i]);
+		EEPROM_writeint(PHTimer686Addr - i * 2, Helper.data.PHCalibrationVoltage[i]);
+	}
+
 	EEPROM.commit();
 }
 
@@ -182,8 +187,10 @@ void AquaEEPROM::LoadPHTimerToERROM() {
 		Helper.data.PHTimerEnd[i] = EEPROM.read(PHTimerEndAddr - i);
 		Helper.data.PHTimerState[i] = EEPROM.read(PHTimerStateAddr - i);
 		Helper.data.PHTimerCanal[i] = EEPROM.read(PHTimerCanalAddr - i);
-		Helper.data.PHTimer401[i] = EEPROM.read(PHTimer401Addr - i * 2);
-		Helper.data.PHTimer686[i] = EEPROM.read(PHTimer686Addr - i * 2);
+	}
+	for (byte i = 0; i < MAX_TIMERS_PH * 2; i++) {
+		Helper.data.PHCalibrationValue[i] = EEPROM_readint(PHTimer401Addr - i * 2);
+		Helper.data.PHCalibrationVoltage[i] = EEPROM_readint(PHTimer686Addr - i * 2);
 	}
 }
 
@@ -200,7 +207,7 @@ void AquaEEPROM::LoadLcdSetings() {
 	Helper.data.indexDelayLCDButton = EEPROM.read(LCD_BUTTON_ADDR);
 	Helper.data.isTone = EEPROM.read(LCD_SOUND_ADDR);
 }
-void AquaEEPROM::LoadFANSettings(){
+void AquaEEPROM::LoadFANSettings() {
 	for (byte i = 0; i < MAX_CHANALS_FAN; i++) {
 		Helper.data.FANTimerMinStart[i] = EEPROM.read(FANTimerMinStartAddr - i);
 		Helper.data.FANTimerMaxEnd[i] = EEPROM.read(FANTimerMaxEndAddr - i);
@@ -240,11 +247,9 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 	return EEPROM.read(UTC_ADDR);
 }
 
-
-
 void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 1) {
-		for(int i = 0; i < MAX_EEPROM; i++){
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 2) {
+		for (int i = 0; i < MAX_EEPROM; i++) {
 			EEPROM.write(i, 0);
 		}
 		EEPROM.commit();
@@ -259,10 +264,41 @@ void AquaEEPROM::OnFirstLunch() {
 		SavePHTimerToERROM();
 		SaveUTCSetting(3);
 		SaveFANSettings();
-		EEPROM.write(ADDR_FIRST_LAUNCH, 1);
+		EEPROM.write(ADDR_FIRST_LAUNCH, 2);
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();
 
 	}
+}
+// read double word from EEPROM, give starting address
+unsigned long AquaEEPROM::EEPROM_readlong(int address) {
+//use word read function for reading upper part
+	unsigned long dword = EEPROM_readint(address);
+//shift read word up
+	dword = dword << 16;
+// read lower word from EEPROM and OR it into double word
+	dword = dword | EEPROM_readint(address + 2);
+	return dword;
+}
+
+//write word to EEPROM
+void AquaEEPROM::EEPROM_writeint(int address, int value) {
+	EEPROM.write(address, highByte(value));
+	EEPROM.write(address + 1, lowByte(value));
+}
+
+//write long integer into EEPROM
+void AquaEEPROM::EEPROM_writelong(int address, unsigned long value) {
+//truncate upper part and write lower part into EEPROM
+	EEPROM_writeint(address + 2, word(value));
+//shift upper part down
+	value = value >> 16;
+//truncate and write
+	EEPROM_writeint(address, word(value));
+}
+
+unsigned int AquaEEPROM::EEPROM_readint(int address) {
+	unsigned int word = word(EEPROM.read(address), EEPROM.read(address + 1));
+	return word;
 }

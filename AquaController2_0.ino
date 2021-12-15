@@ -236,35 +236,24 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 			break;
 		case NTP:
 			break;
+		case PH_SETTINGS:
+			aquaEEPROM.SavePHTimerToERROM();
+			break;
 		}
 		aquaWiFi.SendCacheResponse(type, true, false);
 	} else {
-		if (type == NTP) {
+		if (type == NTP || type == PH_SETTINGS) {
 			Display.Update();
+			return;
 		}
 		Serial.println("ERROR POST UDP");
 	}
 }
 
-void SetPHSensorConfig() {
-	for (byte i = 0; i < MAX_TIMERS_PH; i++) {
-		if (Helper.data.PHTimer686[i] == 0) {
-//			Serial.print("CheckPhLevel PHTimer686 canal = ");
-//			Serial.println(i);
-//			auto level = aquaAnalog.CheckPhLevel(i);
-//			if (level == 0)
-//				level = 1;
-//			Helper.data.PHTimer686[i] = level;
-		}
-		if (Helper.data.PHTimer401[i] == 0) {
-//			Serial.print("CheckPhLevel PHTimer401 canal = ");
-//			Serial.println(i);
-//			auto level = aquaAnalog.CheckPhLevel(i);
-//			if (level == 0)
-//				level = 1;
-//			Helper.data.PHTimer401[i] = level;
-		}
-	}
+void SetPHSensorConfig(byte index, byte point, int value) {
+		word voltage = aquaAnalog.CheckPhVoltage(index) * 100;
+		Helper.data.PHCalibrationValue[point + 2 * index] = value;
+		Helper.data.PHCalibrationVoltage[point + 2 * index] = voltage;
 }
 
 uint16_t SaveUTCSetting(uint16_t utc) {

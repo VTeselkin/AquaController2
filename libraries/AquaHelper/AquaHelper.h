@@ -103,7 +103,7 @@
 #define DELAY_MESSAGE_UPDATE 60000
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
-#define DELAY_PH_UPDATE 60000
+#define DELAY_PH_UPDATE 30000
 #define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
@@ -152,12 +152,13 @@ const word PWMTimerChanalAddr = 377;
 
 const word ChanalsPWMStateAddr = 365;
 
+
+
 const word PHTimerStartAddr = 347;
 const word PHTimerEndAddr = 345;
 const word PHTimerStateAddr = 343;
 const word PHTimerCanalAddr = 341;
-const word PHTimer401Addr = 349;
-const word PHTimer686Addr = 337;
+
 const word Ph_6_86_levelAddr = 335;
 const word Ph_4_01_levelAddr = 330;
 
@@ -192,6 +193,8 @@ const byte TempTimerMaxEndAddr = 101;
 const byte TempTimerStateAddr = 97;
 const byte TempTimerChanalAddr = 93;
 
+const word PHTimer401Addr = 80;
+const word PHTimer686Addr = 60;
 const String responseNull = "{\"status\":\"error\",\"message\":\"Not Initialized\",\"data\":{}}";
 
 //------------------type of message-----------------------
@@ -258,6 +261,7 @@ const String GET_DEVICE_TEMP_STATS = "temp_stats";
 const String GET_DEVICE_PH_TIMER = "ph_timer";
 const String GET_DEVICE_PH = "ph_state";
 const String GET_DEVICE_FAN = "t_fan";
+const String GET_DEVICE_PH_SET = "ph_set";
 
 //---------------------------------------------------------------
 
@@ -280,7 +284,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 213;
+const int VERTION_FIRMWARE = 214;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -326,7 +330,8 @@ typedef enum {
 	PWMTIMER,
 	SETTINGS,
 	FAN,
-	NTP
+	NTP,
+	PH_SETTINGS
 } typeResponse;
 using Dictionary = std::map<typeResponse, String>;
 
@@ -472,8 +477,8 @@ typedef struct {
 	byte PHTimerEnd[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerState[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerCanal[MAX_TIMERS_PH] = { 0, 0 };
-	word PHTimer401[MAX_TIMERS_PH] = { 1, 1 };
-	word PHTimer686[MAX_TIMERS_PH] = { 1, 1 };
+	word PHCalibrationValue[MAX_TIMERS_PH * 2] = { 1, 1, 1, 1 };
+	word PHCalibrationVoltage[MAX_TIMERS_PH * 2] = { 1, 1, 1, 1 };
 	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = { };
 	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
 
@@ -490,7 +495,7 @@ public:
 	static void Tone();
 	static void Tone(const word frequency, const word duration);
 	static void ToneForce(const word frequency, const word duration);
-	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)());
+	static bool SetPostRequest(String inString, void (*GetPHLevelConfig)(byte, byte, int));
 	static String GetDevice(String ip);
 	static String GetDataTime();
 	static String GetChanalState();

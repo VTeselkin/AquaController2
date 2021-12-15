@@ -63,7 +63,7 @@ private:
 	static String Format02D(byte data);
 	static String Format03D(byte data);
 	static String Format02DCanal(byte data);
-	static String Format04D(unsigned short temp, bool needConvert);
+	static String Format04D(unsigned short temp, bool needConvert, bool longRecord);
 	static String Format04DTemp(unsigned short temp, bool needConvert);
 	static String Format04DPh(unsigned short temp, bool needConvert);
 };

@@ -87,16 +87,16 @@ bool AquaAnalog::AddPhElementToStats() {
 			Serial.println("voltage = " + String(voltage));
 			Serial.println("GetADCLevel 0 = " + String(GetADCLevel(0)));
 			Serial.println("GetADCLevel 1 = " + String(GetADCLevel(1)));
-			float x1 = 4.11f;
-			float x2 = 6.86f;
-			float y1 = 3.15f;
-			float y2 = 2.85f;
+			float x1 = Helper.data.PHCalibrationValue[2 * i] / 100.0f;//4.11f;
+			float x2 = Helper.data.PHCalibrationValue[2 * i + 1] / 100.0f;//6.86f;
+			float y1 = Helper.data.PHCalibrationVoltage[2 * i]/ 100.0f;//3.15f;
+			float y2 = Helper.data.PHCalibrationVoltage[2 * i + 1] / 100.0f;//2.85f;
 			float PH_probe = (-(x2 -x1) * voltage - (x1*y2 - x2*y1)) / (y1 -y2);
+			Serial.println("x1 = " + String(x1));
+			Serial.println("x2 = " + String(x2));
+			Serial.println("y1 = " + String(y1));
+			Serial.println("y2 = " + String(y2));
 			Serial.println("PH_probe = " + String(PH_probe));
-//			float V6_86 = 3.3 / 4096.0 * Helper.data.PHTimer686[i];
-//			float V4_01 =3.3 / 4096.0 * Helper.data.PHTimer401[i];
-//			float PH_step = (V6_86 - V4_01) / (Ph6_86 - Ph4_01);
-//			float PH_probe = Ph6_86 - ((V6_86 - voltage) / PH_step);
 			Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
 
 			lastPHUpdate = millis() + DELAY_PH_UPDATE;
