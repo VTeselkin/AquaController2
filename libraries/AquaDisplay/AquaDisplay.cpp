@@ -652,17 +652,17 @@ String AquaDisplay::Format02DCanal(byte data) {
 }
 String AquaDisplay::Format04DTemp(unsigned short temp, bool longRecord) {
 	temp = temp * STEP + MIN_TEMP;
-	return Format04D(temp, longRecord, true);
+	return Format04D(temp, true, longRecord);
 }
 String AquaDisplay::Format04DPh(unsigned short ph, bool longRecord) {
 	ph = ph * STEP_PH + MIN_PH;
-	if (ph < 10) {
-		return Format04D(ph, true, false);
+	if (ph < 1000) {
+		return Format04D(ph, false, true);
 	} else {
 		return Format04D(ph, false, false);
 	}
 }
-String AquaDisplay::Format04D(unsigned short temp, bool longRecordFloat, bool longRecord) {
+String AquaDisplay::Format04D(unsigned short temp, bool longRecord, bool longRecordFloat) {
 
 	s_temp = "";
 	byte k = temp / 100;

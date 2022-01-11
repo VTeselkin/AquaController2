@@ -377,7 +377,7 @@ String AquaHelper::GetAlarmWaterLevel(int level) {
 /**
  * v0.6
  * @param data
- * {"status":"post","message":"ph_timer","data": {"ph_401v2":[844, 844],"ph_686v2":[797, 797],"ph_c":[1,1],"ph_e":[60, 60],"ph_s":[0,0],"ph_st":[1,1]}}
+ * {"status":"post","message":"ph_timer","data": {"ph_401v2":[844, 844, 844, 844],"ph_686v2":[797, 797, 797, 797],"ph_c":[1,1],"ph_e":[60, 60],"ph_s":[0,0],"ph_st":[1,1]}}
  */
 String AquaHelper::GetPhTimerState() {
 	String result = "";
@@ -389,10 +389,10 @@ String AquaHelper::GetPhTimerState() {
 	result += GetJsonValue(data.PHTimerState, MAX_TIMERS_PH);
 	result += ",\"ph_c\"";
 	result += GetJsonValue(data.PHTimerCanal, MAX_TIMERS_PH);
-	result += ",\"ph_401v2\"";
-	result += GetJsonValue(data.PHCalibrationValue, MAX_TIMERS_PH);
-	result += ",\"ph_686v2\"";
-	result += GetJsonValue(data.PHCalibrationVoltage, MAX_TIMERS_PH);
+	result += ",\"ph_value\"";
+	result += GetJsonValue(data.PHCalibrationValue, MAX_TIMERS_PH * 2);
+	result += ",\"ph_voltage\"";
+	result += GetJsonValue(data.PHCalibrationVoltage, MAX_TIMERS_PH * 2);
 	result += "}}";
 	return result;
 }

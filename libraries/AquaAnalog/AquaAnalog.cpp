@@ -82,23 +82,15 @@ float AquaAnalog::CheckPhVoltage(byte canal) {
 
 bool AquaAnalog::AddPhElementToStats() {
 	if (millis() > lastPHUpdate) {
-		for (byte i = 0; i < 1; i++) {
+		for (byte i = 0; i < 2; i++) {
 			float voltage = CheckPhVoltage(i);
-			Serial.println("voltage = " + String(voltage));
-			Serial.println("GetADCLevel 0 = " + String(GetADCLevel(0)));
-			Serial.println("GetADCLevel 1 = " + String(GetADCLevel(1)));
+
 			float x1 = Helper.data.PHCalibrationValue[2 * i] / 100.0f;//4.11f;
 			float x2 = Helper.data.PHCalibrationValue[2 * i + 1] / 100.0f;//6.86f;
 			float y1 = Helper.data.PHCalibrationVoltage[2 * i]/ 100.0f;//3.15f;
 			float y2 = Helper.data.PHCalibrationVoltage[2 * i + 1] / 100.0f;//2.85f;
 			float PH_probe = (-(x2 -x1) * voltage - (x1*y2 - x2*y1)) / (y1 -y2);
-			Serial.println("x1 = " + String(x1));
-			Serial.println("x2 = " + String(x2));
-			Serial.println("y1 = " + String(y1));
-			Serial.println("y2 = " + String(y2));
-			Serial.println("PH_probe = " + String(PH_probe));
 			Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
-
 			lastPHUpdate = millis() + DELAY_PH_UPDATE;
 		}
 		if (millis() > lastPHStateTime) {

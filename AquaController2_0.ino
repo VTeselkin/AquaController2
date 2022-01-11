@@ -53,6 +53,7 @@ unsigned int _timerForCheck = 0;
 unsigned int _hourTimerForCheck = 0;
 unsigned int _secondTimerForCheck = 0;
 unsigned int _pwmTimerForCheck = 0;
+unsigned int _phTimerForCheck = 0;
 unsigned long _lastTimeUpdate = 0;
 bool isNeedEnableZeroCanal = false;
 
@@ -122,6 +123,7 @@ void loop() {
 	aquaTimers.CheckStateTimer(_hourTimerForCheck, TIMER_OTHER, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_secondTimerForCheck, TIMER_SEC, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTimers.CheckStateTimer(_pwmTimerForCheck, TIMER_PWM, ChangeChanalState, isNeedEnableZeroCanal);
+	aquaTimers.CheckStateTimer(_phTimerForCheck, TIMER_PH, ChangeChanalState, isNeedEnableZeroCanal);
 	aquaTemp.GetTemperature(ChangeTempState);
 	aquaTemp.CheckStateTempTimer(ChangeChanalState, isNeedEnableZeroCanal);
 	aquaCanal.SetStateCanal(ChangeChanalState);

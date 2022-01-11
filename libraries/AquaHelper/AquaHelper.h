@@ -48,6 +48,7 @@
 #define TIMER_TEMP 6
 #define TIMER_PWM 7
 #define TIMER_TEMPFAN 8
+#define TIMER_PH 8
 
 #define ENABLE_TIMER 1
 #define DISABLE_TIMER 0
@@ -284,7 +285,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 214;
+const int VERTION_FIRMWARE = 223;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -295,7 +296,7 @@ const byte MIN_INDEX_PH = 0;
 // The maximum possible PH index: MIN_TEMP + STEP* MAX_INDEX_TEMP
 const byte MAX_INDEX_PH = 120;
 // Minimal step of PH change
-const byte STEP_PH = 10;
+const byte STEP_PH = 5;
 
 const float Ph6_86 = 6.86f;
 const float Ph4_01 = 4.01f;
@@ -477,10 +478,10 @@ typedef struct {
 	byte PHTimerEnd[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerState[MAX_TIMERS_PH] = { 0, 0 };
 	byte PHTimerCanal[MAX_TIMERS_PH] = { 0, 0 };
-	word PHCalibrationValue[MAX_TIMERS_PH * 2] = { 1, 1, 1, 1 };
-	word PHCalibrationVoltage[MAX_TIMERS_PH * 2] = { 1, 1, 1, 1 };
-	uint16_t PHStats[MAX_TIMERS_PH][MAX_STATS] = { };
-	uint16_t PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
+	word PHCalibrationValue[MAX_TIMERS_PH * 2] = { 411, 686, 411, 686 };
+	word PHCalibrationVoltage[MAX_TIMERS_PH * 2] = { 315, 285, 315, 285 };
+	word PHStats[MAX_TIMERS_PH][MAX_STATS] = { };
+	word PHCurrent[MAX_TIMERS_PH] = { 0, 0 };
 
 	/** ------------------------------------ADC-------------------------------------- */
 	//Enabled canals for ADC

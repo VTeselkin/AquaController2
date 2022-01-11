@@ -26,5 +26,6 @@ private:
 		 bool CheckStateHoursTimer(byte i);
 		 bool CheckStateSecondTimer(byte i);
 		 bool CheckStatePWMTimer(byte i);
+		 bool CheckStatePHTimer(byte i);
 
 };
