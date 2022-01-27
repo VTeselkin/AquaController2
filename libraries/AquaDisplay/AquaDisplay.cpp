@@ -102,6 +102,7 @@ void AquaDisplay::SendLogLn(String log) {
 	}
 	rowLog++;
 	if (rowLog > 22) {
+		delay(2000);
 		ClearLog();
 		rowLog = 0;
 		SendLogLn(log);
@@ -175,6 +176,8 @@ void AquaDisplay::SetPH(word ph) {
 }
 
 void AquaDisplay::UpdateCanals(byte canals[], byte max_canal, String canal_name) {
+	if (_currentPage != 3 && _currentPage != 4)
+		return;
 	for (byte i = 1; i < max_canal + 1; i++) {
 		String value = "AUTO";
 		if (canals[i - 1] == 1) {
@@ -187,6 +190,7 @@ void AquaDisplay::UpdateCanals(byte canals[], byte max_canal, String canal_name)
 }
 
 void AquaDisplay::UpdateDisplayTimersPWM() {
+	if(_currentPage != 6) return;
 	myNex.writeStr("t0.txt", Format02DCanal(TimerNumberLed));	//timer index
 	if (Helper.data.TimerPWMState[TimerNumberLed] == ENABLE_TIMER) {	//state
 		myNex.writeStr("b2.txt", "ON");
@@ -207,6 +211,7 @@ void AquaDisplay::UpdateDisplayTimersPWM() {
 }
 
 void AquaDisplay::UpdateDisplayTimersDaily() {
+	if(_currentPage != 7) return;
 	myNex.writeStr("t0.txt", Format02DCanal(TimerNumberDaily));	//timer index
 	if (Helper.data.DailyTimerState[TimerNumberDaily] == ENABLE_TIMER) {	//state
 		myNex.writeStr("b2.txt", "ON");
@@ -221,6 +226,7 @@ void AquaDisplay::UpdateDisplayTimersDaily() {
 }
 
 void AquaDisplay::UpdateDisplayTimersHourly() {
+	if(_currentPage != 8) return;
 	myNex.writeStr("t0.txt", Format02DCanal(TimerNumberHour));	//timer index
 	if (Helper.data.HoursTimerState[TimerNumberHour] == ENABLE_TIMER) {	//state
 		myNex.writeStr("b2.txt", "ON");
@@ -233,6 +239,7 @@ void AquaDisplay::UpdateDisplayTimersHourly() {
 }
 
 void AquaDisplay::UpdateDisplayTimersSecond() {
+	if(_currentPage != 9) return;
 	myNex.writeStr("t0.txt", Format02DCanal(TimerNumberSecond));	//timer index
 	if (Helper.data.SecondTimerState[TimerNumberSecond] == ENABLE_TIMER) {	//state
 		myNex.writeStr("b2.txt", "ON");
@@ -262,6 +269,7 @@ void AquaDisplay::SetPWMCanalState(byte i) {
 }
 
 void AquaDisplay::UpdateDisplayTimersTemp() {
+	if(_currentPage != 10) return;
 	myNex.writeStr("t0.txt", Format02DCanal(TimerNumberTemp));	//timer index
 	if (Helper.data.TempTimerState[TimerNumberTemp] == ENABLE_TIMER) {	//state
 		myNex.writeStr("b2.txt", "ON");
@@ -275,6 +283,7 @@ void AquaDisplay::UpdateDisplayTimersTemp() {
 }
 
 void AquaDisplay::UpdateDisplaySettings() {
+	if(_currentPage != 11) return;
 	if (Helper.data.auto_update == 1) {
 		myNex.writeStr("b2.txt", "ON");
 	} else {

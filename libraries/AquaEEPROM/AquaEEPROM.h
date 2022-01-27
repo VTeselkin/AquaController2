@@ -6,6 +6,7 @@
  */
 #include "Arduino.h"
 #include <AquaHelper.h>
+#include <AquaDisplay.h>
 #include <EEPROM.h>
 
 #pragma once

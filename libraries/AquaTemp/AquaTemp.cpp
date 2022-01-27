@@ -21,6 +21,13 @@ void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
 	ds.begin();
 	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
 		ds.setResolution(Helper.data.addrThermometer[j], TEMPERATURE_PRECISION);
+		String log = "[TEMP] Find Sensor = ";
+		Serial.print("");
+		for (byte i = 0; i < 8; i++) {
+			log += Helper.data.addrThermometer[j][i];
+
+		}
+		Display.SendLogLn(log);
 	}
 	SetDalasSensor(aquaEEPROM);
 }
@@ -40,6 +47,7 @@ void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 	ds.requestTemperatures();
 	for (byte var = 0; var < MAX_TEMP_SENSOR; var++) {
 		//We obtain the temperature index
+
 		unsigned short temp = abs(ds.getTempC(Helper.data.addrThermometer[var]) * 100);
 		if (temp > MAX_TEMP || temp < MIN_TEMP) {
 			Helper.data.TempSensorState[var] = DISCONNECT_SENSOR;
@@ -232,7 +240,7 @@ void AquaTemp::SetDalasSensor(AquaEEPROM eeprom) {
 			String log = "[TEMP] Find Sensor = ";
 			Serial.print("");
 			for (byte i = 0; i < 8; i++) {
-				log+= device[i];
+				log += device[i];
 				Helper.data.addrNewThermometer[newIndex][i] = device[i];
 			}
 			Display.SendLog(log);

@@ -39,7 +39,6 @@
 #include <AquaDisplay.h>
 //#include <EasyBuzzer.h>
 
-
 AquaTimers aquaTimers;
 AquaTemp aquaTemp;
 AquaStop aquaStop;
@@ -99,9 +98,8 @@ void ScanI2C() {
 void setup() {
 	esp_task_wdt_init(WDT_TIMEOUT, true);
 	esp_task_wdt_add(NULL);
-	EasyBuzzer.setPin(TONE_PIN);
+
 	Display.Init();
-	Display.SetPage(2);
 	if (!Wire.begin())
 		Display.SendLogLnTime("I2C Fail = " + Wire.lastError());
 	ScanI2C();
@@ -144,7 +142,6 @@ void loop() {
 		Display.SetTemp(Helper.data.TempSensor[0]);
 		Display.SetPH(Helper.data.PHCurrent[0]);
 	}
-	EasyBuzzer.update();
 	Display.Loop();
 }
 
@@ -253,9 +250,11 @@ void GetUDPWiFiPOSTRequest(typeResponse type, String json) {
 }
 
 void SetPHSensorConfig(byte index, byte point, int value) {
-		word voltage = aquaAnalog.CheckPhVoltage(index) * 100;
-		Helper.data.PHCalibrationValue[point + 2 * index] = value;
-		Helper.data.PHCalibrationVoltage[point + 2 * index] = voltage;
+	word voltage = aquaAnalog.CheckPhVoltageSettings(index) * 100;
+	Serial.println(value);
+	Serial.println(voltage);
+	Helper.data.PHCalibrationValue[point + 2 * index] = value;
+	Helper.data.PHCalibrationVoltage[point + 2 * index] = voltage;
 }
 
 uint16_t SaveUTCSetting(uint16_t utc) {

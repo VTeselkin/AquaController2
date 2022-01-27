@@ -31,21 +31,23 @@ void AquaHelper::Tone(const word frequency, const word duration) {
 
 void AquaHelper::Tone() {
 	if (data.isTone == 1) {
-		ESP_tone(1000, 100);
+		ESP_tone(3000, 1000);
 	}
 }
 
-void AquaHelper::ToneForce(const word frequency, const word duration) {
-	ESP_tone(frequency, duration);
+void AquaHelper::ToneForce(const word frequency, const word onDuration) {
+	ESP_tone(frequency, onDuration);
 }
 
-void AquaHelper::ESP_tone(unsigned int frequency, unsigned long duration) {
-	EasyBuzzer.beep(frequency, duration	// Frequency in Hertz(HZ).
-			);
+void AquaHelper::ESP_tone(unsigned int frequency, unsigned int const onDuration) {
+	ledcAttachPin(TONE_PIN, BUZZER_CHANNEL);
+	ledcWriteTone(BUZZER_CHANNEL, 2000);
+	delay(100);
+	ledcDetachPin(TONE_PIN);
 }
 
 void AquaHelper::ESP_noTone() {
-	EasyBuzzer.stopBeep();
+
 }
 
 String SendStartMess() {
@@ -57,6 +59,7 @@ String SendEndMess() {
 }
 //============================================GET===============================================
 AquaHelper::AquaHelper() {
+	 ledcSetup(BUZZER_CHANNEL, 2000, 8);
 
 }
 
@@ -74,7 +77,10 @@ String AquaHelper::GetDevice(String ip) {
 	result += data.debug;
 	result += ",\"ip\":\"";
 	result += ip;
-	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":1600,\"max_t\":3500";
+	result += "\",\"m_t\":10,\"m_t_se\":4,\"min_t\":";
+	result += MIN_TEMP;
+	result += ",\"max_t\":";
+	result += MAX_TEMP;
 	result += ",\"time\":\"";
 	result += GetFormatTimeNow(false);
 	result += "\"";
@@ -377,7 +383,14 @@ String AquaHelper::GetAlarmWaterLevel(int level) {
 /**
  * v0.6
  * @param data
- * {"status":"post","message":"ph_timer","data": {"ph_401v2":[844, 844, 844, 844],"ph_686v2":[797, 797, 797, 797],"ph_c":[1,1],"ph_e":[60, 60],"ph_s":[0,0],"ph_st":[1,1]}}
+ * {"status":"post","message":"ph_timer","data":
+ * {"ph_401v2":[844, 844, 844, 844],
+ * "ph_686v2":[797, 797, 797, 797],
+ * "ph_c":[1,1],
+ * "ph_e":[60, 60],
+ * "ph_s":[0,0],
+ * "ph_st":[1,1]
+ * }}
  */
 String AquaHelper::GetPhTimerState() {
 	String result = "";

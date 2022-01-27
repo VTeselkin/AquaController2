@@ -36,7 +36,7 @@ word UTC3 = 3; //UTC+3
 Dictionary responseCache = { { DEVICE, responseNull }, { CANAL, responseNull }, { TIMERDAY, responseNull }, { TIMERHOUR,
 		responseNull }, { TIMERSEC, responseNull }, { TIMERTEMP, responseNull }, { TEMPSENSOR, responseNull }, { PH,
 		responseNull }, { PHTIMER, responseNull }, { TEMPSTATS, responseNull }, { PWMCANAL, responseNull }, { PWMTIMER,
-		responseNull }, { SETTINGS, responseNull }, { FAN, responseNull } };
+		responseNull }, { SETTINGS, responseNull }, { FAN, responseNull }, { PH_SETTINGS, responseNull } };
 
 void AquaWiFi::Init(void (*ChangeLog)(String), void (*GetUDPRequest)(typeResponse, String),
 		uint16_t (*NTPUpdate)(uint16_t), void (*chandeDebugLED)(typeDebugLED led, typeLightLED type)) {
@@ -410,6 +410,8 @@ void AquaWiFi::SendCacheResponse(typeResponse type, bool sendCache, bool isBroad
 	case NTP:
 		break;
 	case PH_SETTINGS:
+		type = PHTIMER;
+		responseCache[PHTIMER] = Helper.GetPhTimerState();
 		break;
 
 	}

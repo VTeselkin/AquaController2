@@ -248,12 +248,12 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 }
 
 void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 2) {
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 3) {
 		for (int i = 0; i < MAX_EEPROM; i++) {
 			EEPROM.write(i, 0);
 		}
 		EEPROM.commit();
-		Serial.println("OnFirstLunch");
+		Display.SendLog("Clear EEPROM On First Launch");
 		SaveChanalState();
 		SavePWMChanalState();
 		SavePWMTimerToERROM();
@@ -264,7 +264,7 @@ void AquaEEPROM::OnFirstLunch() {
 		SavePHTimerToERROM();
 		SaveUTCSetting(3);
 		SaveFANSettings();
-		EEPROM.write(ADDR_FIRST_LAUNCH, 2);
+		EEPROM.write(ADDR_FIRST_LAUNCH, 3);
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();

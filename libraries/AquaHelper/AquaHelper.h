@@ -17,7 +17,7 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 #include <esp_spi_flash.h>
-#include <EasyBuzzer.h>
+
 
 #define WDT_TIMEOUT 60
 #define MAX_ADRESS 10
@@ -89,7 +89,7 @@
 // The lowest possible setting is the temperature
 #define MIN_TEMP 1600
 // Maximum possible maximum temperature
-#define MAX_TEMP 3500
+#define MAX_TEMP 7800
 //Maximum number of PWM canals
 #define MAX_CHANALS_PWM 16
 //Maximum number of FAN canals
@@ -104,7 +104,7 @@
 #define DELAY_MESSAGE_UPDATE 60000
 #define DELAY_TEMP_UPDATE 55000
 #define DELAY_TEMP_UPDATE_STATE 3600000
-#define DELAY_PH_UPDATE 30000
+#define DELAY_PH_UPDATE 200
 #define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
@@ -126,7 +126,7 @@
 const byte ADDR_FIRST_LAUNCH = 1;
 
 const byte ChanalsStateAddr = 20;
-
+const word AUTO_UPDATE_ADDR = 1004;
 const word AUTO_DEBUG_ADDR = 1002;
 const word AUTO_CONNECT_ADDR = 1000;
 const word NTP_UPDATE_ADDR = 998;
@@ -136,7 +136,7 @@ const word LCD_BUTTON_ADDR = 992;
 const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
-const word AUTO_UPDATE_ADDR = 978;
+
 
 const word FANSensorAddr = 454;
 const word FANTimerMinStartAddr = 452;
@@ -285,7 +285,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 223;
+const int VERTION_FIRMWARE = 239;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -520,7 +520,7 @@ public:
 	static String GetFormatDataNow();
 	static void SetTimeNow(unsigned long epoch);
 	static byte ConvertPHWordToByte(const word ph);
-	static void ESP_tone(unsigned int frequency, unsigned long durationl);
+	static void ESP_tone(unsigned int frequency, unsigned int const onDuration);
 	static void ESP_noTone();
 	static int GetLevelPWM(byte timer);
 	static int ChipSize();
