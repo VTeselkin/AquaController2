@@ -285,7 +285,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 239;
+const int VERTION_FIRMWARE = 242;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;

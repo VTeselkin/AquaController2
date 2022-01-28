@@ -688,7 +688,7 @@ String AquaDisplay::Format04D(unsigned short temp, bool longRecord, bool longRec
 			s_temp += m / 10;
 		}
 	} else {
-		if (m == 0) {
+		if (m < 10) {
 			s_temp += "0";
 		}
 		s_temp += m;

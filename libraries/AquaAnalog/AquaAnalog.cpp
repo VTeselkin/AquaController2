@@ -73,13 +73,16 @@ float AquaAnalog::CheckPhVoltage(byte canal) {
 			}
 		}
 
-		for (int i = 20; i < 40; i++) {
+		for (int i = 25; i < 35; i++) {
 			ph_sum += buffer_adc[canal][i];
 		}
 		for (int i = 0; i < 60; i++) {
+			if (canal == 0) {
+				Serial.print("[" + String(buffer_adc[canal][i]) + "]");
+			}
 			buffer_adc[canal][i] = 0;
 		}
-		float volt = (float) ph_sum * 3.3f / 4096.0 / 20;
+		float volt = (float) ph_sum * 3.3f / 4096.0 / 10;
 		return volt;
 	}
 	return 0;
@@ -110,13 +113,18 @@ float AquaAnalog::CheckPhVoltageSettings(byte canal) {
 		}
 	}
 
-	for (int i = 20; i < 40; i++) {
+	for (int i = 25; i < 35; i++) {
 		ph_sum += buffer_adc[canal][i];
 	}
+
 	for (int i = 0; i < 60; i++) {
 		buffer_adc[canal][i] = 0;
 	}
-	float volt = (float) ph_sum * 3.3f / 4096.0 / 20;
+	for (int i = 0; i < 2; i++) {
+		adc_index[i] = 0;
+	}
+
+	float volt = (float) ph_sum * 3.3f / 4096.0 / 10;
 	return volt;
 
 }
@@ -128,11 +136,20 @@ bool AquaAnalog::AddPhElementToStats() {
 		for (byte i = 0; i < MAX_TIMERS_PH; i++) {
 			float voltage = CheckPhVoltage(i);
 			if (voltage != 0) {
+
 				float x1 = Helper.data.PHCalibrationValue[2 * i] / 100.0f; //4.11f;
 				float x2 = Helper.data.PHCalibrationValue[2 * i + 1] / 100.0f; //6.86f;
 				float y1 = Helper.data.PHCalibrationVoltage[2 * i] / 100.0f; //3.15f;
 				float y2 = Helper.data.PHCalibrationVoltage[2 * i + 1] / 100.0f; //2.85f;
 				float PH_probe = (-(x2 - x1) * voltage - (x1 * y2 - x2 * y1)) / (y1 - y2);
+				if (i == 0) {
+					Serial.print("x1 = " + String(x1) + " ");
+					Serial.print("x2 = " + String(x2) + " ");
+					Serial.print("y1 = " + String(y1) + " ");
+					Serial.print("y2 = " + String(y2) + " ");
+					Serial.println("voltage = " + String(voltage) + " ");
+					Serial.println("PH_probe2 = " + String(PH_probe) + " ");
+				}
 				Helper.data.PHCurrent[i] = Helper.ConvertPHWordToByte(PH_probe * 100);
 				byte hour = Helper.GetHourNow();
 				Helper.data.PHStats[i][hour] = Helper.data.PHCurrent[i];
