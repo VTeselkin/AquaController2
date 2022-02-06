@@ -277,14 +277,15 @@ bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2) {
 }
 
 bool AquaTemp::AddTempElementToStats() {
-	if (millis() > lastTempStatetime + 20000) {
+
+	byte hour = Helper.GetHourNow();
+	if (hour > 23)
+		return false;
+	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
+		Helper.data.TempStats[j][hour] = Helper.data.TempSensor[j];
+	}
+	if (millis() > lastTempStatetime) {
 		lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
-		byte hour = Helper.GetHourNow();
-		if (hour > 23)
-			return false;
-		for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
-			Helper.data.TempStats[j][hour] = Helper.data.TempSensor[j];
-		}
 		return true;
 	}
 	return false;

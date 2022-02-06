@@ -248,7 +248,7 @@ uint16_t AquaEEPROM::LoadUTCSetting() {
 }
 
 void AquaEEPROM::OnFirstLunch() {
-	if (EEPROM.read(ADDR_FIRST_LAUNCH) != 3) {
+	if (EEPROM.read(ADDR_FIRST_LAUNCH) != PARAM_FIRST_LAUNCH) {
 		for (int i = 0; i < MAX_EEPROM; i++) {
 			EEPROM.write(i, 0);
 		}
@@ -264,7 +264,7 @@ void AquaEEPROM::OnFirstLunch() {
 		SavePHTimerToERROM();
 		SaveUTCSetting(3);
 		SaveFANSettings();
-		EEPROM.write(ADDR_FIRST_LAUNCH, 3);
+		EEPROM.write(ADDR_FIRST_LAUNCH, PARAM_FIRST_LAUNCH);
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();

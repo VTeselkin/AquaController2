@@ -455,7 +455,7 @@ typeResponse AquaDisplay::SetTimerDelay(bool inc) {
 	_isNeedSave = true;
 	switch (_currentPage) {
 	case 6:
-		ChangeData(Helper.data.TimerPWMDuration, SECONDS, TimerNumberLed, inc);
+		ChangeData(Helper.data.TimerPWMDuration, MINUTE_PWM, TimerNumberLed, inc);
 		myNex.writeStr("t12.txt", Format03D(Helper.data.TimerPWMDuration[TimerNumberLed]));
 		return PWMTIMER;
 	case 9:

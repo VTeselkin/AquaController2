@@ -58,6 +58,7 @@
 #define DAY 31
 #define MOUNTH 12
 #define SECONDS 255
+#define MINUTE_PWM 120
 #define SEC_IN_MIN 60
 #define SECOND_BY_DAY 86399
 #define MIN_BY_DAY 1440
@@ -115,11 +116,10 @@
 
 #define MAX_TIMERS_PH 2
 #define MAX_LEVEL_PH 17600 //https://microcontrollerslab.com/ads1115-external-adc-with-esp32/
-
 #define TONE_PIN 15
-
 #define BUZZER_CHANNEL 0
 
+#define PARAM_FIRST_LAUNCH 3
 /**
  * Addressing memory to store device states
  */
@@ -138,12 +138,12 @@ const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 
 
-const word FANSensorAddr = 454;
-const word FANTimerMinStartAddr = 452;
-const word FANTimerMaxEndAddr = 450;
 
-const word PWMTimerHourLevelAddr = 447;
-const word PWMTimerHourDurationAddr = 437;
+const word FANSensorAddr = 464;
+const word FANTimerMinStartAddr = 462;
+const word FANTimerMaxEndAddr = 460;
+const word PWMTimerHourDurationAddr = 447;
+const word PWMTimerHourLevelAddr = 437;
 const word PWMTimerHourStartAddr = 427;
 const word PWMTimerHourEndAddr = 417;
 const word PWMTimerMinStartAddr = 407;
@@ -285,7 +285,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 242;
+const int VERTION_FIRMWARE = 244;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;

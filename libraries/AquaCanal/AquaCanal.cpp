@@ -138,7 +138,7 @@ void AquaCanal::SetPWMOnCanal(bool isOn, byte timers) {
 	if (Helper.data.TimerPWMDuration[timers] == 0) {
 		Helper.data.TimerPWMDuration[timers] = 1;
 	}
-	float millisForOne = 1000.0 / (Helper.GetLevelPWM(timers) / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
+	float millisForOne = SEC_IN_MIN * 1000.0 / (Helper.GetLevelPWM(timers) / Helper.data.TimerPWMDuration[timers]); //millisForOne in millisecond
 	unsigned int countStep = (millis() - Helper.data.TimetoCheckPWMstate[timers]) / millisForOne;
 	if (countStep > 0) {
 		if (isOn) {
