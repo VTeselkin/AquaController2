@@ -39,7 +39,10 @@ public:
 	void SaveWifiSettings();
 	void SavePHTimerToERROM();
 	void LoadPHTimerToERROM();
-
+	void SaveTempStats(byte sensor, byte hour);
+	void LoadTempStats();
+	void SavePhStats(byte sensor, byte hour);
+	void LoadPhStats();
 	uint16_t SaveUTCSetting(uint16_t utc);
 	uint16_t LoadUTCSetting();
 	unsigned int EEPROM_readint(int address);

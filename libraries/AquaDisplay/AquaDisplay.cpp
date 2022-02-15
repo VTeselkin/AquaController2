@@ -22,6 +22,7 @@ void AquaDisplay::Init() {
 }
 
 void AquaDisplay::SetPage(byte page) {
+	if(_currentPage == page) return;
 	Helper.Tone();
 	Canal.SetLEDRx(LONG);
 	Serial.print("page " + String(page));

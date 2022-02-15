@@ -10,9 +10,10 @@ OneWire oneWire(TEMP_SENS);
 DallasTemperature ds(&oneWire);
 bool isTempCanalWarning = false;
 bool isWaitTemp = false;
-bool isUpdateTemp = false;
+
 byte sensorIndexWarning = 0;
 unsigned long lastTempStatetime = 0;
+unsigned long lastTempUpdatetime = 0;
 
 /**
  * Bus initialization for temperature sensors
@@ -38,12 +39,8 @@ void AquaTemp::Init(AquaEEPROM aquaEEPROM) {
 void AquaTemp::GetTemperature(void (*GetTempState)(typeResponse type)) {
 	bool isNeedSendTemp = false;
 	if (Helper.GetTimeNow().Second % FREQURENCY_SEND_TEMP != 0) {
-		isUpdateTemp = false;
 		return;
 	}
-	if (isUpdateTemp)
-		return;
-	isUpdateTemp = true;
 	ds.requestTemperatures();
 	for (byte var = 0; var < MAX_TEMP_SENSOR; var++) {
 		//We obtain the temperature index
@@ -276,16 +273,24 @@ bool CompareDeviceAddress(DeviceAddress &device1, DeviceAddress &device2) {
 	return true;
 }
 
-bool AquaTemp::AddTempElementToStats() {
+bool AquaTemp::AddTempElementToStats(AquaEEPROM eeprom) {
 
 	byte hour = Helper.GetHourNow();
 	if (hour > 23)
 		return false;
-	for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
-		Helper.data.TempStats[j][hour] = Helper.data.TempSensor[j];
-	}
-	if (millis() > lastTempStatetime) {
-		lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
+	if (millis() > lastTempUpdatetime) {
+		for (byte j = 0; j < MAX_TEMP_SENSOR; j++) {
+			Helper.data.TempStats[j][hour] = Helper.data.TempSensor[j];
+			if (millis() > lastTempStatetime) {
+				//add save to eeprom
+				eeprom.SaveTempStats(j, hour);
+			}
+		}
+		lastTempUpdatetime = millis() + DELAY_TEMP_UPDATE;
+
+		if (millis() > lastTempStatetime) {
+			lastTempStatetime = millis() + DELAY_TEMP_UPDATE_STATE;
+		}
 		return true;
 	}
 	return false;

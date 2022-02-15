@@ -31,7 +31,7 @@ byte GetTemperatereSensorIndexWarning();
 void SetDalasSensor(AquaEEPROM eeprom);
 void CheckStateWarningTemp( byte sensorIndex, bool isWarming);
 bool CheckStateTemp(byte sensorIndex, byte canalIndex);
-bool AddTempElementToStats();
+bool AddTempElementToStats(AquaEEPROM eeprom);
 byte ConvertTempWordToByte(unsigned short temp);
 word ConvertTempByteToWord(unsigned short temp);
 private:

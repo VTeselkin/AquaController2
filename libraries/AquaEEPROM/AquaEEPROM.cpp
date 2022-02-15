@@ -20,6 +20,8 @@ void AquaEEPROM::Init() {
 	LoadPHTimerToERROM();
 	LoadWiFiSettings();
 	LoadFANSettings();
+	LoadTempStats();
+	LoadPhStats();
 }
 
 void AquaEEPROM::SaveChanalState() {
@@ -237,6 +239,29 @@ void AquaEEPROM::SaveWifiSettings() {
 	EEPROM.commit();
 }
 
+void AquaEEPROM::SaveTempStats(byte sensor, byte hour) {
+	EEPROM.write(TempStatsAddr + 24 * sensor + hour, (byte) Helper.data.TempStats[sensor][hour]);
+	EEPROM.commit();
+}
+void AquaEEPROM::LoadTempStats() {
+	for (byte sensor = 0; sensor < MAX_TEMP_SENSOR; sensor++) {
+		for (byte hour = 0; hour < MAX_STATS; hour++) {
+			Helper.data.TempStats[sensor][hour] = EEPROM.read(TempStatsAddr + 24 * sensor + hour);
+		}
+	}
+}
+
+void AquaEEPROM::SavePhStats(byte sensor, byte hour) {
+	EEPROM_writeint(PHStatsAddr + 48 * sensor + 2 * hour, Helper.data.PHStats[sensor][hour]);
+	EEPROM.commit();
+}
+void AquaEEPROM::LoadPhStats() {
+	for (byte sensor = 0; sensor < MAX_TIMERS_PH; sensor++) {
+		for (byte hour = 0; hour < MAX_STATS; hour++) {
+			Helper.data.PHStats[sensor][hour] = EEPROM_readint(PHStatsAddr + 48 * sensor + 2 * hour);
+		}
+	}
+}
 uint16_t AquaEEPROM::SaveUTCSetting(uint16_t utc) {
 	EEPROM.write(UTC_ADDR, utc);
 	EEPROM.commit();
@@ -268,7 +293,6 @@ void AquaEEPROM::OnFirstLunch() {
 		EEPROM.commit();
 		SaveWifiSettings();
 		SaveTempTimerToERROM();
-
 	}
 }
 // read double word from EEPROM, give starting address

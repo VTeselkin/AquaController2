@@ -7,6 +7,7 @@
 #pragma once
 #include "Arduino.h"
 #include <AquaHelper.h>
+#include <AquaEEPROM.h>
 
 class AquaAnalog {
 public:
@@ -17,6 +18,6 @@ public:
 	void CheckWaterLevel(void (*GetChanalState)(bool, byte));
 	float CheckPhVoltage(byte canal);
 	float CheckPhVoltageSettings(byte canal);
-	bool AddPhElementToStats();
+	bool AddPhElementToStats(AquaEEPROM eeprom);
 private:
 };

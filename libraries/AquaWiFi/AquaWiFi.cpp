@@ -459,8 +459,7 @@ void AquaWiFi::UDPSendMessage(String message, bool isBroadcast) {
 		Udp.beginPacket(broadcastAddress, localUdpPort);
 	} else
 		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-	//String log = "[TX]" + message;
-	//funcChangeLog(log);
+
 	Udp.println(message);
 	Udp.endPacket();
 	ChandeDebugLED(TXLED, SHORT);

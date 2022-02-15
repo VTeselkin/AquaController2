@@ -103,9 +103,9 @@
 #define MAX_BUFFER 4000
 #define DELAY_UPDATE_DEVICE 1000
 #define DELAY_MESSAGE_UPDATE 60000
-#define DELAY_TEMP_UPDATE 55000
+#define DELAY_TEMP_UPDATE 15000
 #define DELAY_TEMP_UPDATE_STATE 3600000
-#define DELAY_PH_UPDATE 200
+#define DELAY_PH_UPDATE 2000
 #define DELAY_TIME_UPDATE 10000
 #define DELAY_PH_UPDATE_STATE 3600000
 #define DELAY_DEVICE_INFO_UPDATE 12000
@@ -119,11 +119,11 @@
 #define TONE_PIN 15
 #define BUZZER_CHANNEL 0
 
-#define PARAM_FIRST_LAUNCH 3
+#define PARAM_FIRST_LAUNCH 0
 /**
  * Addressing memory to store device states
  */
-const byte ADDR_FIRST_LAUNCH = 1;
+const byte ADDR_FIRST_LAUNCH = 2;
 
 const byte ChanalsStateAddr = 20;
 const word AUTO_UPDATE_ADDR = 1004;
@@ -137,11 +137,14 @@ const word LCD_SOUND_ADDR = 990;
 const word LCD_I2C_ADDR = 988;
 const word addrTempSensor = 980;
 
-
+//next addr 658
+const word PHStatsAddr = 562;
+const word TempStatsAddr = 466;
 
 const word FANSensorAddr = 464;
 const word FANTimerMinStartAddr = 462;
 const word FANTimerMaxEndAddr = 460;
+
 const word PWMTimerHourDurationAddr = 447;
 const word PWMTimerHourLevelAddr = 437;
 const word PWMTimerHourStartAddr = 427;
@@ -285,7 +288,7 @@ const String PATH_FIRMWARE = "/bin/";
 const String PATH_SPIFFS = "/spiffs/";
 
 
-const int VERTION_FIRMWARE = 244;
+const int VERTION_FIRMWARE = 257;
 
 // The lowest possible setting is the PH
 const word MIN_PH = 400;
@@ -380,7 +383,7 @@ typedef struct {
 	byte TempTimerMaxEnd[MAX_TEMP_SENSOR] = { MAX_INDEX_TEMP, MAX_INDEX_TEMP, MAX_INDEX_TEMP, MAX_INDEX_TEMP };
 	byte TempSensor[MAX_TEMP_SENSOR] = { 0, 0, 0, 0 };
 	byte TempTimerChanal[MAX_TEMP_SENSOR] = { 0, 0, 0, 0 };
-	uint16_t TempStats[MAX_TEMP_SENSOR][MAX_STATS] = { };
+	byte TempStats[MAX_TEMP_SENSOR][MAX_STATS] = { };
 
 	// Enabled channels for relays
 	const byte nRelayDrive[MAX_CHANALS] = { 18, 19, 4, 13, 23, 25, 26, 33 };
