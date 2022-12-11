@@ -16,6 +16,7 @@ void AquaCanal::Init() {
 
 
 	pwm.setupSingleDevice(Wire, 0x40);
+	pwm.setToFrequency(1600);
 	for (byte i = 0; i < MAX_CHANALS; i++) {
 		pinMode(Helper.data.nRelayDrive[i], OUTPUT);
 		digitalWrite(Helper.data.nRelayDrive[i], LOW);
